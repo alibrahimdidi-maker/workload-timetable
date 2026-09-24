@@ -1678,6 +1678,11 @@ const firebaseConfig = {
 
     const FACULTIES = ["KED", "KSL", "KEMS", "KIRK", "KAL", "KQS", "FET", "FIT", "FAH", "FHTS", "SN", "SM", "CHS", "CPS", "CCE", "FMC", "FAG", "FLS", "SOL", "SOD"];
 
+    // Hardcoded full-control admin(s) - guaranteed ALL/global-admin access regardless of the
+    // faculty-code email-pattern matching below, and unaffected by any future change to that
+    // pattern (e.g. a new faculty code that happens to match part of this address).
+    const ADMIN_EMAILS = ['alibrahimdidi@gmail.com'];
+
     window.globalLecturerOptions = [];
     window.globalLecturerOptgroups = [];
 
@@ -1747,6 +1752,8 @@ const firebaseConfig = {
     // meant the LECTURER role, so 'exam'/'examinations' and 'student' follow the same pattern for
     // the two new roles (Exam Unit staff, and the Student portal).
     const validateRoleEmail = (role, email) => {
+        const normalizedEmail = (email || '').toLowerCase().trim();
+        if (ADMIN_EMAILS.includes(normalizedEmail)) return role === 'ALL';
         const prefix = getNormalizedPrefix(email);
         if (role === 'ALL') {
             for (const f of FACULTIES) {
@@ -1767,6 +1774,7 @@ const firebaseConfig = {
 
     const getRoleFromEmail = (email) => {
         if (!email || !email.includes('@')) return 'ALL';
+        if (ADMIN_EMAILS.includes(email.toLowerCase().trim())) return 'ALL';
         const prefix = getNormalizedPrefix(email);
         if (prefix.includes('lecturer')) return 'LECTURER';
         if (prefix.includes('exam')) return 'EXAM';
