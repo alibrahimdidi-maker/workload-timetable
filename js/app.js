@@ -151,7 +151,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
         if(charts.minfoPie) charts.minfoPie.destroy();
         charts.minfoPie = new Chart(document.getElementById('m-info-pie'), {
             type: 'pie',
-            data: { labels: ['F2F', 'Online', 'Blended'], datasets: [{ data: [modeCounts["Face to Face"], modeCounts["Online"], modeCounts["Blended"]], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'] }] },
+            data: { labels: ['F2F', 'Online', 'Blended'], datasets: [{ data: [modeCounts["Face to Face"], modeCounts["Online"], modeCounts["Blended"]], backgroundColor: ['#3b82f6', '#10b981', '#a855f7'] }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
         });
 
@@ -1164,33 +1164,48 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
     };
 
     window.triggerAllRenders = () => {
-        window.renderMatrix(); 
-        window.renderStaffTargets(); 
-        window.updateAnalytics(); 
+        // Render only what's actually visible right now, immediately - the header stats (always
+        // visible) and whichever single tab/dashboard the person is looking at. Everything else
+        // is hidden (display:none) until they switch to it, so rendering it now would only block
+        // the page from feeling ready without the person seeing any of that work.
+        window.updateAnalytics();
         window.populateDynamicFilters();
-        window.renderLectDataTab(); 
-        window.renderModDataTab();
-        window.renderStudentsTab();
-        window.populateTimetableDropdowns();
-        window.renderTimetableModules();
-        window.renderTimetableGrid();
-        window.renderExamTimetableModules();
-        window.renderExamTimetableGrid();
-        window.renderExamTable();
-        window.renderLecturerWorkspace();
-        window.renderRequestsList();
-        window.renderEventsTab();
-        window.renderWeeklyReports();
-        window.renderCoordinationTab();
-        window.renderTasksTab();
-        
-        ['btn-add-lect', 'btn-add-mod', 'btn-add-stu'].forEach(id => {
-            let el = document.getElementById(id);
-            if(el) {
-                if (activeRole === 'STUDENT' || activeRole === 'EXAM') { el.style.display = 'none'; }
-                else { el.style.display = 'inline-block'; el.disabled = false; el.style.opacity = 1; }
-            }
-        });
+        if (activeRole === 'LECTURER') {
+            window.renderLecturerWorkspace();
+        } else if (activeRole !== 'STUDENT') {
+            const activeTabContent = document.querySelector('.tab-content.active');
+            const activeTabId = activeTabContent ? activeTabContent.id.replace('tab-', '') : null;
+            if (activeTabId) window.switchTab(activeTabId);
+        }
+
+        // Everything else catches up right after, off the critical path.
+        setTimeout(() => {
+            window.renderMatrix(); 
+            window.renderStaffTargets(); 
+            window.renderLectDataTab(); 
+            window.renderModDataTab();
+            window.renderStudentsTab();
+            window.populateTimetableDropdowns();
+            window.renderTimetableModules();
+            window.renderTimetableGrid();
+            window.renderExamTimetableModules();
+            window.renderExamTimetableGrid();
+            window.renderExamTable();
+            window.renderLecturerWorkspace();
+            window.renderRequestsList();
+            window.renderEventsTab();
+            window.renderWeeklyReports();
+            window.renderCoordinationTab();
+            window.renderTasksTab();
+
+            ['btn-add-lect', 'btn-add-mod', 'btn-add-stu'].forEach(id => {
+                let el = document.getElementById(id);
+                if(el) {
+                    if (activeRole === 'STUDENT' || activeRole === 'EXAM') { el.style.display = 'none'; }
+                    else { el.style.display = 'inline-block'; el.disabled = false; el.style.opacity = 1; }
+                }
+            });
+        }, 0);
     };
 
     if (auth) {
@@ -2210,7 +2225,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
                             { label: 'Attended', backgroundColor: '#22c55e', data: FACULTIES.map(f => stats[f].attended) },
                             { label: 'Absent/No RSVP', backgroundColor: '#ef4444', data: FACULTIES.map(f => stats[f].absent) },
                             { label: 'Excused', backgroundColor: '#9ca3af', data: FACULTIES.map(f => stats[f].excused) },
-                            { label: 'Sick Leave', backgroundColor: '#bef264', data: FACULTIES.map(f => stats[f].sick) }
+                            { label: 'Sick Leave', backgroundColor: '#a855f7', data: FACULTIES.map(f => stats[f].sick) }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
@@ -2226,7 +2241,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
                     type: 'pie',
                     data: {
                         labels: ['Attended', 'Absent/No RSVP', 'Excused', 'Sick Leave'],
-                        datasets: [{ data: [tAtt, tAbs, tExc, tSick], backgroundColor: ['#22c55e', '#ef4444', '#9ca3af', '#bef264'] }]
+                        datasets: [{ data: [tAtt, tAbs, tExc, tSick], backgroundColor: ['#22c55e', '#ef4444', '#9ca3af', '#a855f7'] }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
@@ -2325,9 +2340,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 
                 if(matchSearch && matchFac) {
                     const tick = (val) => val ? '✅' : '❌';
-                    html += `<tr class="hover:bg-teal-50 border-b border-gray-100">
+                    html += `<tr class="hover:bg-green-50 border-b border-gray-100">
                         <td class="p-3 font-bold text-gray-800">${lName} <br> <span class="text-[8px] text-gray-500">${r.fac}</span></td>
-                        <td class="p-3 text-teal-800 font-black">${r.modCode}</td>
+                        <td class="p-3 text-green-800 font-black">${r.modCode}</td>
                         <td class="p-3 text-center font-bold text-gray-700">${r.date}</td>
                         <td class="p-3 text-center text-green-600 font-black">${r.hrsTaken}</td>
                         <td class="p-3 text-center text-red-600 font-black">${r.hrsCan}</td>
@@ -2646,7 +2661,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
                     type: 'doughnut',
                     data: {
                         labels: ['Pending', 'In Progress', 'Completed'],
-                        datasets: [{ data: [sPend, sProg, sComp], backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'], borderWidth: 0 }]
+                        datasets: [{ data: [sPend, sProg, sComp], backgroundColor: ['#ef4444', '#a855f7', '#22c55e'], borderWidth: 0 }]
                     },
                     options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } }
                 });
@@ -3105,7 +3120,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
                     if(labels.length > 0) {
                         charts[chartVarName] = new Chart(ctx, {
                             type: 'bar',
-                            data: { labels: labels, datasets: [{ label: '% Tasks Completed', data: data, backgroundColor: '#6366f1' }] },
+                            data: { labels: labels, datasets: [{ label: '% Tasks Completed', data: data, backgroundColor: '#1976d2' }] },
                             options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100 } }, plugins:{legend:{display:false}} }
                         });
                     }
@@ -3123,7 +3138,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
                 const isComp = localDB.settings.completed_tts.includes(`CLASS_${p}`);
                 if(isComp) {
                     ttComp++;
-                    listHtml += `<div class="flex justify-between items-center bg-teal-50 p-1 border-b border-teal-100 text-[10px]"><span>${p}</span> <span class="text-green-600 font-bold">✅ Published</span></div>`;
+                    listHtml += `<div class="flex justify-between items-center bg-green-50 p-1 border-b border-green-100 text-[10px]"><span>${p}</span> <span class="text-green-600 font-bold">✅ Published</span></div>`;
                 } else {
                     ttPend++;
                     listHtml += `<div class="flex justify-between items-center bg-gray-50 p-1 border-b border-gray-100 text-[10px]"><span>${p}</span> <span class="text-gray-500">⏳ Draft</span></div>`;
@@ -3138,7 +3153,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
             if(ctxTT && (ttComp>0 || ttPend>0)) {
                 charts.ttPie = new Chart(ctxTT, {
                     type: 'pie',
-                    data: { labels: ['Published', 'Drafts Pending'], datasets: [{ data: [ttComp, ttPend], backgroundColor: ['#14b8a6', '#cbd5e1'], borderWidth: 0 }] },
+                    data: { labels: ['Published', 'Drafts Pending'], datasets: [{ data: [ttComp, ttPend], backgroundColor: ['#00695c', '#cbd5e1'], borderWidth: 0 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels:{font:{size:9}, boxWidth:10} } } }
                 });
             }
@@ -3159,7 +3174,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
                 if(labels.length>0) {
                     charts.coordBar = new Chart(ctxCoordBar, {
                         type: 'bar',
-                        data: { labels: labels, datasets: [{ label: 'Assigned Coordinators', data: data, backgroundColor: '#db2777' }] },
+                        data: { labels: labels, datasets: [{ label: 'Assigned Coordinators', data: data, backgroundColor: '#4a148c' }] },
                         options: { responsive: true, maintainAspectRatio: false, scales: {y:{beginAtZero:true, ticks:{stepSize:1}}}, plugins:{legend:{display:false}} }
                     });
                 }
