@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="dv" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presidential Executive Workload & Timetable Portal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault()); 
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12') e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) e.preventDefault();
+            if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p')) e.preventDefault();
+        });
+        document.addEventListener('dragstart', e => { if(!e.target.classList.contains('draggable-mod')) e.preventDefault(); }); 
+        
+        window.addEventListener('beforeunload', (e) => {
+            if(window.pendingSync) {
+                e.preventDefault();
+                e.returnValue = "You have unsaved changes syncing to the cloud. Are you sure you want to leave?";
+            }
+        });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600;800&display=swap');
+        
+        :root { 
+            --royal-green: #004d40; 
+            --gold: #d4af37; 
+            --royal-blue: #0d47a1; 
+            --royal-purple: #4a148c; 
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
+        }
+        
+        body { 
+            background: var(--bg-light); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            overflow-x: hidden;
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none; 
+        }
+        
+        input, textarea, select, .ts-control, .ts-dropdown {
+            -webkit-user-select: auto; 
+            -moz-user-select: auto; 
+            -ms-user-select: auto; 
+            user-select: auto;
+        }
+
+        .clickable-name { cursor: pointer; transition: all 0.3s ease; position: relative; display: inline-block; }
+        .clickable-name:hover { color: var(--royal-blue); text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 4px; transform: scale(1.02); background-color: #f0f9ff; padding: 0 4px; border-radius: 4px; }
+
+        .bg-gradient-royal { background: linear-gradient(135deg, var(--royal-green), var(--royal-blue), var(--royal-purple)); }
+        
+        .btn-gold { background: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728); color: black; font-weight: 800; border: 1px solid rgba(0,0,0,0.1); transition: all 0.3s ease; cursor: pointer; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        .btn-royal-blue { background: linear-gradient(135deg, #0d47a1, #1976d2); color: white; box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3); transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-royal-blue:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(13, 71, 161, 0.5); background: linear-gradient(135deg, #1565c0, #1e88e5); animation: royalShimmerBlue 1.5s infinite alternate; }
+
+        .btn-royal-green { background: linear-gradient(135deg, #004d40, #00695c); color: white; box-shadow: 0 4px 15px rgba(0, 77, 64, 0.3); transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-royal-green:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 77, 64, 0.5); background: linear-gradient(135deg, #00695c, #00796b); animation: royalShimmerGreen 1.5s infinite alternate; }
+
+        /* އައު ޑިޒައިން: ގަދަ ފެހި އަދި ގަދަ ނޫ މިކްސް، ރަތް ފޮންޓް */
+        .btn-mix-huru { 
+            background: linear-gradient(45deg, #004d00, #000080) !important; 
+            color: #ff0000 !important; 
+            font-weight: 900 !important; 
+            border: 2px solid #d4af37 !important; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
+            transition: 0.3s; 
+            cursor: pointer; 
+        }
+        .btn-mix-huru:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 5px 20px rgba(255,0,0,0.4); 
+        }
+
+        /* އައު ޑިޒައިން: ޝާހީ ރަން ކުލައިގެ ފޮންޓް (ވައިޓްގެ ބަދަލުގައި) */
+        .text-royal-gold { color: #d4af37 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+
+        @keyframes royalShimmerBlue { 0% { filter: drop-shadow(0 0 2px rgba(25, 118, 210, 0.5)); } 100% { filter: drop-shadow(0 0 10px rgba(25, 118, 210, 0.9)); } }
+        @keyframes royalShimmerGreen { 0% { filter: drop-shadow(0 0 2px rgba(0, 105, 92, 0.5)); } 100% { filter: drop-shadow(0 0 10px rgba(0, 105, 92, 0.9)); } }
+        
+        .card { background: white; border-radius: 12px; border-top: 5px solid var(--royal-green); box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        
+        /* ROYAL ANIMATED CARDS CSS */
+        .royal-spin-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #fff;
+            padding: 3px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+        }
+        .royal-spin-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+            z-index: 50;
+        }
+        .royal-spin-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, rgba(212, 175, 55, 0.9), var(--royal-blue), transparent 30%);
+            animation: rotate 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .royal-spin-card:hover::before { opacity: 1; }
+        .royal-spin-inner {
+            position: relative;
+            background: linear-gradient(145deg, #0d47a1, #1e3a8a);
+            border-radius: 14px;
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+            padding: 1.25rem;
+            color: #d4af37; /* Changed to royal gold */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+        .tab-btn { padding: 12px 16px; font-weight: 800; cursor: pointer; border-bottom: 4px solid transparent; color: #64748b; transition: 0.3s; white-space: nowrap; }
+        .tab-btn.active { border-bottom: 4px solid var(--royal-green); color: var(--royal-green); background-color: #f1f5f9; border-radius: 8px 8px 0 0; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; } 
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; padding: 10px; }
+        .modal-content { background: white; width: 100%; max-width: 1100px; max-height: 95vh; overflow-y: auto; border-radius: 15px; border-top: 8px solid var(--royal-green); }
+        
+        /* Exam Tracking Toggles */
+        .exam-toggle-btn { transition: all 0.2s; }
+        .exam-toggle-btn.active { background-color: #10b981; color: white; border-color: #059669; }
+        .exam-toggle-btn.pending { background-color: #f3f4f6; color: #9ca3af; border-color: #d1d5db; }
+        .exam-toggle-btn:hover { transform: scale(1.05); }
+
+        .pt-badge { background-color: var(--gold); color: black; box-shadow: 0 2px 4px rgba(212, 175, 55, 0.4); }
+
+        #report-frame { display: none; width: 210mm; min-height: 297mm; background: white; position: fixed; left: -9999px; box-sizing: border-box; padding: 0; }
+        .pdf-border-outer { border: 10px solid var(--royal-green); padding: 4px; box-sizing: border-box; height: 100%; width: 100%; background: white; }
+        .pdf-border-inner { border: 4px solid var(--royal-blue); padding: 15mm; box-sizing: border-box; height: 100%; width: 100%; background: white; }
+        
+        #master-print-frame { display: none; background: white; width: 100%; min-height: 100vh; position: absolute; top: 0; left: 0; z-index: 99999; padding: 20mm; box-sizing: border-box; }
+        .print-royal-header { text-align: center; border-bottom: 4px double var(--royal-green); padding-bottom: 15px; margin-bottom: 20px; }
+        .print-royal-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--royal-green); text-transform: uppercase; letter-spacing: 2px; }
+        .print-royal-subtitle { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; color: var(--royal-blue); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        .print-filter-badge { display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #334155; margin: 2px; }
+        .print-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .print-table th, .print-table td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
+        .print-table th { background-color: #f8fafc; font-weight: bold; color: var(--royal-green); text-transform: uppercase; font-size: 9px; }
+        .print-table tr:nth-child(even) { background-color: #f8fafc; }
+
+        #loader { display: flex; position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 999999; flex-direction: column; align-items: center; justify-content: center; }
+        .pulse-green { height: 10px; width: 10px; background-color: #4ade80; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); } 70% { box-shadow: 0 0 0 6px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+        .pulse-orange { height: 10px; width: 10px; background-color: #f97316; border-radius: 50%; display: inline-block; animation: pulseOr 2s infinite; }
+        @keyframes pulseOr { 0% { box-shadow: 0 0 0 0 rgba(249,115,22,0.7); } 70% { box-shadow: 0 0 0 6px rgba(249,115,22,0); } 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); } }
+
+        .ts-control { border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.75rem; background-color: white; }
+        .tom-select-assign .ts-control { padding: 0.25rem; font-size: 9px; min-height: 28px; }
+        .ts-dropdown { font-size: 10px; border-radius: 0.5rem; overflow: hidden; z-index: 9999; }
+        .ts-wrapper.disabled .ts-control { background-color: #f3f4f6; opacity: 0.7; cursor: not-allowed; }
+
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: #1e293b; color: #fff; padding: 14px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideIn 0.3s ease-out forwards; display: flex; align-items: center; gap: 10px; min-width: 250px; pointer-events: auto; }
+        .toast.success { border-left: 5px solid #4ade80; }
+        .toast.warning { border-left: 5px solid #f97316; }
+        .toast.info { border-left: 5px solid #3b82f6; }
+        .toast.error { border-left: 5px solid #ef4444; }
+        
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
+
+        /* --- TIMETABLE EXCEL GRID STYLES --- */
+        .tt-grid-wrapper { display: flex; flex-direction: column; width: 100%; border: 2px solid #0f172a; background: white; overflow: auto; max-height: 65vh; position: relative; }
+        .tt-row { display: flex; min-width: max-content; border-bottom: 1px solid #cbd5e1; }
+        .tt-header-row { position: sticky; top: 0; z-index: 20; background: var(--royal-purple); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .tt-cell { flex: 0 0 120px; border-right: 1px solid #cbd5e1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60px; padding: 4px; background: white; position: relative; transition: 0.2s; }
+        .tt-header-cell { flex: 0 0 120px; border-right: 1px solid #6b21a8; display: flex; flex-direction: column; text-align: center; color: white; position: relative;}
+        .tt-time-top { font-weight: 900; font-size: 12px; padding: 4px; border-bottom: 1px solid #6b21a8; background: #581c87; }
+        .tt-time-bot { font-weight: 600; font-size: 10px; padding: 2px; color: #d8b4fe; background: #4c1d95; }
+        .tt-col-del { position: absolute; top: 2px; right: 2px; color: #fca5a5; font-size: 10px; cursor: pointer; display: none;}
+        .tt-header-cell:hover .tt-col-del { display: block; }
+        
+        .tt-cell-course { flex: 0 0 180px; background: var(--bg-light); position: sticky; left: 100px; z-index: 10; border-right: 3px solid #0f172a; font-weight: 900; font-size: 11px; text-transform: uppercase; color: var(--royal-green); justify-content: center; align-items: flex-start; padding-left: 10px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .tt-header-course { flex: 0 0 180px; background: #0f172a; color: #d4af37; position: sticky; left: 100px; z-index: 30; border-right: 3px solid #0f172a; justify-content: center; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* އައު ވެނިއު ކޮލަމް */
+        .tt-cell-venue { flex: 0 0 100px; background: #e2e8f0; position: sticky; left: 0; z-index: 15; border-right: 1px solid #cbd5e1; font-weight: bold; font-size: 10px; text-transform: uppercase; color: #1e293b; display: flex; justify-content: center; align-items: center; padding: 4px; border-bottom: 1px solid #cbd5e1; outline: none; transition: 0.3s;}
+        .tt-cell-venue:focus { background: #fff; border: 2px solid var(--gold); }
+        .tt-header-venue { flex: 0 0 100px; background: #1e293b; color: #fff; position: sticky; left: 0; z-index: 35; border-right: 1px solid #0f172a; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+        
+        .tt-cell.drag-over { background-color: #dbeafe; border: 2px dashed var(--royal-blue); }
+        .tt-cell.occupied { background-color: #f1f5f9; }
+        
+        .draggable-mod { background: white; border: 1px solid #94a3b8; border-left: 4px solid var(--royal-blue); padding: 8px; border-radius: 6px; font-size: 10px; cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-bottom: 6px; }
+        .draggable-mod:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); transform: translateY(-1px); border-color: var(--royal-blue); }
+        .draggable-mod:active { cursor: grabbing; opacity: 0.8; }
+        
+        .assigned-block { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border: 1px solid #818cf8; border-radius: 6px; padding: 4px; font-size: 9px; width: 100%; height: 100%; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; }
+        .assigned-block .del-btn { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; font-weight: bold; text-align: center; line-height: 14px; cursor: pointer; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 5;}
+        .assigned-block:hover .del-btn { display: block; }
+        .assigned-block strong { color: var(--royal-blue); font-size: 10px; }
+
+        /* Star Rating */
+        .star-rating { color: #d1d5db; font-size: 24px; letter-spacing: 2px; }
+        .star-rating.s1 { background: linear-gradient(90deg, #d4af37 20%, #d1d5db 20%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .star-rating.s2 { background: linear-gradient(90deg, #d4af37 40%, #d1d5db 40%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .star-rating.s3 { background: linear-gradient(90deg, #d4af37 60%, #d1d5db 60%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .star-rating.s4 { background: linear-gradient(90deg, #d4af37 80%, #d1d5db 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .star-rating.s5 { background: linear-gradient(90deg, #d4af37 100%, #d1d5db 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .royal-sheet-print { border: 4px double #d4af37; padding: 20px; background: #fffdf7; }
+
+        @media print {
+            body.is-printing > :not(#report-frame) { display: none !important; }
+            body.is-printing { background: white; }
+            #report-frame { display: block !important; position: relative !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; }
+            
+            body.is-printing-master > :not(#master-print-frame) { display: none !important; }
+            body.is-printing-master { background: white; }
+            #master-print-frame { display: block !important; }
+            #master-print-frame table { page-break-inside: auto; }
+            #master-print-frame tr { page-break-inside: avoid; page-break-after: auto; }
+            #master-print-frame thead { display: table-header-group; }
+            
+            .pdf-border-outer { border: 2px solid black !important; padding: 10px !important; }
+            .pdf-border-inner { border: 1px solid black !important; padding: 20px !important; }
+            .modal-overlay { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div id="loader" style="display: flex;">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-royal-green mb-4"></div>
+    <p class="font-bold text-royal-green uppercase tracking-widest text-sm text-center px-4" id="loader-text">Initializing System...</p>
+</div>
+
+<div id="login-screen" class="min-h-screen bg-gradient-royal flex flex-col items-center justify-center p-4 relative" style="display: none;">
+    <div class="absolute bottom-4 text-center opacity-50 hover:opacity-100 transition-opacity cursor-default z-10">
+        <p class="text-[9px] font-bold uppercase tracking-widest text-gold mb-0.5">Designed & Developed by</p>
+        <p class="text-xs font-black tracking-wider text-white mb-1">Ali Ibrahim Didi <span class="text-gray-300 font-bold text-[10px] tracking-normal">| +960 7791550</span></p>
+        <p class="text-[8px] font-bold text-gray-400 tracking-widest uppercase">Copyright © RASFAHI<br>Reg No: MED.03.IP.CR.26.EW5889</p>
+    </div>
+    
+    <div class="bg-white p-6 md:p-10 rounded-2xl shadow-2xl w-full max-w-md text-center border-t-8 border-gold">
+        <h1 class="text-2xl md:text-3xl font-black text-[#004d40] uppercase tracking-tighter mb-2">Workload Portal</h1>
+        <p class="text-[10px] md:text-xs text-gray-500 font-bold mb-8 uppercase tracking-widest">Authorized Access Only</p>
+        
+        <div class="space-y-4 text-left">
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Role (Auto-Detected)</label>
+                <select id="login-role" disabled class="w-full p-3 border-2 border-gray-200 bg-gray-50 rounded-lg font-bold text-sm outline-none text-gray-600 cursor-not-allowed"></select>
+                <p class="text-[8px] text-gray-400 mt-1">Role auto-selected based on email (admin, exam, lecturer, or student).</p>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Email Address</label>
+                <input type="email" id="login-email" class="w-full p-3 border-2 border-gray-200 rounded-lg font-bold text-sm outline-none focus:border-gold" placeholder="admin.ksl@domain.com" oninput="window.detectFacultyFromEmail()">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Password</label>
+                <input type="password" id="login-password" class="w-full p-3 border-2 border-gray-200 rounded-lg font-bold text-sm outline-none focus:border-gold" placeholder="••••••••">
+            </div>
+            <button onclick="window.handleLogin()" class="btn-mix-huru w-full py-4 rounded-xl mt-4 uppercase tracking-widest text-sm shadow-lg">Secure Login</button>
+        </div>
+    </div>
+</div>
+
+<div id="app-screen" style="display: none;">
+    <header class="bg-gradient-royal p-4 md:p-8 text-white text-center shadow-lg relative">
+        <div class="hidden md:block absolute top-4 left-6 text-left opacity-60 hover:opacity-100 transition-opacity cursor-default z-20">
+            <p class="text-[9px] font-bold uppercase tracking-widest text-gold mb-0.5">Designed & Developed by</p>
+            <p class="text-xs font-black tracking-wider text-white mb-1">Ali Ibrahim Didi <span class="text-gray-300 font-bold text-[10px] tracking-normal">| +960 7791550</span></p>
+            <div class="bg-black/30 inline-block px-2 py-0.5 rounded border border-white/10">
+                <p class="text-[8px] font-bold text-gray-300 tracking-widest uppercase">© RASFAHI (Reg No: MED.03.IP.CR.26.EW5889)</p>
+            </div>
+        </div>
+        <div class="absolute top-4 right-4 md:top-6 md:right-8 flex flex-col items-end gap-2 z-10">
+            <div id="sync-status" class="bg-white/20 px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2 transition-all">
+                <span id="cloud-pulse" class="pulse-green"></span> 
+                <span id="cloud-txt">Connected</span> | 👤 <span id="user-badge" class="text-gold uppercase"></span>
+            </div>
+            <button onclick="window.handleLogout()" class="text-[10px] uppercase font-bold text-red-300 hover:text-white transition">Logout &rarr;</button>
+        </div>
+
+        <h1 class="text-xl md:text-4xl font-black uppercase tracking-tighter mb-4 mt-12 md:mt-0">Executive Workload & Analytics</h1>
+        
+        <div id="header-stats" class="flex justify-center gap-2 md:gap-4 flex-wrap max-w-4xl mx-auto">
+            <div class="bg-red-600/90 px-3 py-2 md:px-4 md:py-2 rounded-xl shadow-inner flex items-center gap-2">
+                <span class="text-lg md:text-2xl">⚠️</span>
+                <div class="text-left"><p class="text-[8px] md:text-[9px] uppercase font-bold text-red-200">Unassigned</p><h3 id="hdr-unassigned" class="text-base md:text-xl font-black">0</h3></div>
+            </div>
+            <div class="bg-orange-500/90 px-3 py-2 md:px-4 md:py-2 rounded-xl shadow-inner flex items-center gap-2">
+                <span class="text-lg md:text-2xl">⏳</span>
+                <div class="text-left"><p class="text-[8px] md:text-[9px] uppercase font-bold text-orange-200">Idle Staff</p><h3 id="hdr-idle" class="text-base md:text-xl font-black">0</h3></div>
+            </div>
+            <div class="bg-purple-600/90 px-3 py-2 md:px-4 md:py-2 rounded-xl shadow-inner flex items-center gap-2">
+                <span class="text-lg md:text-2xl">📈</span>
+                <div class="text-left"><p class="text-[8px] md:text-[9px] uppercase font-bold text-purple-200">Overloaded</p><h3 id="hdr-overload" class="text-base md:text-xl font-black">0</h3></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-2 md:px-4 py-6 md:py-8">
+        
+        <div id="lecturer-dashboard" class="hidden card overflow-hidden shadow-xl mb-8 border-t-8 border-royal-blue">
+            <div class="bg-blue-50 p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-blue-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-royal-blue rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-inner">👨‍🏫</div>
+                    <div>
+                        <h2 class="text-xl font-black text-royal-blue uppercase">Personal Workspace</h2>
+                        <p class="text-xs text-gray-600 font-bold" id="lecturer-workspace-name">Select Profile Below</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 w-full md:w-auto">
+                    <select id="lecturerSelectStandalone" class="w-full text-sm md:text-base cursor-pointer p-2 border rounded outline-none focus:border-royal-blue shadow-sm">
+                        <option value="">-- Verify & Select Your Identity --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="lect-reminder-banner" class="hidden bg-red-100 text-red-800 p-3 text-center text-xs font-bold border-b border-red-200 shadow-sm transition">
+                <div class="flex items-center justify-center gap-2">
+                    <span class="text-lg animate-bounce">⚠️</span>
+                    <span>މުހިންމު ހަނދާންކޮށްދިނުމެއް: ބައެއް މަސައްކަތްތަކުގެ ސުންގަޑި ފަހަނައަޅައި ގޮސްފައިވާތީ، ވީހާވެސް އަވަހަކަށް ނިންމަވައިދެއްވުން އެދެމެވެ. (Gentle Reminder: You have overdue tasks. Prompt action is kindly requested.)</span>
+                </div>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 bg-white">
+                <div class="space-y-4">
+                    <button onclick="window.viewPersonalTimetable('lecturer')" class="btn-mix-huru w-full py-4 rounded-xl font-black uppercase text-xs shadow-md flex justify-center items-center gap-2">
+                        🗓️ Print My Timetable
+                    </button>
+                    <button onclick="window.viewPersonalExamTimetable('lecturer')" class="btn-mix-huru w-full py-4 rounded-xl font-black uppercase text-xs shadow-md flex justify-center items-center gap-2">
+                        📝 Print Exam Timetable
+                    </button>
+                    <button onclick="window.openRequestModal()" class="w-full py-4 rounded-xl font-black uppercase text-xs shadow-md bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 transition flex justify-center items-center gap-2">
+                        📩 Submit General Request
+                    </button>
+                    <button onclick="window.openWeeklyModal()" class="w-full py-4 rounded-xl font-black uppercase text-xs shadow-md bg-purple-50 border-2 border-purple-200 text-purple-800 hover:bg-purple-100 transition flex justify-center items-center gap-2" id="btn-submit-weekly" style="display:none;">
+                        📝 Submit Weekly Report
+                    </button>
+                    
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 border-b pb-1">Performance Rating</h3>
+                        <div class="flex items-center justify-between">
+                            <div id="lecturer-stars" class="star-rating s0">★★★★★</div>
+                            <h4 class="text-lg font-black text-gold" id="lecturer-points">0 PTS</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <h3 class="text-xs font-black text-royal-green uppercase mb-3 border-b border-gray-300 pb-2 flex justify-between">
+                                <span>Pending Tasks</span>
+                                <span class="text-[9px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full" id="lect-pending-count">0</span>
+                            </h3>
+                            <div id="lecturer-tasks-pending" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                            <h3 class="text-xs font-black text-royal-blue uppercase mb-3 border-b border-blue-300 pb-2">My Progress Overview</h3>
+                            <div class="h-48"><canvas id="lect-own-chart"></canvas></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                        <h3 class="text-xs font-black text-purple-800 uppercase mb-3 border-b border-purple-300 pb-2">Pending Event Invitations</h3>
+                        <div id="lecturer-events-pending" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="student-dashboard" class="hidden card p-8 md:p-12 text-center max-w-xl mx-auto border-t-8 border-gold shadow-xl mb-8">
+            <div class="text-4xl mb-4">🎓</div>
+            <h2 class="text-lg md:text-xl font-black text-[#004d40] uppercase tracking-wider mb-2">Student Portal</h2>
+            <p class="text-xs text-gray-500 mb-8 font-bold">Select your ID/Name to view your enrolled course timetables.</p>
+            <select id="studentSelectStandalone" class="w-full text-sm md:text-base cursor-pointer mb-4">
+                <option value="">-- Search & Select Your Name --</option>
+            </select>
+            <div class="flex flex-col md:flex-row gap-2 justify-center mb-4">
+                <button onclick="window.viewPersonalTimetable('student')" class="btn-mix-huru px-6 py-3 rounded-xl font-black uppercase text-xs w-full">🗓️ Class Timetable</button>
+                <button onclick="window.viewPersonalExamTimetable('student')" class="btn-mix-huru px-6 py-3 rounded-xl font-black uppercase text-xs w-full">📝 Exam Timetable</button>
+            </div>
+        </div>
+
+        <div id="main-dashboard-controls">
+            <div class="card p-4 md:p-5 mb-6 md:mb-8 bg-gray-50 flex flex-col xl:flex-row justify-between items-center gap-4 border-l-4 border-royal-blue shadow-sm">
+                <div class="flex flex-wrap justify-center gap-2 items-center">
+                    <button onclick="window.generateDummies('lect')" class="btn-gold px-3 py-1.5 rounded shadow text-[9px] md:text-[10px]">1. Sample Lecturers</button>
+                    <button onclick="window.generateDummies('mod')" class="btn-gold px-3 py-1.5 rounded shadow text-[9px] md:text-[10px]">2. Sample Modules</button>
+                    <button onclick="window.generateDummies('stu')" class="btn-gold px-3 py-1.5 rounded shadow text-[9px] md:text-[10px]">3. Sample Students</button>
+                    
+                    <label class="ml-2 text-[9px] md:text-[10px] font-bold bg-white border-2 border-dashed border-blue-400 text-blue-800 px-3 py-1.5 rounded cursor-pointer hover:bg-blue-50 transition">
+                        ☁️ UL LECTURERS <input type="file" accept=".csv" onchange="window.importData('lecturers', event)" class="hidden">
+                    </label>
+                    <label class="text-[9px] md:text-[10px] font-bold bg-white border-2 border-dashed border-purple-400 text-purple-800 px-3 py-1.5 rounded cursor-pointer hover:bg-purple-50 transition">
+                        ☁️ UL MODULES <input type="file" accept=".csv" onchange="window.importData('modules', event)" class="hidden">
+                    </label>
+                    <label class="text-[9px] md:text-[10px] font-bold bg-white border-2 border-dashed border-green-400 text-green-800 px-3 py-1.5 rounded cursor-pointer hover:bg-green-50 transition">
+                        ☁️ UL STUDENTS <input type="file" accept=".csv" onchange="window.importData('students', event)" class="hidden">
+                    </label>
+                </div>
+
+                <div class="flex flex-col gap-2 w-full xl:w-auto">
+                    <div class="flex gap-2 justify-center xl:justify-end">
+                        <button onclick="window.saveLocal(false)" class="btn-royal-blue px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-2">💾 Save to Local</button>
+                        <button onclick="window.triggerCloudPushSync()" class="btn-royal-green px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-2">☁️ Push Work to Cloud</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-controls" class="hidden card p-4 mb-6 bg-red-50 border-t-4 border-red-600 flex-col lg:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="font-black text-red-800 uppercase text-xs">Academic Affairs (Global Admin)</h3>
+                    <p class="text-[9px] text-red-600 font-bold">Full authorization enabled. Manage master imports or reset system.</p>
+                </div>
+                <div class="flex gap-2 flex-wrap justify-center items-center">
+                    <button onclick="window.masterReset()" class="bg-red-700 hover:bg-red-800 text-white font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase ml-2">
+                        🚨 Master Reset System
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center border-b mb-4 md:mb-6 gap-2 overflow-x-auto px-2" id="main-tabs-container">
+                <div class="tab-btn active text-[9px] md:text-[10px]" onclick="window.switchTab('analytics')" id="tbtn-analytics">📊 Analytics</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('matrix')" id="tbtn-matrix">📋 Assignment Matrix</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('staff')" id="tbtn-staff">👨‍🏫 Staff Targets</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('timetable')" id="tbtn-timetable">🗓️ Timetable Manager</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('exam-tt')" id="tbtn-exam-tt">📝 Exam Timetable</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('tasks')" id="tbtn-tasks">✅ Tasks & Requests</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('exam')" id="tbtn-exam">📑 Exam Unit Tracking</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('coordinators')" id="tbtn-coordinators">👨‍💼 Coordinators</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('events')" id="tbtn-events">🎉 Events</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('weekly')" id="tbtn-weekly">📝 Weekly Reports</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('studata')" id="tbtn-studata">🎓 Students</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('lectdata')" id="tbtn-lectdata">👨‍💼 Lecturers</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('moddata')" id="tbtn-moddata">📚 Modules</div>
+            </div>
+
+            <div id="tab-analytics" class="tab-content active">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-royal-green uppercase tracking-wider">Enterprise Analytics Dashboard</h2>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Real-time faculty performance, workload, and tasks.</p>
+                    </div>
+                    <button onclick="window.exportAnalyticsPDF()" class="btn-mix-huru px-4 py-2 rounded text-[10px] font-bold shadow-md flex items-center gap-2 transition hover:scale-105">
+                        📄 Download Analytics PDF
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="card p-4 border-l-4 border-l-royal-green text-center">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-500">Total Modules</p>
+                        <h3 id="stat-total-mods" class="text-2xl font-black text-royal-green mt-1">0</h3>
+                    </div>
+                    <div class="card p-4 border-l-4 border-l-royal-blue text-center">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-500">Total Staff</p>
+                        <h3 id="stat-total-staff" class="text-2xl font-black text-royal-blue mt-1">0</h3>
+                    </div>
+                    <div class="card p-4 border-l-4 border-l-green-500 text-center">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-500">Overall Assigned %</p>
+                        <h3 id="stat-assigned-pct" class="text-2xl font-black text-green-600 mt-1">0%</h3>
+                    </div>
+                    <div class="card p-4 border-l-4 border-l-red-500 text-center">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-500">Unassigned WCH</p>
+                        <h3 id="stat-unassigned-wch" class="text-2xl font-black text-red-600 mt-1">0</h3>
+                    </div>
+                </div>
+
+                <div id="analytics-export-area" class="bg-white p-2">
+                    
+                    <div class="card p-4 mb-6 border-t-4 border-royal-green">
+                        <h3 class="text-xs font-black uppercase text-royal-green mb-2 tracking-wide">FACULTY WIDE WORKLOAD (PERIODS)</h3>
+                        <div class="h-64 md:h-80"><canvas id="facultyChart"></canvas></div>
+                        <div id="faculty-quick-filters" class="flex flex-wrap justify-center gap-2 mt-4"></div>
+                    </div>
+
+                    <div class="mb-6 mt-6">
+                        <h3 class="text-xs font-black uppercase text-royal-blue mb-3 border-b-2 border-gray-200 pb-1">Faculty Module Assignment Analytics</h3>
+                        <div id="faculty-cards-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div class="card p-4">
+                            <h3 class="text-xs font-black uppercase text-royal-blue mb-2">Faculty Wide Academic Focus</h3>
+                            <div class="h-48 md:h-56"><canvas id="focusChart"></canvas></div>
+                        </div>
+                        <div class="card p-4">
+                            <h3 class="text-xs font-black uppercase text-royal-purple mb-2">Lecturer Deployment Source by Faculty</h3>
+                            <div class="h-48 md:h-56"><canvas id="assignmentDetailsChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div id="summary-table-container" class="mb-6"></div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div class="card p-4 border-t-4 border-purple-500">
+                            <h3 class="text-xs font-black uppercase text-gray-800 mb-2 tracking-wide">Tasks Completion Progress</h3>
+                            <div class="h-48"><canvas id="taskCompletionChart"></canvas></div>
+                        </div>
+                        <div class="card p-4 border-t-4 border-purple-500">
+                            <h3 class="text-xs font-black uppercase text-gray-800 mb-2 tracking-wide">Class Scheduling Progress (Overall)</h3>
+                            <div class="h-48"><canvas id="ttProgressPieChart"></canvas></div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                        <div class="card p-4 border-t-4 border-indigo-500">
+                            <h3 class="text-xs font-black uppercase text-indigo-900 mb-2 tracking-wide">Task Diligence by Faculty</h3>
+                            <div class="h-48"><canvas id="facDiligentChart"></canvas></div>
+                        </div>
+                        <div class="card p-4 border-t-4 border-teal-500">
+                            <h3 class="text-xs font-black uppercase text-teal-900 mb-2 tracking-wide">Program TT Completion Status</h3>
+                            <div id="tt-prog-status-list" class="max-h-48 overflow-y-auto space-y-1 mt-4"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xs font-black uppercase text-royal-blue mb-3 border-b-2 border-gray-200 pb-1 mt-8" id="lecturer-lists-anchor">Lecturer Workload Status Lists</h3>
+                    <p class="text-[9px] text-gray-500 mb-2 font-bold px-2">Hint: Click on any staff name below to instantly view and print their workload slip.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="card p-4 border-t-4 border-orange-500 bg-orange-50/30">
+                            <h3 class="text-[10px] font-black uppercase text-orange-600 mb-2 border-b pb-1">Idle Lecturers (0 Hrs)</h3>
+                            <div class="max-h-48 overflow-y-auto text-[10px] space-y-1 pr-2" id="list-idle"></div>
+                        </div>
+                        <div class="card p-4 border-t-4 border-blue-500 bg-blue-50/30">
+                            <h3 class="text-[10px] font-black uppercase text-blue-600 mb-2 border-b pb-1">FT Underloaded (< Target)</h3>
+                            <div class="max-h-48 overflow-y-auto text-[10px] space-y-1 pr-2" id="list-ft-under"></div>
+                        </div>
+                        <div class="card p-4 border-t-4 border-purple-600 bg-purple-50/30">
+                            <h3 class="text-[10px] font-black uppercase text-purple-700 mb-2 border-b pb-1">FT Overloaded (> Target)</h3>
+                            <div class="max-h-48 overflow-y-auto text-[10px] space-y-1 pr-2" id="list-ft-over"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="card p-4 border-t-4 border-green-500 bg-green-50/30">
+                            <h3 class="text-[10px] font-black uppercase text-green-700 mb-2 border-b pb-1">FT Load Met (== Target)</h3>
+                            <div class="max-h-48 overflow-y-auto text-[10px] space-y-1 pr-2" id="list-ft-met"></div>
+                        </div>
+                        <div class="card p-4 border-t-4 border-teal-500 bg-teal-50/30">
+                            <h3 class="text-[10px] font-black uppercase text-teal-700 mb-2 border-b pb-1">PT Load Met (>= Target)</h3>
+                            <div class="max-h-48 overflow-y-auto text-[10px] space-y-1 pr-2" id="list-pt-met"></div>
+                        </div>
+                        <div class="card p-4 border-t-4 border-purple-500 bg-purple-50/30">
+                            <h3 class="text-[10px] font-black uppercase text-purple-700 mb-2 border-b pb-1">PT Underloaded (< Target)</h3>
+                            <div class="max-h-48 overflow-y-auto text-[10px] space-y-1 pr-2" id="list-pt-under"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-coordinators" class="tab-content">
+                <div class="card p-6 border-t-8 border-pink-700 shadow-lg text-royal-gold">
+                    <div class="flex flex-col md:flex-row items-center justify-between border-b pb-4 mb-4 gap-4">
+                        <div>
+                            <h2 class="text-xl font-black uppercase tracking-wide flex items-center gap-2"><span>👨‍💼</span> Coordinator Management & Checklists</h2>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Assign coordinators, track checklists, and view royal sheets.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.printRoyalSheet()" class="btn-mix-huru px-4 py-2 rounded text-[10px] shadow flex items-center gap-2 font-black uppercase">
+                                🖨️ Print Royal Sheet
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-gray-800">
+                        <div class="space-y-6">
+                            <div class="bg-pink-50 p-4 rounded-xl border border-pink-200">
+                                <h3 class="text-xs font-black uppercase text-pink-800 mb-3 border-b border-pink-300 pb-2">Assign Coordinator</h3>
+                                <div class="space-y-3 text-[10px]">
+                                    <div>
+                                        <label class="font-bold text-gray-700">Select Lecturer</label>
+                                        <select id="coord-lect-select" class="w-full p-2 border rounded outline-none focus:border-pink-500"></select>
+                                    </div>
+                                    <div>
+                                        <label class="font-bold text-gray-700">Coordinate Type</label>
+                                        <select id="coord-type-select" class="w-full p-2 border rounded outline-none focus:border-pink-500">
+                                            <option value="Batch">Batch / Program</option>
+                                            <option value="Module">Specific Module</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="font-bold text-gray-700">Item (Batch Name / Module Code)</label>
+                                        <input type="text" id="coord-item-input" placeholder="e.g. Batch 1 or ENG101" class="w-full p-2 border rounded outline-none focus:border-pink-500">
+                                    </div>
+                                    <button onclick="window.assignCoordinator()" class="w-full btn-mix-huru font-bold rounded py-2 shadow transition">✅ Assign Coordinator</button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <h3 class="text-[10px] font-black uppercase text-gray-700 mb-2 text-center">Checklist Submissions</h3>
+                                <div class="h-48"><canvas id="coordPieChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
+                                <div class="absolute top-2 right-2 flex gap-2">
+                                    <select id="coord-my-role-select" onchange="window.loadCoordChecklist()" class="p-1 border rounded text-[9px] bg-pink-50 text-pink-800 outline-none font-bold">
+                                        <option value="">-- Select Your Coordinated Item --</option>
+                                    </select>
+                                </div>
+                                <h3 class="text-xs font-black uppercase text-royal-blue mb-4 border-b pb-2">Coordinator Quality Checklist</h3>
+                                
+                                <div id="coord-checklist-area" class="space-y-4 text-[10px] opacity-50 pointer-events-none transition">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded border hover:bg-blue-50 cursor-pointer">
+                                            <input type="checkbox" id="chk-moodle" class="w-4 h-4"> <span class="font-bold">Moodle / Turnitin Links Active</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded border hover:bg-blue-50 cursor-pointer">
+                                            <input type="checkbox" id="chk-notes" class="w-4 h-4"> <span class="font-bold">Notes & Tutorials Uploaded</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded border hover:bg-blue-50 cursor-pointer">
+                                            <input type="checkbox" id="chk-isims" class="w-4 h-4"> <span class="font-bold">iSIMS Attendance Marked (Weekly)</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 p-2 bg-gray-50 rounded border hover:bg-blue-50 cursor-pointer">
+                                            <input type="checkbox" id="chk-feedback" class="w-4 h-4"> <span class="font-bold">Student Feedback Evaluated</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="font-bold text-red-600 block mb-1">Student Complaints / ARC Issues (Forward to Faculty)</label>
+                                        <textarea id="chk-arc" rows="3" class="w-full p-2 border rounded outline-none focus:border-red-400" placeholder="List any major issues or write 'None'..."></textarea>
+                                    </div>
+                                    <div class="flex justify-between items-center border-t pt-3">
+                                        <span class="text-gray-500 italic" id="chk-status-txt">Select an item above to fill checklist.</span>
+                                        <button onclick="window.saveCoordChecklist()" class="btn-mix-huru px-6 py-2 rounded font-bold shadow transition">💾 Submit Report</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-green-50 p-4 rounded-xl border border-green-200 h-48 flex flex-col">
+                                    <h3 class="text-[9px] font-black uppercase text-green-800 mb-2 border-b border-green-300 pb-1">Submitted Reports</h3>
+                                    <div id="coord-submitted-list" class="flex-1 overflow-y-auto text-[9px] space-y-1"></div>
+                                </div>
+                                <div class="bg-red-50 p-4 rounded-xl border border-red-200 h-48 flex flex-col">
+                                    <h3 class="text-[9px] font-black uppercase text-red-800 mb-2 border-b border-red-300 pb-1">Pending Reports</h3>
+                                    <div id="coord-pending-list" class="flex-1 overflow-y-auto text-[9px] space-y-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 border-t pt-4">
+                        <h3 class="text-xs font-black uppercase mb-2 text-center text-royal-gold">Coordination Checklist Analytics</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="h-48"><canvas id="coordTasksBarChart"></canvas></div>
+                            <div class="h-48"><canvas id="coordTasksPieChart"></canvas></div>
+                            <div class="h-48"><canvas id="coordSummaryChart"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="mt-8 border-t pt-4">
+                        <h3 class="text-xs font-black uppercase text-gray-700 mb-2 text-center">Coordinator Assignment Analytics (By Faculty)</h3>
+                        <div class="h-48 max-w-3xl mx-auto"><canvas id="coordBarChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tab-events" class="tab-content">
+                <div class="card p-6 border-t-8 border-indigo-700 shadow-lg">
+                    <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                        <span class="text-xl">🎉</span>
+                        <h2 class="text-lg font-black text-indigo-900 uppercase tracking-wide">Events & Attendance Management</h2>
+                    </div>
+
+                    <div id="admin-event-controls" class="mb-8 p-4 bg-indigo-50 border border-indigo-200 rounded-xl shadow-inner">
+                        <h3 class="text-xs font-black text-indigo-800 mb-3 uppercase tracking-wider">Schedule New Event</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                            <div>
+                                <label class="text-[9px] font-bold text-gray-700 uppercase">Event Type</label>
+                                <select id="ev-type" class="w-full p-2 border rounded text-xs outline-none focus:border-indigo-500">
+                                    <option value="Meeting">Meeting</option>
+                                    <option value="Scientific Forum">Scientific Forum</option>
+                                    <option value="Professional Development">Professional Dev (PD)</option>
+                                    <option value="Graduation">Graduation</option>
+                                    <option value="Orientation">Orientation</option>
+                                    <option value="University Representation">University Representation</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-[9px] font-bold text-gray-700 uppercase">Event Title / Details</label>
+                                <input type="text" id="ev-title" class="w-full p-2 border rounded text-xs outline-none focus:border-indigo-500" placeholder="e.g., Annual Staff Forum 2026">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-gray-700 uppercase">Event Date</label>
+                                <input type="date" id="ev-date" class="w-full p-2 border rounded text-xs outline-none focus:border-indigo-500">
+                            </div>
+                            <div class="md:col-span-4 flex justify-between items-center border-t border-indigo-200 pt-3 mt-2">
+                                <div class="flex items-center gap-2 text-[10px]">
+                                    <input type="checkbox" id="ev-target-all" checked onchange="document.getElementById('ev-target-fac').disabled = this.checked;">
+                                    <label class="font-bold text-indigo-800">Invite ALL Faculties</label>
+                                    <select id="ev-target-fac" disabled class="p-1 border rounded text-[9px] outline-none ml-2">
+                                        <option value="">Specific Faculty...</option>
+                                    </select>
+                                </div>
+                                <button onclick="window.createEvent()" class="bg-indigo-700 hover:bg-indigo-800 text-white px-6 py-2 rounded text-[10px] font-bold shadow-md transition uppercase">📢 Create Event & Send Invites</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xs font-black text-gray-800 uppercase tracking-wide">Attendance Analytics</h3>
+                            <select id="ev-select-chart" onchange="window.renderEventsTab()" class="p-1.5 border border-gray-300 rounded text-[9px] shadow-sm"><option value="">Select Event to View</option></select>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                            <div class="lg:col-span-2 card p-4 border-t-4 border-indigo-400">
+                                <h4 class="text-[10px] font-black text-center text-gray-600 mb-2 uppercase">Faculty Attendance Overview</h4>
+                                <div class="h-64"><canvas id="eventBarChart"></canvas></div>
+                            </div>
+                            <div class="card p-4 border-t-4 border-indigo-400">
+                                <h4 class="text-[10px] font-black text-center text-gray-600 mb-2 uppercase">University Wide Breakdown</h4>
+                                <div class="h-64"><canvas id="eventPieChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="card p-4 border-t-4 border-green-500 bg-green-50">
+                                <h4 class="text-[10px] font-black text-green-800 mb-2 border-b border-green-200 pb-1 uppercase flex justify-between"><span>✅ Attended</span> <span id="ev-count-att">0</span></h4>
+                                <div id="ev-list-attended" class="max-h-64 overflow-y-auto space-y-1 text-[10px]"></div>
+                            </div>
+                            <div class="card p-4 border-t-4 border-red-500 bg-red-50">
+                                <h4 class="text-[10px] font-black text-red-800 mb-2 border-b border-red-200 pb-1 uppercase flex justify-between"><span>❌ Absent / No Response</span> <span id="ev-count-abs">0</span></h4>
+                                <div id="ev-list-absent" class="max-h-64 overflow-y-auto space-y-1 text-[10px]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-weekly" class="tab-content">
+                <div class="card p-6 border-t-8 border-teal-700 shadow-lg">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-4">
+                        <div>
+                            <h2 class="text-xl font-black text-teal-900 uppercase tracking-wide flex items-center gap-2"><span>📝</span> Weekly Academic Reports</h2>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Track class delivery, cancellations, and academic tasks.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4 flex gap-2">
+                        <select id="wr-filter-fac" onchange="window.renderWeeklyReports()" class="p-2 border rounded outline-none focus:border-teal-500 text-xs"><option value="ALL">All Faculties</option></select>
+                        <input type="text" id="wr-search" onkeyup="window.renderWeeklyReports()" placeholder="🔍 Search Lecturer or Module..." class="p-2 border rounded outline-none focus:border-teal-500 flex-1 text-xs">
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[600px] border border-gray-200 rounded-lg">
+                        <table class="w-full text-left text-[10px] min-w-[1000px]">
+                            <thead class="sticky top-0 bg-teal-800 text-white uppercase shadow-sm">
+                                <tr>
+                                    <th class="p-3">Lecturer</th>
+                                    <th class="p-3">Module</th>
+                                    <th class="p-3 text-center">Week Of</th>
+                                    <th class="p-3 text-center">Hrs Taken</th>
+                                    <th class="p-3 text-center">Hrs Cancelled</th>
+                                    <th class="p-3">Cancel Reason</th>
+                                    <th class="p-3 text-center">Moodle/ISIMS</th>
+                                    <th class="p-3 text-center">Assessments</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wr-table-body" class="divide-y bg-white">
+                                <tr><td colspan="8" class="p-10 text-center text-gray-400 font-bold italic">Loading Data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tab-tasks" class="tab-content">
+                <div class="card p-6 border-t-8 border-blue-700 shadow-lg">
+                    <h2 class="text-xl font-black text-blue-900 uppercase mb-4">Tasks & Requests</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <h3 class="text-xs font-black uppercase text-gray-800 mb-2 tracking-wide">Tasks Completion Progress</h3>
+                            <div class="h-48"><canvas id="taskTabCompletionChart"></canvas></div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <h3 class="text-xs font-black uppercase text-indigo-900 mb-2 tracking-wide">Task Diligence by Faculty</h3>
+                            <div class="h-48"><canvas id="taskTabFacDiligentChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded border relative">
+                            <h3 class="text-sm font-bold mb-2">Assign New Task</h3>
+                            <input type="text" id="task-title" class="w-full p-2 border rounded mb-2 text-xs" placeholder="Task Title">
+                            <div class="flex gap-2 mb-2">
+                                <input type="date" id="task-date" class="w-full p-2 border rounded text-xs">
+                                <input type="time" id="task-time" class="w-full p-2 border rounded text-xs">
+                                <select id="task-recur" class="p-2 border rounded text-xs flex-1 outline-none text-gray-700">
+                                    <option value="None">No Recurrence</option>
+                                    <option value="Weekly">Weekly</option>
+                                    <option value="Monthly">Monthly</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-2 p-2 bg-white border rounded">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase block mb-1">Attach Files (Optional)</label>
+                                <div id="task-files-container" class="space-y-1">
+                                    <input type="file" multiple accept=".pdf,.xls,.xlsx,.doc,.docx,.png,.jpg,image/*,application/*" class="text-[9px] w-full file:mr-2 file:py-1 file:px-2 file:border-0 file:text-[9px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                            </div>
+
+                            <div id="subtasks-container" class="mb-2"></div>
+                            <button onclick="window.addSubTaskField()" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded mb-2">+ Add Subtask</button>
+                            <div class="max-h-32 overflow-y-auto border p-2 bg-white mb-2 text-[10px]">
+                                <label><input type="checkbox" id="task-sel-all" onchange="window.toggleAllTaskAssignees()"> Select All Lecturers</label>
+                                <div id="task-assignees-list"></div>
+                            </div>
+                            <button onclick="window.assignTask()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-xs w-full shadow transition font-bold uppercase">Assign Task & Notify</button>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded border">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-sm font-bold">Incoming Requests</h3>
+                                <select id="req-filter-type" onchange="window.renderRequestsList()" class="text-xs p-1 border rounded"><option value="ALL">All</option><option value="Pending Approvals">Pending</option></select>
+                            </div>
+                            <div id="requests-list" class="max-h-96 overflow-y-auto pr-1 space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-exam" class="tab-content">
+                <div class="card p-6 border-t-8 border-green-700 shadow-lg">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
+                        <div>
+                            <h2 class="text-xl font-black text-green-900 uppercase">Exam Unit Preparation & Tracking</h2>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Track paper submissions, marking schemes, and moderation kits.</p>
+                        </div>
+                        <button onclick="window.openExamRequestModal()" class="btn-mix-huru px-4 py-2 rounded text-[10px] font-bold shadow transition">✉️ Send Exam Request</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-4 bg-gray-50 p-3 rounded border">
+                        <input type="text" id="examSearch" onkeyup="window.renderExamTable()" placeholder="Search module, lecturer, details..." class="p-2 border rounded flex-1 text-xs outline-none focus:border-green-500 min-w-[200px]">
+                        <select id="exam-fac-filter" onchange="window.renderExamTable()" class="p-2 border rounded text-xs outline-none focus:border-green-500"><option value="ALL">All Faculties</option></select>
+                        <select id="exam-status-filter" onchange="window.renderExamTable()" class="p-2 border rounded text-xs outline-none focus:border-green-500">
+                            <option value="ALL">All Status</option>
+                            <option value="Pending">Pending (0%)</option>
+                            <option value="Progress">In Progress</option>
+                            <option value="Complete">Fully Complete (100%)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
+                        <div class="bg-red-50 p-3 rounded border border-red-200"><span class="block text-2xl font-bold text-red-700" id="exam-stat-pending">0</span><span class="text-[10px] font-black uppercase text-red-900 tracking-wide">Pending Tasks</span></div>
+                        <div class="bg-purple-50 p-3 rounded border border-purple-200"><span class="block text-2xl font-bold text-purple-700" id="exam-stat-progress">0</span><span class="text-[10px] font-black uppercase text-purple-900 tracking-wide">In Progress</span></div>
+                        <div class="bg-green-50 p-3 rounded border border-green-200"><span class="block text-2xl font-bold text-green-700" id="exam-stat-complete">0</span><span class="text-[10px] font-black uppercase text-green-900 tracking-wide">Fully Completed</span></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="card p-3 shadow-none border border-gray-200"><div class="h-48"><canvas id="examPieChart"></canvas></div></div>
+                        <div class="card p-3 shadow-none border border-gray-200">
+                            <p class="text-xs font-bold text-gray-600 mb-2 text-center uppercase tracking-wide">Top Faculty Progress: <span id="exam-top-fac" class="text-green-600"></span></p>
+                            <div class="h-48"><canvas id="examBarChart"></canvas></div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto max-h-[600px] border border-green-200 rounded-lg shadow-sm">
+                        <table class="w-full text-left text-[10px] min-w-[1200px] border-collapse">
+                            <thead class="bg-green-800 text-white sticky top-0 z-10 font-bold uppercase tracking-wide text-[9px]">
+                                <tr>
+                                    <th class="p-3 border-r border-green-700">Module Details</th>
+                                    <th class="p-3 border-r border-green-700">Program & Batch</th>
+                                    <th class="p-3 border-r border-green-700">Faculty & Students</th>
+                                    <th class="p-3 border-r border-green-700">Lecturer</th>
+                                    <th class="p-3 text-center border-r border-green-700" title="Paper Received">Paper Rcvd</th>
+                                    <th class="p-3 text-center border-r border-green-700" title="Marking Scheme">Mark Scheme</th>
+                                    <th class="p-3 text-center border-r border-green-700" title="Moderation Kit">Mod Kit</th>
+                                    <th class="p-3 text-center border-r border-green-700" title="Vetted Status">Vetted</th>
+                                    <th class="p-3 text-center border-r border-green-700" title="Marking Assigned">Mark Assigned</th>
+                                    <th class="p-3 text-center border-r border-green-700" title="Marking Returned">Mark Rtrnd</th>
+                                    <th class="p-3 text-center">Overall</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exam-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-matrix" class="tab-content">
+                <div class="card overflow-hidden">
+                    <div class="p-3 bg-gray-50 border-b flex flex-col lg:flex-row justify-between items-center gap-3">
+                        <select id="facView" onchange="window.triggerAllRenders();" class="w-full lg:w-auto p-2 border rounded-lg text-xs font-bold text-royal-green outline-none focus:border-gold"></select>
+                        <div class="flex flex-col md:flex-row gap-2 w-full lg:w-auto">
+                            <select id="hrSelect" class="flex-1 min-w-[250px]">
+                                <option value="">-- Check Lecturer Workload --</option>
+                            </select>
+                            <input type="text" id="mSearch" placeholder="Search Module/Faculty Code..." class="p-2 border rounded-lg text-[10px] md:text-xs outline-none focus:border-gold flex-1 shadow-sm" onkeyup="window.renderMatrix()">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[650px] pb-24">
+                        <table class="w-full text-left text-[9px] md:text-xs min-w-[900px]">
+                            <thead class="sticky top-0 bg-[#004d40] text-white z-10 shadow">
+                                <tr>
+                                    <th class="p-2 whitespace-nowrap">Status</th>
+                                    <th class="p-2">Campus/Prog</th>
+                                    <th class="p-2">Module Details</th>
+                                    <th class="p-2 text-center">WCH</th>
+                                    <th class="p-2">Faculty</th>
+                                    <th class="p-2 text-center w-[250px]">Assign Lecturer (Global Search)</th>
+                                    <th class="p-2">Sync Mode</th>
+                                    <th id="th-actions" class="p-2 text-center hidden">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrix-body" class="divide-y bg-white">
+                                <tr><td colspan="8" class="p-10 text-center text-gray-400 font-bold italic">Loading Data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-staff" class="tab-content">
+                <div class="card overflow-hidden p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-black text-royal-green uppercase text-xs">Staff Workload Targets</h2>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4 flex gap-2">
+                        <select id="staff-filter-fac" onchange="window.renderStaffTargets()" class="p-2 border rounded outline-none focus:border-gold text-xs"><option value="">All Faculties</option></select>
+                        <select id="staff-filter-cat" onchange="window.renderStaffTargets()" class="p-2 border rounded outline-none focus:border-gold text-xs"><option value="">All Categories</option></select>
+                        <select id="staff-filter-type" onchange="window.renderStaffTargets()" class="p-2 border rounded outline-none focus:border-gold text-xs"><option value="">All Types</option></select>
+                        <input type="text" id="staff-search" onkeyup="window.renderStaffTargets()" placeholder="Search Lecturer..." class="p-2 border rounded outline-none focus:border-gold text-xs flex-1">
+                    </div>
+                    <div class="overflow-x-auto max-h-[600px]">
+                        <table class="w-full text-left text-[10px] md:text-xs min-w-[800px]">
+                            <thead class="sticky top-0 bg-gray-100 text-gray-600 uppercase shadow-sm">
+                                <tr>
+                                    <th class="p-2">Lecturer Name & ID</th>
+                                    <th class="p-2">Faculty</th>
+                                    <th class="p-2">Category & Type</th>
+                                    <th class="p-2 text-center">Assigned Target (Hrs)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-target-body" class="divide-y bg-white">
+                                <tr><td colspan="4" class="p-10 text-center text-gray-400 font-bold italic">Loading Data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-timetable" class="tab-content">
+                <div class="card overflow-hidden border-t-8 border-purple-800 flex flex-col h-[85vh]">
+                    <div class="p-3 bg-purple-50 border-b border-purple-200 flex flex-col md:flex-row justify-between items-center gap-3 shrink-0">
+                        <div>
+                            <h2 class="font-black text-purple-900 uppercase text-lg">Class Timetable Builder</h2>
+                            <p class="text-[10px] text-purple-700 font-bold">Drag & Drop Modules. Clash Detection Enabled.</p>
+                        </div>
+                        <div class="flex gap-2 items-center flex-wrap">
+                            <button onclick="window.openTTSettingsModal('CLASS')" class="bg-white border border-purple-300 text-purple-800 px-3 py-1.5 rounded text-[10px] font-bold shadow-sm hover:bg-purple-100 transition">⚙️ Setup Timeslots & Rooms</button>
+                            <select id="tt-day-select" onchange="window.renderTimetableGrid()" class="p-1.5 border-2 border-purple-400 rounded text-xs font-black text-purple-900 bg-white shadow-sm outline-none">
+                                <option value="Sunday">📅 Sunday</option><option value="Monday">📅 Monday</option><option value="Tuesday">📅 Tuesday</option><option value="Wednesday">📅 Wednesday</option><option value="Thursday">📅 Thursday</option><option value="Friday">📅 Friday</option><option value="Saturday">📅 Saturday</option>
+                            </select>
+                            
+                            <select id="tt-export-prog" class="p-1.5 border border-gray-300 rounded text-[9px] shadow-sm"><option value="ALL">All Programs</option></select>
+                            <select id="tt-export-batch" class="p-1.5 border border-gray-300 rounded text-[9px] shadow-sm"><option value="ALL">All Batches</option></select>
+                            <button onclick="window.printMasterReport('timetable')" class="btn-mix-huru px-4 py-1.5 rounded text-[10px] font-bold shadow-sm transition">🖨️ Export PDF</button>
+                            <button onclick="window.bulkExportPDF('course')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk (Courses)</button>
+                            <button onclick="window.bulkExportPDF('batch')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk (Batches)</button>
+                            <button onclick="window.bulkExportPDF('lecturer')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk (Lecturers)</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-1 overflow-hidden bg-gray-100">
+                        <div class="w-[280px] bg-white border-r border-gray-300 flex flex-col shrink-0">
+                            <div class="p-3 border-b bg-gray-50 shrink-0">
+                                <label class="text-[9px] font-bold text-gray-600 uppercase block mb-1">Select Course / Program</label>
+                                <div class="flex gap-1 mb-2">
+                                    <select id="tt-prog-filter" onchange="window.renderTimetableModules(); window.renderTimetableGrid();" class="flex-1 p-2 border rounded text-xs outline-none focus:border-purple-500 font-bold text-royal-blue shadow-sm"></select>
+                                    <button onclick="window.markTTComplete('CLASS')" title="Mark Program TT as Complete" class="bg-green-500 text-white px-2 rounded font-bold text-[10px] hover:bg-green-600">✅</button>
+                                </div>
+                                <input type="text" id="tt-mod-search" placeholder="Search Module Name/Code..." onkeyup="window.renderTimetableModules()" class="w-full p-1.5 text-[10px] border rounded outline-none focus:border-purple-500 mb-2">
+                                
+                                <div class="bg-purple-100 p-2 rounded text-center border border-purple-200">
+                                    <button onclick="window.markTTComplete('CLASS')" class="btn-mix-huru w-full py-1.5 rounded font-black text-[9px] uppercase shadow transition">📢 Publish Current Program</button>
+                                    <p id="tt-class-pub-status" class="text-[8px] text-purple-800 font-bold mt-1"></p>
+                                </div>
+                            </div>
+                            <div class="p-2 overflow-y-auto flex-1" id="draggable-modules-list"></div>
+                        </div>
+
+                        <div class="flex-1 overflow-auto relative p-2" id="tt-grid-container-scroll">
+                            <div class="tt-grid-wrapper" id="tt-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-exam-tt" class="tab-content">
+                <div class="card overflow-hidden border-t-8 border-green-800 flex flex-col h-[85vh]">
+                    <div class="p-3 bg-green-50 border-b border-green-200 flex flex-col md:flex-row justify-between items-center gap-3 shrink-0">
+                        <div>
+                            <h2 class="font-black text-green-900 uppercase text-lg">Exam Timetable Builder</h2>
+                            <p class="text-[10px] text-green-700 font-bold">Schedule Exam Venues and Dates.</p>
+                        </div>
+                        <div class="flex gap-2 items-center flex-wrap">
+                            <button onclick="window.openTTSettingsModal('EXAM')" class="bg-white border border-green-300 text-green-800 px-3 py-1.5 rounded text-[10px] font-bold shadow-sm hover:bg-green-100 transition">⚙️ Setup Exam Venues/Times</button>
+                            <input type="date" id="exam-tt-date" onchange="window.renderExamTimetableGrid()" class="p-1.5 border-2 border-green-400 rounded text-xs font-black text-green-900 bg-white shadow-sm outline-none">
+                            
+                            <select id="exam-tt-export-prog" class="p-1.5 border border-gray-300 rounded text-[9px] shadow-sm"><option value="ALL">All Programs</option></select>
+                            <select id="exam-tt-export-batch" class="p-1.5 border border-gray-300 rounded text-[9px] shadow-sm"><option value="ALL">All Batches</option></select>
+                            <button onclick="window.printMasterReport('exam_timetable')" class="btn-mix-huru px-4 py-1.5 rounded text-[10px] font-bold shadow-sm transition">🖨️ Export PDF</button>
+                            <button onclick="window.bulkExportPDF('course')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-1 overflow-hidden bg-gray-100">
+                        <div class="w-[280px] bg-white border-r border-gray-300 flex flex-col shrink-0">
+                            <div class="p-3 border-b bg-gray-50 shrink-0">
+                                <label class="text-[9px] font-bold text-gray-600 uppercase block mb-1">Select Course / Program</label>
+                                <div class="flex gap-1 mb-2">
+                                    <select id="exam-tt-prog-filter" onchange="window.renderExamTimetableModules(); window.renderExamTimetableGrid();" class="flex-1 p-2 border rounded text-xs outline-none focus:border-green-500 font-bold text-royal-blue shadow-sm"></select>
+                                    <button onclick="window.markTTComplete('EXAM')" title="Mark Program Exam TT as Complete" class="bg-green-500 text-white px-2 rounded font-bold text-[10px] hover:bg-green-600">✅</button>
+                                </div>
+                                <input type="text" id="exam-tt-mod-search" placeholder="Search Module Name/Code..." onkeyup="window.renderExamTimetableModules()" class="w-full p-1.5 text-[10px] border rounded outline-none focus:border-green-500 mb-2">
+                                
+                                <div class="bg-green-100 p-2 rounded text-center border border-green-200">
+                                    <button onclick="window.markTTComplete('EXAM')" class="btn-mix-huru w-full py-1.5 rounded font-black text-[9px] uppercase shadow transition">📢 Publish Exam Schedule</button>
+                                    <p id="tt-exam-pub-status" class="text-[8px] text-green-800 font-bold mt-1"></p>
+                                </div>
+                            </div>
+                            <div class="p-2 overflow-y-auto flex-1" id="draggable-exam-modules-list"></div>
+                        </div>
+
+                        <div class="flex-1 overflow-auto relative p-2" id="exam-tt-grid-container-scroll">
+                            <div class="tt-grid-wrapper" id="exam-tt-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-studata" class="tab-content">
+                <div class="card overflow-hidden p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <h2 class="font-black text-royal-green uppercase text-sm">Students Master Data</h2>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="window.exportCSV(localDB.students, 'Students_Master_List.csv')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded text-[10px] font-bold shadow-sm transition">📥 Export CSV</button>
+                            <button onclick="window.printMasterReport('students')" class="bg-gray-800 hover:bg-black text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm transition">🖨️ Print Report</button>
+                            <button onclick="window.openAddStudentModal()" class="btn-mix-huru px-3 py-2 rounded text-[10px] font-bold shadow-sm" id="btn-add-stu">+ Add Student</button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4 flex gap-2">
+                        <input type="text" id="stuSearch" onkeyup="window.renderStudentsTab()" placeholder="🔍 Search Student ID, Name, Program..." class="p-2 border rounded outline-none focus:border-gold flex-1 text-xs">
+                        <select id="stu-filter-prog" onchange="window.renderStudentsTab()" class="p-2 border rounded outline-none focus:border-gold text-xs max-w-[200px]"><option value="">All Programs</option></select>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[600px]">
+                        <table class="w-full text-left text-[10px] md:text-xs min-w-[900px]">
+                            <thead class="sticky top-0 bg-[#004d40] text-white uppercase shadow-sm font-bold text-[9px]">
+                                <tr>
+                                    <th class="p-2">Student ID</th>
+                                    <th class="p-2">Full Name</th>
+                                    <th class="p-2">Enrolled Program</th>
+                                    <th class="p-2">Semester</th>
+                                    <th class="p-2">Batch</th>
+                                    <th class="p-2">Study Mode</th>
+                                    <th class="p-2 text-center w-24" id="th-stu-actions">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studata-body" class="divide-y bg-white">
+                                <tr><td colspan="7" class="p-10 text-center text-gray-400 font-bold italic">Loading Data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-lectdata" class="tab-content">
+                <div class="card overflow-hidden p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <h2 class="font-black text-royal-green uppercase text-sm">Lecturers Master Data</h2>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="window.exportLecturersCSV()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded text-[10px] font-bold shadow-sm transition">📥 Export CSV</button>
+                            <button onclick="window.printMasterReport('lecturers')" class="bg-gray-800 hover:bg-black text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm transition">🖨️ Print / PDF Report</button>
+                            <button onclick="window.openAddLecturerModal()" class="btn-mix-huru px-3 py-2 rounded text-[10px] font-bold shadow-sm" id="btn-add-lect">+ Add New Lecturer</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4 flex flex-wrap gap-2 items-center text-[10px]">
+                        <input type="text" id="lectSearch" onkeyup="window.renderLectDataTab()" placeholder="🔍 Global Search (Name, ID, Phone...)" class="p-2 border rounded outline-none focus:border-gold flex-grow min-w-[200px]">
+                        <select id="lect-filter-fac" onchange="window.renderLectDataTab()" class="p-2 border rounded outline-none focus:border-gold max-w-[150px]"><option value="">All Faculties</option></select>
+                        <select id="lect-filter-cat" onchange="window.renderLectDataTab()" class="p-2 border rounded outline-none focus:border-gold max-w-[150px]"><option value="">All Categories</option></select>
+                        <select id="lect-filter-type" onchange="window.renderLectDataTab()" class="p-2 border rounded outline-none focus:border-gold max-w-[150px]"><option value="">All Types</option></select>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[600px]">
+                        <table class="w-full text-left text-[10px] md:text-xs min-w-[800px]">
+                            <thead class="sticky top-0 bg-[#004d40] text-white uppercase shadow-sm font-bold text-[9px]">
+                                <tr>
+                                    <th class="p-2">Kulliyyah / Centre</th>
+                                    <th class="p-2">Lecturer ID</th>
+                                    <th class="p-2">Lecturer Name</th>
+                                    <th class="p-2">Lecturer Category</th>
+                                    <th class="p-2">Lecturer Type</th>
+                                    <th class="p-2">Mobile Number</th>
+                                    <th class="p-2 text-center w-24">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lectdata-body" class="divide-y bg-white">
+                                <tr><td colspan="7" class="p-10 text-center text-gray-400 font-bold italic">Loading Data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-moddata" class="tab-content">
+                <div class="card overflow-hidden p-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <h2 class="font-black text-royal-green uppercase text-sm">Modules Master Data</h2>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="window.exportModulesCSV()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded text-[10px] font-bold shadow-sm transition">📥 Export CSV</button>
+                            <button onclick="window.printMasterReport('modules')" class="bg-gray-800 hover:bg-black text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm transition">🖨️ Print / PDF Report</button>
+                            <button onclick="window.openAddModuleModal()" class="btn-mix-huru px-3 py-2 rounded text-[10px] font-bold shadow-sm" id="btn-add-mod">+ Add New Module</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 items-center text-[10px]">
+                        <input type="text" id="modSearch" onkeyup="window.renderModDataTab()" placeholder="🔍 Global Search (Code, Name...)" class="p-2 border rounded outline-none focus:border-gold col-span-2 md:col-span-1 lg:col-span-2">
+                        <select id="mod-filter-fac" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Faculties</option></select>
+                        <select id="mod-filter-campus" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Campuses</option></select>
+                        <select id="mod-filter-modality" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Modalities</option></select>
+                        <select id="mod-filter-medium" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Mediums</option></select>
+                        <select id="mod-filter-status" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Statuses</option></select>
+                        <select id="mod-filter-session" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Sessions</option></select>
+                        <select id="mod-filter-prog" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Programs</option></select>
+                        <select id="mod-filter-batch" onchange="window.renderModDataTab()" class="p-2 border rounded outline-none focus:border-gold"><option value="">All Batches</option></select>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[600px]">
+                        <table class="w-full text-left text-[10px] md:text-xs min-w-[1200px]">
+                            <thead class="sticky top-0 bg-[#004d40] text-white uppercase shadow-sm font-bold text-[9px]">
+                                <tr>
+                                    <th class="p-2">Session</th>
+                                    <th class="p-2 min-w-[120px]">Program Name</th>
+                                    <th class="p-2">Offered Batch</th>
+                                    <th class="p-2">Parent Kulliyya</th>
+                                    <th class="p-2">Medium</th>
+                                    <th class="p-2">Combined Batch</th>
+                                    <th class="p-2">Status</th>
+                                    <th class="p-2">Campus</th>
+                                    <th class="p-2 min-w-[150px]">Module Name</th>
+                                    <th class="p-2">Modality</th>
+                                    <th class="p-2">Module Code</th>
+                                    <th class="p-2 text-center">Students</th>
+                                    <th class="p-2 text-center">WCH</th>
+                                    <th class="p-2 text-center w-24">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="moddata-body" class="divide-y bg-white">
+                                <tr><td colspan="14" class="p-10 text-center text-gray-400 font-bold italic">Loading Data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<div id="m-2fa" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl border-t-8 border-red-600">
+        <h2 class="text-lg font-black text-red-600 uppercase mb-2">🔐 2-Factor Verification</h2>
+        <p class="text-[9px] text-gray-500 mb-4 font-bold">Authorized action required. An OTP has been sent to your registered email/phone.</p>
+        <p id="2fa-action-text" class="text-xs mb-4 text-gray-800 font-black bg-red-50 p-2 rounded border border-red-200"></p>
+        <input type="text" id="2fa-code" placeholder="Enter 6-Digit OTP (e.g. 123456)" class="w-full p-2 border-2 rounded text-xs font-bold mb-4 outline-none focus:border-red-500 text-center tracking-widest">
+        <div class="flex justify-end gap-2">
+            <button onclick="document.getElementById('m-2fa').style.display='none'" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px] uppercase">Cancel</button>
+            <button onclick="window.confirm2FA()" class="bg-red-600 text-white px-4 py-2 rounded font-bold text-[10px] shadow uppercase">Verify & Proceed</button>
+        </div>
+    </div>
+</div>
+
+<div id="module-info-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-2xl shadow-2xl border-t-8 border-royal-blue relative">
+        <button onclick="document.getElementById('module-info-modal').style.display='none'" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        <h2 class="text-xl font-black text-royal-blue uppercase mb-1" id="m-info-code">MOD101</h2>
+        <p class="text-xs text-gray-600 font-bold mb-4" id="m-info-title">Module Title</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="bg-blue-50 p-3 rounded border border-blue-200">
+                <h3 class="text-[10px] font-black uppercase text-blue-800 mb-2 border-b pb-1">Assigned Lecturers</h3>
+                <div id="m-info-lecturers" class="text-xs space-y-1"></div>
+            </div>
+            <div class="bg-green-50 p-3 rounded border border-green-200">
+                <h3 class="text-[10px] font-black uppercase text-green-800 mb-2 border-b pb-1">Programs & Sessions</h3>
+                <div id="m-info-programs" class="text-[10px] space-y-1"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="border p-2 rounded">
+                <h3 class="text-[10px] font-black uppercase text-gray-700 text-center mb-1">Student Distribution</h3>
+                <div class="h-40"><canvas id="m-info-pie"></canvas></div>
+            </div>
+            <div class="border p-2 rounded">
+                <h3 class="text-[10px] font-black uppercase text-gray-700 text-center mb-1">Weekly Schedule</h3>
+                <div id="m-info-schedule" class="text-[10px] max-h-40 overflow-y-auto space-y-1 mt-2"></div>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 border p-3 rounded">
+            <h3 class="text-[10px] font-black uppercase text-gray-800 mb-2 border-b pb-1 flex justify-between">
+                <span>Registered Students</span> <span id="m-info-stu-count" class="text-royal-blue">0</span>
+            </h3>
+            <div id="m-info-students" class="max-h-32 overflow-y-auto text-[9px] grid grid-cols-2 gap-1"></div>
+        </div>
+    </div>
+</div>
+
+<div id="student-info-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-2xl shadow-2xl border-t-8 border-gold relative">
+        <button onclick="document.getElementById('student-info-modal').style.display='none'" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        <div class="flex items-center gap-3 mb-4 border-b pb-2">
+            <div class="text-4xl">🎓</div>
+            <div>
+                <h2 class="text-lg font-black text-gray-800 uppercase" id="s-info-name">Student Name</h2>
+                <p class="text-xs text-gold font-bold" id="s-info-id">ID: S123456 | Semester: 1</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-2 text-center mb-4">
+            <div class="bg-gray-100 p-2 rounded border"><span class="block text-[10px] uppercase font-bold text-gray-500">Core Modules</span><strong class="text-lg text-gray-800" id="s-info-core">0</strong></div>
+            <div class="bg-blue-100 p-2 rounded border border-blue-200"><span class="block text-[10px] uppercase font-bold text-blue-600">Additional</span><strong class="text-lg text-blue-800" id="s-info-add">0</strong></div>
+            <div class="bg-green-100 p-2 rounded border border-green-200"><span class="block text-[10px] uppercase font-bold text-green-600">Total WCH</span><strong class="text-lg text-green-800" id="s-info-wch">0</strong></div>
+        </div>
+
+        <h3 class="text-xs font-black uppercase text-royal-green mb-2 border-b pb-1">Registered Modules Breakdown</h3>
+        <div class="overflow-x-auto max-h-60 border rounded">
+            <table class="w-full text-left text-[10px]">
+                <thead class="bg-gray-50 text-gray-600"><tr><th class="p-2 border-b">Code</th><th class="p-2 border-b">Title</th><th class="p-2 border-b">Type</th><th class="p-2 border-b text-center">WCH</th></tr></thead>
+                <tbody id="s-info-mods" class="divide-y bg-white"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="exam-request-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl transform transition-all border-t-8 border-green-600">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-lg font-black text-green-800 uppercase">Exam Unit Formal Request</h2>
+            <button onclick="document.getElementById('exam-request-modal').style.display='none'" class="text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Request Type</label>
+                <select id="exam-req-type" class="w-full p-2 border rounded text-xs outline-none focus:border-green-500">
+                    <option value="Request Exam Paper">Request Exam Paper</option>
+                    <option value="Request Paper Marking">Request Paper Marking</option>
+                    <option value="Result Deadline Reminder">Result Deadline Reminder</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Select Target Lecturer</label>
+                <select id="exam-req-lect" class="w-full p-2 border rounded text-xs outline-none focus:border-green-500"></select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Module Code / Subject</label>
+                <input type="text" id="exam-req-title" class="w-full p-2 border rounded text-xs outline-none focus:border-green-500" placeholder="E.g. MAT101 Final Exam">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Attach Documents (Optional)</label>
+                <input type="file" multiple accept=".pdf,.xls,.xlsx,.doc,.docx,.png,.jpg,image/*,application/*" class="text-[9px] w-full file:mr-2 file:py-1 file:px-2 file:border-0 file:text-[9px] file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border p-1 rounded">
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button onclick="document.getElementById('exam-request-modal').style.display='none'" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px]">Cancel</button>
+            <button onclick="window.sendExamRequest()" class="btn-mix-huru px-4 py-2 rounded font-bold text-[10px] flex items-center gap-1 shadow">✉️ Send via Email</button>
+        </div>
+    </div>
+</div>
+
+<div id="request-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl transform transition-all border-t-8 border-gold">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-lg font-black text-royal-blue uppercase">Submit General Request / Overtime</h2>
+            <button onclick="window.closeRequestModal()" class="text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Request Type</label>
+                <select id="req-type" class="w-full p-2 border rounded text-xs outline-none focus:border-gold">
+                    <option value="Overtime Approval">Overtime Approval</option>
+                    <option value="General Permission">General Permission</option>
+                    <option value="Urgent Matter">Urgent Matter</option>
+                    <option value="Leave Request">Leave Request</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Send Request To:</label>
+                <select id="req-target-role" class="w-full p-2 border rounded text-xs outline-none focus:border-gold">
+                    <option value="ALL">Academic Affairs Head</option>
+                    <option value="EXAM">Exam Unit</option>
+                    <option value="FACULTY">My Faculty Head</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Subject / Title</label>
+                <input type="text" id="req-title" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Extra classes for Batch 2">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Details & Justification</label>
+                <textarea id="req-details" rows="4" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="Provide full details here..."></textarea>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button onclick="window.closeRequestModal()" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px]">Cancel</button>
+            <button onclick="window.submitRequest()" class="btn-mix-huru px-4 py-2 rounded font-bold text-[10px] flex items-center gap-1">🚀 Submit Request</button>
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-2xl shadow-2xl transform transition-all border-t-8 border-purple-600">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-lg font-black text-purple-900 uppercase">Timetable Setup</h2>
+            <button onclick="window.closeTTSettingsModal()" class="text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+        
+        <input type="hidden" id="setting-type-flag" value="CLASS">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-50 p-4 rounded border">
+                <h3 class="text-xs font-black text-gray-800 uppercase mb-3 border-b pb-1">Define Timeslots</h3>
+                <div id="settings-timeslots-list" class="space-y-2 mb-3 max-h-48 overflow-y-auto pr-1"></div>
+                <div class="flex gap-1 border-t pt-3">
+                    <input type="time" id="new-ts-start" class="w-full p-1.5 text-xs border rounded outline-none focus:border-purple-500">
+                    <input type="time" id="new-ts-end" class="w-full p-1.5 text-xs border rounded outline-none focus:border-purple-500">
+                    <button onclick="window.addTimeslot()" class="btn-mix-huru px-3 rounded text-xs font-bold">+</button>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded border">
+                <h3 class="text-xs font-black text-gray-800 uppercase mb-3 border-b pb-1">Define Classrooms / Venues</h3>
+                <div id="settings-rooms-list" class="space-y-2 mb-3 max-h-48 overflow-y-auto pr-1"></div>
+                <div class="flex gap-1 border-t pt-3">
+                    <input type="text" id="new-room-name" placeholder="E.g. Room 302" class="w-full p-1.5 text-xs border rounded outline-none focus:border-purple-500">
+                    <button onclick="window.addRoom()" class="btn-mix-huru px-3 rounded text-xs font-bold">+</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button onclick="window.saveTTSettings()" class="btn-mix-huru px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-wider w-full md:w-auto shadow-md">💾 Save & Apply Setup</button>
+        </div>
+    </div>
+</div>
+
+<div id="add-student-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl transform transition-all border-t-8 border-gold">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 id="student-modal-title" class="text-lg font-black text-[#004d40] uppercase">Add New Student</h2>
+            <button onclick="window.closeAddStudentModal()" class="text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Student ID</label><input type="text" id="add-stu-id" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. S123456"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Full Name</label><input type="text" id="add-stu-name" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Ali Ahmed"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Enrolled Program</label><input type="text" id="add-stu-prog" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Bachelor of Arts"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Semester</label><input type="text" id="add-stu-sem" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Semester 1"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Batch</label><input type="text" id="add-stu-batch" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Batch 1"></div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Study Mode</label>
+                <select id="add-stu-mode" class="w-full p-2 border rounded text-xs outline-none focus:border-gold">
+                    <option value="Face to Face">Face to Face</option>
+                    <option value="Online">Online</option>
+                    <option value="Blended">Blended</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-600 uppercase">Type</label>
+                <select id="add-stu-type" class="w-full p-2 border rounded text-xs outline-none focus:border-gold">
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button onclick="window.closeAddStudentModal()" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px]">Cancel</button>
+            <button onclick="window.saveNewStudent()" class="btn-mix-huru px-4 py-2 rounded font-bold text-[10px]">💾 Save Student</button>
+        </div>
+    </div>
+</div>
+
+<div id="add-lecturer-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-lg shadow-2xl transform transition-all border-t-8 border-royal-blue">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 id="lecturer-modal-title" class="text-lg font-black text-[#004d40] uppercase">Add New Lecturer</h2>
+            <button onclick="window.closeAddLecturerModal()" class="text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Kulliyyah / Centre</label><select id="add-lect-fac" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Lecturer ID</label><input type="text" id="add-lect-id" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. A123456"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Lecturer Name</label><input type="text" id="add-lect-name" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Dr. Ahmed Ali"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Lecturer Category</label><select id="add-lect-cat" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="Teaching Focused">Teaching Focused</option><option value="Research Focused">Research Focused</option><option value="Dean">Dean</option><option value="Part-time">Part-time</option></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Lecturer Type</label><select id="add-lect-type" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="Full-time">Full-time</option><option value="Part-time">Part-time</option><option value="Visiting">Visiting</option></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Mobile Number</label><input type="text" id="add-lect-mobile" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. 7791550"></div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button onclick="window.closeAddLecturerModal()" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px]">Cancel</button>
+            <button onclick="window.saveNewLecturer()" class="btn-mix-huru px-4 py-2 rounded font-bold text-[10px]">💾 Save Lecturer</button>
+        </div>
+    </div>
+</div>
+
+<div id="add-module-modal" class="modal-overlay">
+    <div class="bg-white p-6 rounded-2xl w-full max-w-3xl shadow-2xl transform transition-all border-t-8 border-royal-green">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 id="module-modal-title" class="text-lg font-black text-[#004d40] uppercase">Add New Module</h2>
+            <button onclick="window.closeAddModuleModal()" class="text-gray-400 hover:text-red-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Module Code</label><input type="text" id="add-mod-code" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. ENG101"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Module Name</label><input type="text" id="add-mod-name" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Academic English"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Parent Kulliyya</label><select id="add-mod-fac" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Program Name</label><input type="text" id="add-mod-prog" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Bachelor of Arts"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Session</label><select id="add-mod-session" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="Morning">Morning</option><option value="Evening">Evening</option></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Offered Batch</label><input type="text" id="add-mod-batch" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. Batch 1"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Combined Batch</label><input type="text" id="add-mod-comb" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="Leave empty if individual"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Campus</label><select id="add-mod-campus" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="Male'">Male'</option><option value="Hulhumale">Hulhumale</option><option value="Addu City">Addu City</option></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Modality</label><select id="add-mod-modality" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="Face to Face">Face to Face</option><option value="Online">Online</option><option value="Blended">Blended</option></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Medium of Instruction</label><select id="add-mod-medium" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="English">English</option><option value="Dhivehi">Dhivehi</option><option value="Arabic">Arabic</option></select></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">No of Students</label><input type="number" id="add-mod-students" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="0"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Weekly Contact Hours (WCH)</label><input type="number" id="add-mod-wch" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="E.g. 3"></div>
+            <div><label class="text-[10px] font-bold text-gray-600 uppercase">Offered Status</label><select id="add-mod-status" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="New">New</option><option value="Existing">Existing</option></select></div>
+        </div>
+        <div class="mt-6 flex justify-end gap-2 border-t pt-4">
+            <button onclick="window.closeAddModuleModal()" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px]">Cancel</button>
+            <button onclick="window.saveNewModule()" class="btn-mix-huru px-4 py-2 rounded font-bold text-[10px]">💾 Save Module</button>
+        </div>
+    </div>
+</div>
+
+<div id="hr-modal" class="modal-overlay">
+    <div class="modal-content flex flex-col" style="border: 8px solid #d4af37; border-radius: 20px; background: #fffdf7; max-width: 900px;">
+        <div class="p-6 border-b-4 border-[#004d40] flex justify-between items-center bg-gradient-royal shadow-lg">
+            <h2 class="text-2xl md:text-3xl font-black text-[#d4af37] uppercase tracking-widest">Royal Workload Slip</h2>
+            <button onclick="window.closeHRView()" class="text-[#d4af37] hover:text-white text-3xl font-bold leading-none" title="Close Window">&times;</button>
+        </div>
+        <div class="p-6 flex-1">
+            <div id="hr-meta" class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-6 rounded-xl mb-6 border-l-8 border-[#0d47a1] shadow-md text-xs md:text-sm font-bold text-gray-800"></div>
+            <h3 class="font-black text-[#004d40] uppercase mb-3 text-sm md:text-base tracking-widest border-b-2 border-[#d4af37] pb-2">Assigned Modules Breakdown</h3>
+            <div class="overflow-x-auto border-2 border-gray-200 rounded-xl shadow-sm bg-white">
+                <table class="w-full text-left text-[10px] md:text-[11px] border-collapse min-w-[600px]">
+                    <thead class="bg-[#0f172a] text-[#d4af37] uppercase font-black tracking-wide">
+                        <tr>
+                            <th class="p-3 border-b border-gray-300">Code & Name</th>
+                            <th class="p-3 border-b border-gray-300">Owning Faculty</th>
+                            <th class="p-3 border-b border-gray-300">Program & Batch</th>
+                            <th class="p-3 border-b border-gray-300 text-center">Students</th>
+                            <th class="p-3 border-b border-gray-300 text-center">Mode</th>
+                            <th class="p-3 border-b border-gray-300 text-right">Net Hrs</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hr-table-body" class="divide-y divide-gray-200 font-bold"></tbody>
+                    <tfoot class="bg-[#f8fafc] font-black text-[11px] md:text-sm border-t-2 border-gray-300">
+                        <tr>
+                            <td colspan="5" class="p-4 text-right uppercase text-gray-600">Total Calculated Workload:</td>
+                            <td id="hr-total" class="p-4 text-right text-red-600 text-lg">0.0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="p-4 border-t-4 border-[#d4af37] bg-gradient-royal flex flex-wrap justify-end gap-3 items-center rounded-b-xl">
+            <button onclick="window.closeHRView()" class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-black text-[10px] uppercase shadow-md mr-auto hover:bg-gray-300 transition">Close</button>
+            <button onclick="window.printOfficialDocument()" class="btn-mix-huru px-5 py-2 rounded-lg text-[10px] font-black uppercase transition flex items-center gap-2 shadow-lg">🖨️ Print Slip</button>
+            <button onclick="window.downloadOfficialPDF()" class="btn-gold px-5 py-2 rounded-lg text-[10px] font-black uppercase shadow-lg flex items-center gap-2">📄 Download PDF</button>
+        </div>
+    </div>
+</div>
+
+<div id="report-frame">
+    <div class="pdf-border-outer">
+        <div class="pdf-border-inner" id="report-content-area"></div>
+    </div>
+</div>
+
+<div id="master-print-frame">
+    <div class="print-royal-header">
+        <h1 class="print-royal-title">Official Master Data Report</h1>
+        <h2 id="print-report-subtitle" class="print-royal-subtitle"></h2>
+        <div id="print-filter-info" class="mt-4 flex flex-wrap justify-center gap-2 text-[10px] text-gray-700"></div>
+    </div>
+    <div id="print-content-custom"></div>
+    <table class="print-table" id="print-table-container">
+        <thead id="print-table-head"></thead>
+        <tbody id="print-table-body"></tbody>
+    </table>
+    <div class="mt-10 text-center text-[8px] text-gray-500 italic">
+        Generated by Presidential Executive Workload Portal | Date: <span id="print-date"></span>
+    </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
