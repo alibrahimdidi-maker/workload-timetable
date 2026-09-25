@@ -511,9 +511,13 @@
             <div id="admin-controls" class="hidden card p-4 mb-6 bg-red-50 border-t-4 border-red-600 flex-col lg:flex-row justify-between items-center gap-4">
                 <div>
                     <h3 class="font-black text-red-800 uppercase text-xs">Academic Affairs (Global Admin)</h3>
-                    <p class="text-[9px] text-red-600 font-bold">Full authorization enabled. Manage master imports or reset system.</p>
+                    <p class="text-[9px] text-red-600 font-bold">Full authorization enabled. Backup / restore the whole system, manage imports or reset.</p>
+                    <p id="last-backup-note" class="text-[9px] text-gray-600 font-bold"></p>
                 </div>
                 <div class="flex gap-2 flex-wrap justify-center items-center">
+                    <button onclick="window.downloadFullBackup()" class="bg-blue-800 hover:bg-blue-900 text-white font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase">💾 Full Backup (.json)</button>
+                    <button onclick="window.exportEverythingExcel()" class="bg-green-800 hover:bg-green-900 text-white font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase">📊 Export Everything (Excel)</button>
+                    <label class="bg-white border-2 border-red-400 text-red-800 font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase cursor-pointer hover:bg-red-100">♻️ Restore Backup<input type="file" accept=".json,.xlsx" class="hidden" onchange="window.restoreBackup(event)"></label>
                     <button onclick="window.applyKirkSeed(true)" class="bg-green-700 hover:bg-green-800 text-white font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase">🏛️ Load KIRK Official Staff & Checklist</button>
                     <button onclick="window.openClearData()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase">🧹 Clear Dummy / Selected Data</button>
                     <button onclick="window.masterReset()" class="bg-red-700 hover:bg-red-800 text-white font-bold px-4 py-2 rounded shadow text-[9px] transition uppercase ml-2">
@@ -725,6 +729,7 @@
                             <button onclick="window.openBulkCoord()" class="bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 px-3 py-1.5 rounded text-[9px] font-black">👨‍💼 Link Lecturers to a Coordinator</button>
                             <button onclick="window.exportChecklistExcel()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded text-[9px] font-bold shadow-sm">📥 Export Excel</button>
                             <button onclick="window.printChecklistReport()" class="btn-royal-blue px-3 py-1.5 rounded text-[9px] font-black uppercase shadow">🖨️ Print Report</button>
+                            <span data-ds-tools="checklist,consultations" title="Full data incl. exam documents, follow-ups & weekly ticks"></span>
                         </div>
                     </div>
 
@@ -775,6 +780,7 @@
                     <div class="flex items-center gap-2 mb-4 border-b pb-2">
                         <span class="text-xl">🎉</span>
                         <h2 class="text-lg font-black text-blue-900 uppercase tracking-wide">Events & Attendance Management</h2>
+                        <span class="ml-auto" data-ds-tools="events"></span>
                     </div>
 
                     <div id="admin-event-controls" class="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-inner">
@@ -850,6 +856,7 @@
                             <h2 class="text-xl font-black text-green-900 uppercase tracking-wide flex items-center gap-2"><span>📝</span> Weekly Academic Reports</h2>
                             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Track class delivery, cancellations, and academic tasks.</p>
                         </div>
+                        <span data-ds-tools="weekly_reports"></span>
                     </div>
 
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 mb-4 flex gap-2">
@@ -881,7 +888,7 @@
             
             <div id="tab-tasks" class="tab-content">
                 <div class="card p-6 border-t-8 border-blue-700 shadow-lg">
-                    <h2 class="text-xl font-black text-blue-900 uppercase mb-4">Tasks & Requests</h2>
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-4"><h2 class="text-xl font-black text-blue-900 uppercase">Tasks & Requests</h2><span data-ds-tools="tasks,requests"></span></div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
@@ -949,7 +956,7 @@
                             <h2 class="text-xl font-black text-green-900 uppercase">Exam Unit Preparation & Tracking</h2>
                             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Track paper submissions, marking schemes, and moderation kits.</p>
                         </div>
-                        <button onclick="window.openExamRequestModal()" class="btn-mix-huru px-4 py-2 rounded text-[10px] font-bold shadow transition">✉️ Send Exam Request</button>
+                        <div class="flex flex-wrap gap-2 items-center"><span data-ds-tools="exam_progress"></span><button onclick="window.openExamRequestModal()" class="btn-mix-huru px-4 py-2 rounded text-[10px] font-bold shadow transition">✉️ Send Exam Request</button></div>
                     </div>
 
                     <div class="flex flex-wrap gap-2 mb-4 bg-gray-50 p-3 rounded border">
@@ -1009,6 +1016,7 @@
                                 <option value="">-- Check Lecturer Workload --</option>
                             </select>
                             <input type="text" id="mSearch" placeholder="Search Module/Faculty Code..." class="p-2 border rounded-lg text-[10px] md:text-xs outline-none focus:border-gold flex-1 shadow-sm" onkeyup="window.renderMatrix()">
+                            <span data-ds-tools="assignments"></span>
                         </div>
                     </div>
                     <div class="overflow-x-auto max-h-[650px] pb-24">
@@ -1081,6 +1089,7 @@
                             <button onclick="window.bulkExportPDF('course')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk (Courses)</button>
                             <button onclick="window.bulkExportPDF('batch')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk (Batches)</button>
                             <button onclick="window.bulkExportPDF('lecturer')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk (Lecturers)</button>
+                            <span data-ds-tools="timetable"></span>
                         </div>
                     </div>
                     
@@ -1124,6 +1133,7 @@
                             <select id="exam-tt-export-batch" class="p-1.5 border border-gray-300 rounded text-[9px] shadow-sm"><option value="ALL">All Batches</option></select>
                             <button onclick="window.printMasterReport('exam_timetable')" class="btn-mix-huru px-4 py-1.5 rounded text-[10px] font-bold shadow-sm transition">🖨️ Export PDF</button>
                             <button onclick="window.bulkExportPDF('course')" class="btn-mix-huru px-2 py-1.5 rounded text-[10px]">Bulk</button>
+                            <span data-ds-tools="exam_timetable"></span>
                         </div>
                     </div>
                     
@@ -1292,7 +1302,7 @@
 
             <div id="tab-users" class="tab-content">
                 <div class="card overflow-hidden p-4">
-                    <h2 class="font-black text-royal-green uppercase mb-1 text-sm">Manage Users</h2>
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-1"><h2 class="font-black text-royal-green uppercase text-sm">Manage Users</h2><span data-ds-tools="courseCoordinators"></span></div>
                     <p class="text-[10px] text-gray-500 mb-4 font-bold">Create login accounts for Coordinators, Deans, HODs, Secretaries, Registrar, VC, Finance, Exam Unit, or any faculty/lecturer/student account. These go straight into this project's Firebase Authentication users list. <b>For lecturers, the quickest way is Lecturers → 🔐 Login Access.</b></p>
 
                     <div style="background:#f8fafc; border:2px dashed var(--royal-blue); border-radius:10px; padding:20px; margin-bottom:24px;">
@@ -4747,8 +4757,15 @@
             box.innerHTML = `<div class="flex flex-col lg:flex-row justify-between lg:items-center gap-2 mb-3">
                     <div><h2 class="font-black text-purple-900 uppercase text-sm">🧭 Coordination Setup</h2>
                     <p class="text-[10px] text-gray-500 font-bold">IUM coordinates in two ways: <b>1) by module</b> and <b>2) by course & batch</b>. Choose the coordinator in the right-hand column – it saves immediately, and that person can then tick the checklist for everything they coordinate.</p></div>
-                    <div class="flex gap-2 items-center text-[10px]"><select data-el="fac" class="p-1.5 border rounded font-bold outline-none"></select>
+                    <div class="flex gap-2 items-center text-[10px] flex-wrap"><select data-el="fac" class="p-1.5 border rounded font-bold outline-none"></select>
                     <input data-el="q" placeholder="🔍 Search module / course / batch / lecturer" class="p-1.5 border rounded outline-none min-w-[220px]"></div></div>
+                <div class="flex flex-wrap gap-2 items-center bg-gray-50 border rounded-lg p-2 mb-3 text-[10px]">
+                    <b class="text-gray-600">Bulk:</b>
+                    <button onclick="window.exportCoordSetup('${cid}')" class="bg-green-700 hover:bg-green-800 text-white px-3 py-1.5 rounded font-black">📥 Export / Template (Excel)</button>
+                    <button onclick="window.exportCoordSetup('${cid}', true)" class="bg-gray-200 hover:bg-gray-300 px-3 py-1.5 rounded font-bold">📄 CSV (2 files)</button>
+                    <label class="bg-purple-700 hover:bg-purple-800 text-white px-3 py-1.5 rounded font-black cursor-pointer">📤 Bulk Upload (Excel / CSV)<input type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.importCoordSetup('${cid}', event)"></label>
+                    <span class="text-gray-500">Export → fill the coordinator names → upload. Empty = no change, "-" = remove.</span>
+                </div>
                 <div data-el="stats" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3"></div>
                 <h3 class="text-xs font-black uppercase text-royal-blue mb-1">1️⃣ Module Coordinators</h3>
                 <div data-el="mod" class="overflow-x-auto max-h-[560px] border rounded-lg mb-6"></div>
@@ -4867,6 +4884,287 @@
         if (compact) return (modRows.length || courseRoles.length || teach.length) ? `<div class="grid grid-cols-1 md:grid-cols-3 gap-3">${teachBox}${modBox}${courseBox}</div>` : '';
         return `<h3 class="font-black text-[#004d40] uppercase mb-3 text-sm md:text-base tracking-widest border-b-2 border-[#d4af37] pb-2">🧭 Coordination Information</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${teachBox}${modBox}${courseBox}</div>`;
     };
+
+    // =====================================================================================
+    // ================= DATA EXPORT / IMPORT ENGINE (round-trip) + FULL BACKUP ============
+    // =====================================================================================
+    // Every dataset becomes one Excel sheet. Simple values stay as normal cells; nested values
+    // (sub-lists like follow-ups, weekly ticks, subtasks) are stored as JSON text in their cell.
+    // A "_schema" sheet remembers which columns are JSON, so importing the file back puts every
+    // value into exactly the same field again.
+    const DATASETS = [
+        ['lecturers', 'Lecturers', 'array', l => window.lecIdOf(l)],
+        ['modules', 'Modules', 'array', m => window.makeSafeId(window.getSafeVal(m, ['ModuleCode', 'Code'])) + '|' + String(window.getSafeVal(m, ['OfferedBatch']) || '').trim()],
+        ['students', 'Students', 'array', s => window.makeSafeId(window.getSafeVal(s, ['StudentID', 'ID']))],
+        ['checklist', 'CoordinatorChecklist', 'array', r => r.id],
+        ['consultations', 'Consultations', 'array', r => r.id],
+        ['tasks', 'Tasks', 'array', r => r.id],
+        ['requests', 'Requests', 'array', r => r.id],
+        ['events', 'Events', 'array', r => r.id],
+        ['weekly_reports', 'WeeklyReports', 'array', r => r.id],
+        ['timetable', 'ClassTimetable', 'array', r => r.id],
+        ['exam_timetable', 'ExamTimetable', 'array', r => r.id],
+        ['assignments', 'AssignmentMatrix', 'map'],
+        ['exam_progress', 'ExamTracking', 'map'],
+        ['courseCoordinators', 'CourseCoordinators', 'map'],
+        ['settings', 'Settings', 'kv']
+    ];
+    const DS = Object.fromEntries(DATASETS.map(d => [d[0], { key: d[0], sheet: d[1], type: d[2], idFn: d[3] }]));
+    const getDS = (k) => k === 'courseCoordinators' ? ((localDB.settings || {}).courseCoordinators || {}) : (k === 'settings' ? Object.fromEntries(Object.entries(localDB.settings || {}).filter(([kk]) => kk !== 'courseCoordinators')) : localDB[k]);
+    const setDS = (k, v) => {
+        if (k === 'courseCoordinators') localDB.settings.courseCoordinators = v;
+        else if (k === 'settings') { const cc = localDB.settings.courseCoordinators; localDB.settings = Object.assign({}, v); if (cc) localDB.settings.courseCoordinators = cc; }
+        else localDB[k] = v;
+    };
+    const dsObjects = (k, scoped) => {
+        const d = DS[k]; let v = getDS(k);
+        if (d.type === 'array') {
+            v = (v || []).slice();
+            const sf = scoped ? window.scopeFaculty() : '';
+            if (sf) v = v.filter(o => { const f = o.faculty || o.fac || (['lecturers', 'modules'].includes(k) ? window.getFaculty(o) : ''); return !f || String(f).includes(sf); });
+            return v;
+        }
+        if (d.type === 'map') return Object.entries(v || {}).map(([kk, val]) => (val && typeof val === 'object' && !Array.isArray(val)) ? { _key: kk, ...val } : { _key: kk, _value: val });
+        return Object.entries(v || {}).map(([kk, val]) => ({ _key: kk, _value: val }));
+    };
+    const toSheetData = (objs, forceJson = []) => {
+        const cols = []; const seen = new Set(); const json = new Set(forceJson);
+        objs.forEach(o => Object.keys(o).forEach(k => { if (!seen.has(k)) { seen.add(k); cols.push(k); } }));
+        const rows = objs.map(o => cols.map(c => { const v = o[c]; if (v === undefined || v === null) return ''; if (typeof v === 'object' || json.has(c)) { json.add(c); return JSON.stringify(v); } return v; }));
+        return { aoa: [cols, ...rows], json: [...json] };
+    };
+    const fromSheetData = (aoa, jsonCols) => {
+        if (!aoa || !aoa.length) return [];
+        const cols = aoa[0].map(c => String(c ?? '').trim()); const jset = new Set(jsonCols || []);
+        const out = [];
+        for (let i = 1; i < aoa.length; i++) {
+            const r = aoa[i]; if (!r || r.every(c => c === '' || c === null || c === undefined)) continue;
+            const o = {};
+            cols.forEach((c, j) => {
+                if (!c) return; let v = r[j];
+                if (v === '' || v === null || v === undefined) return;
+                if (typeof v === 'string' && (jset.has(c) || (!jsonCols && /^[\[{]/.test(v.trim())))) { try { v = JSON.parse(v); } catch (e) { /* keep text */ } }
+                o[c] = v;
+            });
+            out.push(o);
+        }
+        return out;
+    };
+    const objectsToDS = (k, objs) => {
+        const d = DS[k];
+        if (d.type === 'array') return objs;
+        const m = {};
+        objs.forEach(o => { if (o._key === undefined) return; const { _key, _value, ...rest } = o; m[_key] = _value !== undefined ? _value : rest; });
+        return m;
+    };
+    const addSchemaAndReadme = (wb, entries, title) => {
+        const s = XLSX.utils.aoa_to_sheet([['sheet', 'dataset', 'type', 'jsonColumns'], ...entries.map(e => [e.sheet, e.key, e.type, e.json.join(',')])]);
+        XLSX.utils.book_append_sheet(wb, s, '_schema');
+        const r = XLSX.utils.aoa_to_sheet([[title], [`Exported ${new Date().toLocaleString()} by ${myEmail() || '-'}`], [], ['• Each sheet is one part of the portal. You can edit values and import the file back.'], ['• Cells that start with [ or { are lists/details saved as text – keep their format or leave them unchanged.'], ['• Do NOT rename the sheets, the first-row headers, or the "_schema" sheet.'], ['• Rows are matched by their ID column (id / LecturerID / ModuleCode+OfferedBatch / StudentID / _key): same ID = updated, new ID = added.']]);
+        r['!cols'] = [{ wch: 110 }];
+        XLSX.utils.book_append_sheet(wb, r, 'README');
+    };
+    const stamp = () => new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    window.exportDataset = (k) => {
+        if (!window.XLSX) return alert('Excel library not loaded.');
+        const d = DS[k]; const objs = dsObjects(k, true);
+        if (!objs.length) return alert(`No ${d.sheet} data to export yet.`);
+        const { aoa, json } = toSheetData(objs, d.type === 'kv' ? ['_value'] : []);
+        const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), d.sheet);
+        addSchemaAndReadme(wb, [{ sheet: d.sheet, key: k, type: d.type, json }], `Workload Portal – ${d.sheet}`);
+        XLSX.writeFile(wb, `${d.sheet}_${window.scopeFaculty() || 'ALL'}_${stamp()}.xlsx`);
+    };
+    window.exportEverythingExcel = () => {
+        if (!window.XLSX) return alert('Excel library not loaded.');
+        const wb = XLSX.utils.book_new(); const entries = [];
+        DATASETS.forEach(([k]) => { const d = DS[k]; const objs = dsObjects(k, false); if (!objs.length) return; const { aoa, json } = toSheetData(objs, d.type === 'kv' ? ['_value'] : []); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), d.sheet); entries.push({ sheet: d.sheet, key: k, type: d.type, json }); });
+        addSchemaAndReadme(wb, entries, 'Workload Portal – FULL SYSTEM EXPORT');
+        XLSX.writeFile(wb, `WorkloadPortal_FULL_${stamp()}.xlsx`);
+    };
+    // Read an .xlsx/.csv (or backup .json) into { datasetKey: data }
+    const readDataFile = async (file, singleKey) => {
+        if (/\.json$/i.test(file.name)) {
+            const j = JSON.parse(await file.text());
+            const data = j && j.format === 'workload-portal-backup' ? j.data : j;
+            if (!data || typeof data !== 'object') throw new Error('Not a portal backup file.');
+            const out = {};
+            DATASETS.forEach(([k]) => { if (k === 'courseCoordinators') { if (data.settings && data.settings.courseCoordinators) out[k] = data.settings.courseCoordinators; } else if (k === 'settings') { if (data.settings) { const { courseCoordinators, ...rest } = data.settings; out[k] = rest; } } else if (data[k] !== undefined) out[k] = data[k]; });
+            return { out, meta: j.exportedAt ? `Backup from ${new Date(j.exportedAt).toLocaleString()} by ${j.by || '-'}` : 'JSON file' };
+        }
+        const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+        const schema = {};
+        if (wb.Sheets['_schema']) XLSX.utils.sheet_to_json(wb.Sheets['_schema'], { header: 1, defval: '' }).slice(1).forEach(r => { if (r[0]) schema[r[0]] = { key: r[1], json: String(r[3] || '').split(',').filter(Boolean) }; });
+        const out = {};
+        wb.SheetNames.forEach(name => {
+            if (name === '_schema' || name === 'README') return;
+            const key = (schema[name] && schema[name].key) || (DATASETS.find(d => d[1] === name) || [])[0] || (wb.SheetNames.length === 1 ? singleKey : null);
+            if (!key || !DS[key]) return;
+            const aoa = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '', raw: true });
+            out[key] = objectsToDS(key, fromSheetData(aoa, schema[name] ? schema[name].json : (DS[key].type === 'kv' ? ['_value'] : null)));
+        });
+        return { out, meta: file.name };
+    };
+    const countOf = (k, v) => Array.isArray(v) ? v.length : Object.keys(v || {}).length;
+    const applyImport = (out, mode) => {
+        Object.entries(out).forEach(([k, v]) => {
+            const d = DS[k];
+            if (mode === 'replace') { setDS(k, v); return; }
+            if (d.type === 'array') {
+                const cur = (getDS(k) || []).slice(); const idx = new Map(cur.map((o, i) => [d.idFn(o), i]));
+                v.forEach(o => { const id = d.idFn(o); if (idx.has(id)) cur[idx.get(id)] = o; else { idx.set(id, cur.length); cur.push(o); } });
+                setDS(k, cur);
+            } else setDS(k, Object.assign({}, getDS(k) || {}, v));
+        });
+        if (!Array.isArray(localDB.checklist)) localDB.checklist = [];
+        if (!Array.isArray(localDB.consultations)) localDB.consultations = [];
+        window.invalidateLecturerCache();
+        window.saveLocal(true);
+        window.triggerAllRenders();
+    };
+    window.importDataset = async (k, event) => {
+        const file = event.target.files[0]; event.target.value = ''; if (!file) return;
+        if (!window.isManagerRole() && activeRole !== 'EXAM') return alert('Only managers can import data.');
+        try {
+            const { out } = await readDataFile(file, k);
+            if (!out[k]) return alert(`This file has no "${DS[k].sheet}" sheet.\nUse a file exported with the 📥 Excel button of this section (or the full export).`);
+            const only = { [k]: out[k] };
+            const mode = (activeRole === 'ALL' && confirm(`Import ${countOf(k, out[k])} ${DS[k].sheet} record(s).\n\nOK = MERGE (update same IDs, add new ones – recommended)\nCancel = choose REPLACE instead`)) ? 'merge' : (activeRole === 'ALL' ? (confirm(`REPLACE all ${DS[k].sheet} with the file? Records not in the file will be removed.`) ? 'replace' : null) : 'merge');
+            if (!mode) return;
+            window.requireVerification(`Import ${countOf(k, out[k])} ${DS[k].sheet} record(s) – ${mode.toUpperCase()}`, () => { applyImport(only, mode); alert(`✅ ${DS[k].sheet}: ${countOf(k, out[k])} record(s) imported (${mode}).`); });
+        } catch (e) { console.error(e); alert('Import failed: ' + e.message); }
+    };
+    window.downloadFullBackup = () => {
+        if (activeRole !== 'ALL') return alert('Only Academic Affairs can download the full backup.');
+        const data = {}; ['lecturers', 'modules', 'assignments', 'timetable', 'exam_timetable', 'rooms', 'students', 'events', 'weekly_reports', 'tasks', 'requests', 'exam_progress', 'coordinators', 'coordination_reports', 'checklist', 'consultations', 'settings'].forEach(k => data[k] = localDB[k]);
+        const payload = { format: 'workload-portal-backup', version: 1, exportedAt: new Date().toISOString(), by: myEmail(), counts: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, countOf(k, v)])), data };
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `WorkloadPortal_BACKUP_${stamp()}.json`; a.click();
+        localDB.settings.lastBackupAt = payload.exportedAt; window.writeLocalCache();
+        window.showToast('Full backup downloaded – keep it somewhere safe.', 'success');
+    };
+    window.restoreBackup = async (event) => {
+        const file = event.target.files[0]; event.target.value = ''; if (!file) return;
+        if (activeRole !== 'ALL') return alert('Only Academic Affairs can restore a backup.');
+        try {
+            const { out, meta } = await readDataFile(file);
+            const keys = Object.keys(out);
+            if (!keys.length) return alert('Nothing to restore in this file.');
+            const summary = keys.map(k => `• ${DS[k].sheet}: ${countOf(k, out[k])}`).join('\n');
+            if (!confirm(`♻️ RESTORE\n${meta}\n\n${summary}\n\nThese parts will be REPLACED with the file's contents (parts not in the file stay as they are).\nTip: download a fresh backup first.\n\nContinue?`)) return;
+            window.requireVerification(`Restore backup (${keys.length} parts) – replaces current data`, () => { applyImport(out, 'replace'); alert('✅ Backup restored and synced to the cloud.'); });
+        } catch (e) { console.error(e); alert('Restore failed: ' + e.message); }
+    };
+    // Small 📥/📤 buttons placed in section headers: <span data-ds-tools="tasks,requests"></span>
+    window.renderDsTools = () => document.querySelectorAll('[data-ds-tools]').forEach(el => {
+        el.innerHTML = el.dataset.dsTools.split(',').map(k => `<button onclick="window.exportDataset('${k}')" class="bg-gray-100 hover:bg-gray-200 border text-gray-800 px-2 py-1 rounded text-[9px] font-bold whitespace-nowrap" title="Export ${DS[k].sheet} to Excel (re-importable)">📥 ${DS[k].sheet} Excel</button><label class="bg-white hover:bg-blue-50 border border-dashed border-blue-400 text-blue-800 px-2 py-1 rounded text-[9px] font-bold cursor-pointer whitespace-nowrap" title="Import a ${DS[k].sheet} file exported from here">📤 Import<input type="file" accept=".xlsx,.xls,.csv,.json" class="hidden" onchange="window.importDataset('${k}', event)"></label>`).join('');
+        el.classList.add('inline-flex', 'flex-wrap', 'gap-1', 'items-center');
+    });
+
+    // =====================================================================================
+    // ============== COORDINATION SETUP: Excel / CSV export + bulk upload =================
+    // =====================================================================================
+    const CS_MOD_H = ['Faculty', 'ModuleCode', 'ModuleName', 'Modality', 'Course', 'Batch', 'Lecturer', 'CoordinatorName', 'CoordinatorEmail', 'CoordinatorID'];
+    const CS_CRS_H = ['Faculty', 'Course', 'Batch', 'Mode', 'Modules', 'CoordinatorName', 'CoordinatorEmail', 'CoordinatorID'];
+    const csSheets = (fac) => {
+        const rows = (localDB.checklist || []).filter(r => r.faculty === fac).sort(rowSort);
+        const cc = localDB.settings.courseCoordinators || {};
+        const who = (id) => { const l = id ? window.getLecturerById(id) : null; return l ? [window.getLecturerName(l), window.getLecturerEmail(l), window.lecIdOf(l)] : ['', '', id || '']; };
+        const mod = [CS_MOD_H, ...rows.map(r => [fac, r.code, r.name, modalityOf(r), r.course, r.batch, r.lecturerName || '', ...(r.coordinatorId ? who(r.coordinatorId) : [r.coordinatorName || '', '', ''])])];
+        const groups = {}; rows.forEach(r => { const k = window.ccKey(fac, r.course, r.batch); (groups[k] = groups[k] || { course: r.course, batch: r.batch, rows: [] }).rows.push(r); });
+        const crs = [CS_CRS_H, ...Object.entries(groups).map(([k, g]) => [fac, g.course, g.batch, [...new Set(g.rows.map(modalityOf))].join(' / '), g.rows.map(r => r.code).join(', '), ...who((cc[k] || {}).coordinatorId)])];
+        const staff = [['Name', 'LecturerID', 'Email', 'Positions', 'Type'], ...localDB.lecturers.filter(l => window.getFaculty(l) === fac).sort((a, b) => window.getLecturerName(a).localeCompare(window.getLecturerName(b))).map(l => [window.getLecturerName(l), window.lecIdOf(l), window.getLecturerEmail(l), window.getPositions(l).map(p => POSITION_LABELS[p]).join(', '), window.getSafeVal(l, ['LecturerType'])])];
+        return { mod, crs, staff, rows };
+    };
+    window.exportCoordSetup = (cid, asCsv = false) => {
+        if (!window.XLSX) return alert('Excel library not loaded.');
+        const fac = CS[cid] && CS[cid].fac; if (!fac) return;
+        const { mod, crs, staff } = csSheets(fac);
+        if (asCsv) {
+            [['Module_Coordinators', mod], ['Course_Batch_Coordinators', crs]].forEach(([n, aoa]) => { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Sheet1'); XLSX.writeFile(wb, `${fac}_${n}.csv`, { bookType: 'csv' }); });
+            return;
+        }
+        const wb = XLSX.utils.book_new();
+        const w1 = XLSX.utils.aoa_to_sheet(mod); w1['!cols'] = [8, 12, 34, 12, 38, 26, 26, 26, 30, 30].map(w => ({ wch: w }));
+        const w2 = XLSX.utils.aoa_to_sheet(crs); w2['!cols'] = [8, 42, 30, 14, 40, 26, 30, 30].map(w => ({ wch: w }));
+        const w3 = XLSX.utils.aoa_to_sheet(staff); w3['!cols'] = [32, 30, 32, 26, 12].map(w => ({ wch: w }));
+        const w4 = XLSX.utils.aoa_to_sheet([['COORDINATION SETUP – how to bulk upload'], [], ['1. "Module Coordinators": one row per module + batch. Fill CoordinatorName (or CoordinatorEmail / CoordinatorID – any ONE is enough).'], ['   Leave Batch empty to set the coordinator for ALL batches of that module code.'], ['2. "Course Batch Coordinators": one row per course + batch. Fill the course / batch coordinator the same way.'], ['3. Use names exactly as in the "Staff (look-up)" sheet – or their email / LecturerID.'], ['4. Empty coordinator cell = no change.  Type  -  (a dash) or NONE to REMOVE a coordinator.'], ['5. Save and upload with 📤 Bulk Upload in Coordination Setup (.xlsx or .csv).']]);
+        w4['!cols'] = [{ wch: 120 }];
+        XLSX.utils.book_append_sheet(wb, w1, 'Module Coordinators'); XLSX.utils.book_append_sheet(wb, w2, 'Course Batch Coordinators'); XLSX.utils.book_append_sheet(wb, w3, 'Staff (look-up)'); XLSX.utils.book_append_sheet(wb, w4, 'How to');
+        XLSX.writeFile(wb, `${fac}_Coordination_Setup_${stamp()}.xlsx`);
+    };
+    window.importCoordSetup = async (cid, event) => {
+        const file = event.target.files[0]; event.target.value = ''; if (!file) return;
+        const st = CS[cid]; if (!st || !window.isManagerFor(st.fac)) return alert('Only the faculty / Dean / Academic Affairs can upload coordinators.');
+        const fac = st.fac;
+        try {
+            const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+            const nh = (v) => String(v ?? '').toLowerCase().replace(/[^a-z]/g, '');
+            const byId = {}, byEmail = {}, byName = {};
+            localDB.lecturers.forEach(l => { byId[window.lecIdOf(l)] = l; const e = window.getLecturerEmail(l); if (e) byEmail[e] = l; const n = window.normName(window.getLecturerName(l)); if (!byName[n] || window.getFaculty(l) === fac) byName[n] = l; });
+            // Each filled column is looked up on its own. If they point to different people (e.g. the
+            // name was changed but the old email/ID from the export was left), the one that differs
+            // from the CURRENT coordinator is taken – that is the column the user edited.
+            const findP = (name, email, id, currentId) => {
+                const c = [];
+                if (id) { const p = byId[window.makeSafeId(id)]; c.push(p || false); }
+                if (email) { const p = byEmail[String(email).toLowerCase().trim()]; c.push(p || false); }
+                if (name) { const p = byName[window.normName(name)]; c.push(p || false); }
+                const found = [...new Map(c.filter(Boolean).map(p => [window.lecIdOf(p), p])).values()];
+                if (found.length === 1) return found[0];
+                if (!found.length) return null;
+                const changed = found.filter(p => window.lecIdOf(p) !== currentId);
+                return changed.length === 1 ? changed[0] : 'CONFLICT';
+            };
+            const plan = { mod: [], crs: [], notFoundPeople: new Set(), notFoundRows: [], conflicts: [] };
+            wb.SheetNames.forEach(sn => {
+                const aoa = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '', raw: false });
+                if (!aoa.length) return;
+                const H = aoa[0].map(nh); const col = (n) => H.indexOf(nh(n));
+                const isMod = col('ModuleCode') >= 0 || col('Code') >= 0;
+                const isCrs = !isMod && col('Course') >= 0 && col('Batch') >= 0;
+                if (!isMod && !isCrs) return;
+                const g = (r, n) => { const i = col(n); return i >= 0 ? String(r[i] ?? '').trim() : ''; };
+                aoa.slice(1).forEach((r, i) => {
+                    const name = g(r, 'CoordinatorName') || g(r, 'Coordinator'), email = g(r, 'CoordinatorEmail'), id = g(r, 'CoordinatorID');
+                    if (!name && !email && !id) return;                        // no change
+                    const clear = /^(-|none|remove)$/i.test(name) || (!name && /^(-|none|remove)$/i.test(email || id));
+                    const rowFac = g(r, 'Faculty') || fac;
+                    if (rowFac !== fac) return;
+                    let targets = [], any = null, currentId = '', label = '';
+                    if (isMod) {
+                        const code = (g(r, 'ModuleCode') || g(r, 'Code')).toUpperCase(), batch = g(r, 'Batch');
+                        targets = localDB.checklist.filter(x => x.faculty === fac && x.code === code && (!batch || x.batch === batch));
+                        label = `${code}${batch ? ' – ' + batch : ''}`;
+                        if (!targets.length) { plan.notFoundRows.push(label); return; }
+                        currentId = targets[0].coordinatorId || '';
+                    } else {
+                        const course = g(r, 'Course'), batch = g(r, 'Batch');
+                        any = localDB.checklist.find(x => x.faculty === fac && x.course === course && x.batch === batch);
+                        label = `${course} – ${batch}`;
+                        if (!any) { plan.notFoundRows.push(label); return; }
+                        currentId = ((localDB.settings.courseCoordinators || {})[window.ccKey(fac, course, batch)] || {}).coordinatorId || '';
+                    }
+                    const p = clear ? null : findP(name, email, id, currentId);
+                    if (p === 'CONFLICT') { plan.conflicts.push(`${label} (${[name, email, id].filter(Boolean).join(' / ')})`); return; }
+                    if (!clear && !p) { plan.notFoundPeople.add(name || email || id); return; }
+                    if (isMod) targets.forEach(t => plan.mod.push([t, p]));
+                    else plan.crs.push([window.ccKey(fac, any.course, any.batch), any, p]);
+                });
+            });
+            if (!plan.mod.length && !plan.crs.length) return alert(`Nothing to update.${plan.notFoundPeople.size ? '\n\nCoordinators not found: ' + [...plan.notFoundPeople].join(', ') : ''}${plan.notFoundRows.length ? '\n\nModules/courses not found: ' + plan.notFoundRows.slice(0, 15).join('; ') : ''}\n\nTip: start from 📥 Export – it has the exact names, codes and batches.`);
+            const warn = `${plan.conflicts.length ? `\n⚠ Name / email / ID point to different people (skipped – fix these rows): ${plan.conflicts.slice(0, 8).join('; ')}` : ''}${plan.notFoundPeople.size ? `\n⚠ Coordinators not found (skipped): ${[...plan.notFoundPeople].slice(0, 10).join(', ')}` : ''}${plan.notFoundRows.length ? `\n⚠ Modules/courses not found (skipped): ${plan.notFoundRows.slice(0, 10).join('; ')}` : ''}`;
+            if (!confirm(`Bulk upload for ${fac}\n\n• Module coordinator changes: ${plan.mod.length} module-batch row(s)\n• Course / batch coordinator changes: ${plan.crs.length}${warn}\n\nApply?`)) return;
+            window.requireVerification(`Bulk upload coordinators (${plan.mod.length + plan.crs.length} changes)`, () => {
+                const at = nowIso(), by = myEmail();
+                plan.mod.forEach(([t, p]) => { t.coordinatorId = p ? window.lecIdOf(p) : ''; t.coordinatorName = p ? window.getLecturerName(p) : ''; t.updatedAt = at; t.updatedBy = by; if (p) window.addPosition(p, 'COORDINATOR'); });
+                const cc = (localDB.settings.courseCoordinators = localDB.settings.courseCoordinators || {});
+                plan.crs.forEach(([k, any, p]) => { if (!p) delete cc[k]; else { cc[k] = { faculty: fac, course: any.course, batch: any.batch, coordinatorId: window.lecIdOf(p), coordinatorName: window.getLecturerName(p), updatedAt: at, updatedBy: by }; window.addPosition(p, 'COORDINATOR'); } });
+                window.invalidateLecturerCache(); window.saveLocal(true); window.renderCoordSetupTables(cid);
+                alert(`✅ Coordinators updated: ${plan.mod.length} module-batch row(s), ${plan.crs.length} course/batch(es).${warn}`);
+            });
+        } catch (e) { console.error(e); alert('Upload failed: ' + e.message); }
+    };
+    setTimeout(() => window.renderDsTools(), 0);
 
     window.populateLecturerDropdown = () => {
         const select = document.getElementById('lecturerSelectStandalone'); if(!select) return;
@@ -5163,6 +5461,7 @@
             document.getElementById('header-stats').style.display = 'flex';
             if (activeRole === 'ALL') {
                 document.getElementById('admin-controls').style.display = 'flex';
+                setTimeout(() => { const n = document.getElementById('last-backup-note'); const t = localDB.settings && localDB.settings.lastBackupAt; if (n) n.innerHTML = t ? `Last backup downloaded: ${new Date(t).toLocaleString()}` : '<span class="text-red-700">⚠ No backup downloaded yet – press 💾 Full Backup.</span>'; }, 1500);
                 const thA = document.getElementById('th-actions');
                 if(thA) thA.style.display = 'table-cell';
                 const tbtnUsers = document.getElementById('tbtn-users');
