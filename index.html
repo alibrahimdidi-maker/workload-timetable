@@ -2308,16 +2308,40 @@
         document.getElementById('nu-fac-wrap').style.display = FACULTY_SCOPED.includes(role) ? 'block' : 'none';
     };
 
+    // Keeps whatever the admin already picked: the list is only rebuilt when the lecturer list
+    // itself changed, and the previous selection is put back afterwards (cloud sync can call this
+    // at any moment while the form is being filled).
+    let _nuPickerSig = '';
     window.populateNewUserLecturerPicker = () => {
         const sel = document.getElementById('nu-lecturer-picker');
         if (!sel) return;
-        let opts = '<option value="">-- Select Lecturer --</option>';
-        localDB.lecturers.forEach(l => {
-            const id = window.makeSafeId(window.getSafeVal(l, ['LecturerID']));
-            const name = window.getSafeVal(l, ['LecturerName']);
-            if (id && name) opts += `<option value="${id}">${name} (${window.getFaculty(l)})</option>`;
-        });
-        sel.innerHTML = opts;
+        const keep = sel.value || sel.dataset.keep || '';
+        const items = localDB.lecturers.map(l => [window.makeSafeId(window.getSafeVal(l, ['LecturerID'])), window.getSafeVal(l, ['LecturerName']), window.getFaculty(l)]).filter(x => x[0] && x[1]).sort((x, y) => String(x[1]).localeCompare(String(y[1])));
+        const sig = items.map(x => x.join('|')).join('~');
+        if (sig !== _nuPickerSig || sel.options.length <= 1) {
+            sel.innerHTML = '<option value="">-- Select Lecturer --</option>' + items.map(([id, name, fac]) => `<option value="${id}">${esc(name)} (${fac})</option>`).join('');
+            _nuPickerSig = sig;
+        }
+        if (keep && [...sel.options].some(o => o.value === keep)) sel.value = keep;
+        if (!sel.dataset.wired) {
+            sel.dataset.wired = '1';
+            sel.addEventListener('change', () => {
+                sel.dataset.keep = sel.value;
+                const l = sel.value ? window.getLecturerById(sel.value) : null;
+                if (!l) return;
+                const n = document.getElementById('nu-name'), e = document.getElementById('nu-email');
+                if (!n.value.trim()) n.value = window.getLecturerName(l);
+                if (!e.value.trim() && window.getLecturerEmail(l)) e.value = window.getLecturerEmail(l);
+                const role = document.getElementById('nu-role').value;
+                if (FACULTY_SCOPED.includes(role)) document.getElementById('nu-fac').value = window.getFaculty(l);
+            });
+            // Typing an email that belongs to a lecturer selects that lecturer automatically
+            document.getElementById('nu-email').addEventListener('change', (ev) => {
+                const em = ev.target.value.trim().toLowerCase();
+                const l = localDB.lecturers.find(x => window.getLecturerEmail(x) === em);
+                if (l && !sel.value) { sel.value = window.lecIdOf(l); sel.dataset.keep = sel.value; sel.dispatchEvent(new Event('change')); }
+            });
+        }
         const fs = document.getElementById('nu-fac');
         if (fs && !fs.options.length) fs.innerHTML = FACULTIES.map(f => `<option value="${f}">${f}</option>`).join('');
         window.onNewUserRoleChange();
@@ -2350,6 +2374,7 @@
                 if (lect && email && !window.getLecturerEmail(lect)) { lect.Email = email; window.saveLocal(true); }
                 alert(`✅ Account created for ${email} (role: ${ROLE_LABELS[role] || role}). Share the email and temporary password securely.`);
                 document.getElementById('nu-name').value = ''; document.getElementById('nu-email').value = ''; document.getElementById('nu-pass').value = '';
+                const pk = document.getElementById('nu-lecturer-picker'); pk.value = ''; pk.dataset.keep = '';
                 window.renderUserDirectory();
             }).catch(err => alert("❌ Login created but the role could not be saved: " + (err.code || err.message)));
         }).catch(err => {
@@ -2450,31 +2475,19 @@
         return 15; 
     };
 
+    // Writes the browser cache only (no upload). Used when data ARRIVES from the cloud –
+    // re-uploading it there caused an endless ping-pong between open tabs/devices.
+    const LOCAL_KEYS = ['modules', 'lecturers', 'assignments', 'timetable', 'exam_timetable', 'rooms', 'students', 'settings', 'events', 'weekly_reports', 'tasks', 'requests', 'exam_progress', 'coordinators', 'coordination_reports', 'checklist', 'consultations'];
+    window.writeLocalCache = () => {
+        try { LOCAL_KEYS.forEach(k => localStorage.setItem(`wl_${k}`, JSON.stringify(localDB[k]))); return true; }
+        catch (e) { return false; }
+    };
+    // A real local change: cache it AND upload it to the cloud (debounced).
     window.saveLocal = (silent = false) => {
-        try {
-            localStorage.setItem('wl_modules', JSON.stringify(localDB.modules));
-            localStorage.setItem('wl_lecturers', JSON.stringify(localDB.lecturers));
-            localStorage.setItem('wl_assignments', JSON.stringify(localDB.assignments));
-            localStorage.setItem('wl_timetable', JSON.stringify(localDB.timetable));
-            localStorage.setItem('wl_exam_timetable', JSON.stringify(localDB.exam_timetable));
-            localStorage.setItem('wl_rooms', JSON.stringify(localDB.rooms));
-            localStorage.setItem('wl_students', JSON.stringify(localDB.students));
-            localStorage.setItem('wl_settings', JSON.stringify(localDB.settings));
-            localStorage.setItem('wl_events', JSON.stringify(localDB.events));
-            localStorage.setItem('wl_weekly_reports', JSON.stringify(localDB.weekly_reports));
-            localStorage.setItem('wl_tasks', JSON.stringify(localDB.tasks));
-            localStorage.setItem('wl_requests', JSON.stringify(localDB.requests));
-            localStorage.setItem('wl_exam_progress', JSON.stringify(localDB.exam_progress));
-            localStorage.setItem('wl_coordinators', JSON.stringify(localDB.coordinators));
-            localStorage.setItem('wl_coordination_reports', JSON.stringify(localDB.coordination_reports));
-            localStorage.setItem('wl_checklist', JSON.stringify(localDB.checklist));
-            localStorage.setItem('wl_consultations', JSON.stringify(localDB.consultations));
-
-            if (!silent) window.showToast("Saved to Local Browser.", "success");
-            triggerAutoSync(); 
-        } catch (e) {
-            if(!silent) window.showToast("Warning: Local browser storage is full.", "warning");
-        }
+        const ok = window.writeLocalCache();
+        if (!ok && !silent) window.showToast("Warning: Local browser storage is full.", "warning");
+        else if (!silent) window.showToast("Saved to Local Browser.", "success");
+        triggerAutoSync();
     };
 
     const loadLocalCache = () => {
@@ -4546,7 +4559,8 @@
         } else if (activeRole !== 'STUDENT') {
             const activeTabContent = document.querySelector('.tab-content.active');
             const activeTabId = activeTabContent ? activeTabContent.id.replace('tab-', '') : null;
-            if (activeTabId) window.switchTab(activeTabId);
+            if (activeTabId === 'users') window.populateNewUserLecturerPicker();
+            else if (activeTabId) window.switchTab(activeTabId);
         }
 
         // Everything else catches up right after, off the critical path.
@@ -4737,10 +4751,31 @@
             Object.assign(localDB.settings, data.settings);
         }
         // Keep the local cache fresh too, so the offline fallback isn't stale next time.
-        try { window.saveLocal(true); } catch (e) {}
+        try { window.writeLocalCache(); } catch (e) {}   // cache only – never re-upload incoming data
     }
 
     let liveSyncRenderTimeout = null;
+    const userIsEditing = () => {
+        const a = document.activeElement;
+        if (a && ['INPUT', 'SELECT', 'TEXTAREA'].includes(a.tagName) && a.type !== 'checkbox' && a.type !== 'file') return true;
+        if ([...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex')) return true;
+        if (document.getElementById('tab-users')?.classList.contains('active')) {
+            // Manage Users form has something typed → don't disturb it
+            if (['nu-name', 'nu-email', 'nu-pass'].some(id => (document.getElementById(id)?.value || '').trim()) || document.getElementById('nu-lecturer-picker')?.value) return true;
+        }
+        return false;
+    };
+    function scheduleSyncRender() {
+        clearTimeout(liveSyncRenderTimeout);
+        liveSyncRenderTimeout = setTimeout(() => {
+            if (userIsEditing()) { scheduleSyncRender(); return; }   // try again in a moment
+            window.triggerAllRenders();
+            // Small status in the header instead of a pop-up every time; a toast at most once per 5 minutes.
+            const who = window._lastSyncBy ? window._lastSyncBy.split('@')[0] : 'another user';
+            const txt = document.getElementById('cloud-txt'); if (txt) txt.innerText = `Synced · updated by ${who} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            if (Date.now() - (window._lastSyncToast || 0) > 5 * 60 * 1000) { window._lastSyncToast = Date.now(); window.showToast(`Latest changes loaded (by ${who}).`, "info"); }
+        }, 1500);
+    }
 
     function startLiveSync() {
         if (!dbCloud || cloudUnsubscribe) return; // already listening, or no cloud available
@@ -4751,15 +4786,13 @@
             // Skip the update that's just an echo of our own most recent write (or the data we
             // just loaded a moment ago).
             if (data.last_updated && data.last_updated === lastWrittenTimestamp) return;
+            if (snap.metadata && snap.metadata.hasPendingWrites) return;   // our own write still in flight
             lastWrittenTimestamp = data.last_updated || lastWrittenTimestamp;
             applyCloudSnapshot(data);
-            // Don't re-render under someone who is typing in the checklist workspace.
-            if (document.getElementById('ws-modal').style.display === 'flex') return;
-            clearTimeout(liveSyncRenderTimeout);
-            liveSyncRenderTimeout = setTimeout(() => {
-                window.triggerAllRenders();
-                window.showToast("Updated with the latest changes from the server.", "info");
-            }, 400);
+            window._lastSyncBy = data.last_updated_by || '';
+            // New data is stored immediately, but the screen is only re-drawn when the person is not
+            // in the middle of filling something in (focused field or any open form/modal).
+            scheduleSyncRender();
         }, (err) => {
             console.error("[live sync] listener error", err);
         });
@@ -4832,7 +4865,8 @@
                     checklist: localDB.checklist,
                     consultations: localDB.consultations,
                     settings: localDB.settings,
-                    last_updated: nowStamp
+                    last_updated: nowStamp,
+                    last_updated_by: (auth && auth.currentUser && auth.currentUser.email) || ''
                 });
                 await batch.commit();
             }
