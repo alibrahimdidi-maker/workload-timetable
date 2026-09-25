@@ -708,6 +708,7 @@
                                 <label class="text-[9px] font-bold text-purple-900 flex items-center gap-1 cursor-pointer" title="If ticked, TRUE/FALSE values from the file replace existing ticks"><input type="checkbox" id="cl-import-overwrite"> Overwrite ticks</label>
                                 <label class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-1.5 rounded shadow text-[9px] cursor-pointer uppercase">📤 Import Excel<input type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.importChecklistExcel(event)"></label>
                             </div>
+                            <button onclick="window.openBulkCoord()" class="bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 px-3 py-1.5 rounded text-[9px] font-black">👨‍💼 Link Lecturers to a Coordinator</button>
                             <button onclick="window.exportChecklistExcel()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 rounded text-[9px] font-bold shadow-sm">📥 Export Excel</button>
                             <button onclick="window.printChecklistReport()" class="btn-royal-blue px-3 py-1.5 rounded text-[9px] font-black uppercase shadow">🖨️ Print Report</button>
                         </div>
@@ -1308,12 +1309,23 @@
                                 <label class="text-[10px] font-bold text-gray-600 uppercase">Linked Lecturer Record</label>
                                 <select id="nu-lecturer-picker" class="w-full p-2 border rounded text-xs outline-none focus:border-gold"><option value="">-- Select Lecturer --</option></select>
                             </div>
-                            <div class="md:col-span-2"><label class="text-[10px] font-bold text-gray-600 uppercase">Temporary Password (min. 6 characters)</label><input type="text" id="nu-pass" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="Give this to the person securely"></div>
+                            <div class="md:col-span-2"><label class="text-[10px] font-bold text-gray-600 uppercase">Temporary Password (min. 6 characters) – leave EMPTY for Google sign-in only</label><input type="text" id="nu-pass" class="w-full p-2 border rounded text-xs outline-none focus:border-gold" placeholder="optional – IUM staff can simply use 'Sign in with Google'"></div>
+                            <div id="nu-links-wrap" class="md:col-span-2" style="display:none;">
+                                <label class="text-[10px] font-black text-purple-900 uppercase">Lecturers & modules this coordinator follows up (tick all – they can tick checklists for every one of them)</label>
+                                <div id="nu-links" class="mt-1"></div>
+                            </div>
                         </div>
-                        <button class="btn-royal-blue px-4 py-2 rounded text-[10px] font-black uppercase mt-3" onclick="window.createSystemUser()">👤 Create Account</button>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button class="nu-btn btn-royal-blue px-4 py-2 rounded text-[10px] font-black uppercase" onclick="window.createSystemUser()">👤 Create Account / Give Role</button>
+                            <button class="nu-btn bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded text-[10px] font-black uppercase" onclick="window.createSystemUser(true)" title="For people who already have a login or use Google sign-in">🔗 Save Role & Links Only (no password)</button>
+                            <button class="bg-white border-2 border-green-600 text-green-800 px-4 py-2 rounded text-[10px] font-black uppercase" onclick="window.runFirebaseCheck()">🩺 Check Firebase Connection</button>
+                        </div>
+                        <div id="fb-check-out" class="hidden mt-3 bg-white border rounded-lg p-3 text-[10px]"></div>
                     </div>
 
-                    <h3 style="color:var(--royal-blue); margin-bottom:12px; font-weight:900; font-size:0.8rem; text-transform:uppercase;">Account Directory</h3>
+                    <div class="flex justify-between items-center mb-2"><h3 style="color:var(--royal-blue); font-weight:900; font-size:0.8rem; text-transform:uppercase;">Account Directory</h3>
+                    <div class="flex gap-2"><input id="ud-search" onkeyup="window.renderUserDirectory()" placeholder="🔍 Search..." class="p-1.5 border rounded text-[10px] outline-none"><button onclick="window.renderUserDirectory()" class="bg-gray-200 px-2 rounded text-[10px] font-bold">↻</button></div></div>
+
                     <div id="user-directory-list"><p class="text-gray-400 text-xs">Loading...</p></div>
                 </div>
             </div>
@@ -1419,6 +1431,26 @@
             </div>
         </div>
         <div id="pc-body" class="p-4 overflow-y-auto flex-1 min-h-0"></div>
+    </div>
+</div>
+
+<!-- ===== NEW: Link many lecturers / modules to one coordinator ===== -->
+<div id="bc-modal" class="modal-overlay">
+    <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl border-t-8 border-purple-700 flex flex-col" style="max-height:95vh;">
+        <div class="p-4 border-b flex justify-between items-start gap-3">
+            <div><h2 class="text-lg font-black text-purple-900 uppercase">👨‍💼 Link Lecturers to a Coordinator</h2>
+            <p class="text-[10px] text-gray-500 font-bold">Choose the coordinator, tick every lecturer (or single modules) they follow up, then Save. The coordinator can then tick the checklist for all of them.</p></div>
+            <button onclick="document.getElementById('bc-modal').style.display='none'" class="text-gray-400 hover:text-red-600 text-3xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="p-4 overflow-y-auto flex-1 min-h-0 text-[10px]">
+            <label class="font-black uppercase text-gray-600">Coordinator</label>
+            <select id="bc-coord" onchange="window.renderCoordLinkPicker('bc-links', this.value, true)" class="w-full p-2 border rounded text-xs font-bold mb-3 outline-none"></select>
+            <div id="bc-links"></div>
+        </div>
+        <div class="p-3 border-t flex justify-end gap-2">
+            <button onclick="document.getElementById('bc-modal').style.display='none'" class="px-4 py-2 bg-gray-300 rounded font-bold text-[10px]">Cancel</button>
+            <button onclick="window.saveBulkCoord()" class="bg-purple-700 text-white px-4 py-2 rounded font-black text-[10px] uppercase">💾 Save Links</button>
+        </div>
     </div>
 </div>
 
@@ -2272,26 +2304,38 @@
     let currentUserRoleDoc = null;
     async function resolveUserRole(uid, email) {
         email = (email || '').toLowerCase().trim();
-        try {
-            const snap = await getDoc(doc(dbCloud, 'user_roles', uid));
-            if (snap.exists()) {
-                const data = snap.data();
-                if (data.disabled) return { role: '__DISABLED__', doc: data };
-                if (data.role) return { role: data.role, doc: data, from: 'user_roles' };
-            }
-        } catch (e) { console.error('[role lookup user_roles]', e); }
-        try {
-            if (email) {
-                const snap = await getDoc(doc(dbCloud, 'registered_emails', email));
-                if (snap.exists()) {
-                    const data = snap.data();
-                    if (data.disabled) return { role: '__DISABLED__', doc: data };
-                    if (data.role) return { role: data.role, doc: data, from: 'registry' };
-                }
-            }
-        } catch (e) { console.error('[role lookup registry]', e); }
+        let ur = null, reg = null;
+        try { const s1 = await getDoc(doc(dbCloud, 'user_roles', uid)); if (s1.exists()) ur = s1.data(); } catch (e) { console.warn('[role lookup user_roles]', e.code || e); }
+        try { if (email) { const s2 = await getDoc(doc(dbCloud, 'registered_emails', email)); if (s2.exists()) reg = s2.data(); } } catch (e) { console.warn('[role lookup registry]', e.code || e); }
+        if ((ur && ur.disabled) || (reg && reg.disabled)) return { role: '__DISABLED__', doc: reg || ur };
+        // The email registry is the current source of truth (works for password AND Google logins).
+        if (reg && reg.role) return { role: reg.role, doc: { ...(ur || {}), ...reg }, from: 'registry' };
+        if (ur && ur.role) return { role: ur.role, doc: ur, from: 'user_roles' };
         return { role: getRoleFromEmail(email), doc: null, from: 'pattern' };
     }
+
+    // ===== Firebase error → plain explanation + how to fix =====
+    window.fbErrorHelp = (err) => {
+        const c = (err && (err.code || err.message)) || String(err);
+        const H = {
+            'auth/operation-not-allowed': 'Email/Password sign-in is switched OFF.\nFix: Firebase Console → Authentication → Sign-in method → Email/Password → Enable → Save.',
+            'auth/admin-restricted-operation': 'New account creation (sign-up) is blocked in Firebase.\nFix: Firebase Console → Authentication → Settings → User actions → tick "Enable create (sign-up)" → Save.\n(Or skip passwords: let the person use "Sign in with Google" – the role is already linked by email.)',
+            'auth/email-already-in-use': 'A login already exists for this email (e.g. the person used Google sign-in before).',
+            'auth/invalid-email': 'The email address is not valid.',
+            'auth/weak-password': 'Password is too weak – use at least 6 characters.',
+            'auth/network-request-failed': 'No internet connection / Firebase could not be reached.',
+            'auth/too-many-requests': 'Firebase temporarily blocked requests (too many in a short time). Wait a few minutes and try again.',
+            'auth/api-key-not-valid.-please-pass-a-valid-api-key.': 'The API key in the file is not valid for this project.\nFix: Firebase Console → Project settings → General → Your apps → copy the config again.',
+            'auth/requests-from-referer-are-blocked': 'The API key is restricted to other websites.\nFix: Google Cloud Console → APIs & Services → Credentials → Browser key → Website restrictions → add ' + location.origin + '/*',
+            'auth/unauthorized-domain': 'This website address is not authorised.\nFix: Firebase Console → Authentication → Settings → Authorized domains → add ' + location.hostname,
+            'permission-denied': 'Firestore Security Rules refused the write.\nFix: publish the latest firestore.rules (Firestore → Rules → Publish). Your own login must be Academic Affairs (academic.affairs@ium.edu.mv), a faculty account, or a Dean/HOD/Secretary in the access list.',
+            'unavailable': 'Firestore is offline / unreachable. Check the internet connection.',
+        };
+        const key = Object.keys(H).find(k => c.includes(k));
+        return `[${c}]\n\n${key ? H[key] : 'Unexpected error: ' + (err && err.message ? err.message : c)}`;
+    };
+    const showFbError = (title, err) => { console.error(title, err); alert(`❌ ${title}\n\n${window.fbErrorHelp(err)}`); };
+    window.showFbError = showFbError;
 
     let secondaryApp = null, secondaryAuth = null;
     function getSecondaryAuth() {
@@ -2306,6 +2350,12 @@
         const role = document.getElementById('nu-role').value;
         document.getElementById('nu-lecturer-picker-wrap').style.display = (['COORDINATOR', 'DEAN', 'HOD', 'SECRETARY', 'LECTURER'].includes(role)) ? 'block' : 'none';
         document.getElementById('nu-fac-wrap').style.display = FACULTY_SCOPED.includes(role) ? 'block' : 'none';
+        const lw = document.getElementById('nu-links-wrap');
+        if (lw) {
+            const lid = document.getElementById('nu-lecturer-picker').value;
+            lw.style.display = role === 'COORDINATOR' ? 'block' : 'none';
+            if (role === 'COORDINATOR' && window.renderCoordLinkPicker) window.renderCoordLinkPicker('nu-links', lid);
+        }
     };
 
     // Keeps whatever the admin already picked: the list is only rebuilt when the lecturer list
@@ -2335,6 +2385,7 @@
                 const role = document.getElementById('nu-role').value;
                 if (FACULTY_SCOPED.includes(role)) document.getElementById('nu-fac').value = window.getFaculty(l);
             });
+            sel.addEventListener('change', () => { if (document.getElementById('nu-role').value === 'COORDINATOR') window.renderCoordLinkPicker('nu-links', sel.value, true); });
             // Typing an email that belongs to a lecturer selects that lecturer automatically
             document.getElementById('nu-email').addEventListener('change', (ev) => {
                 const em = ev.target.value.trim().toLowerCase();
@@ -2347,7 +2398,9 @@
         window.onNewUserRoleChange();
     };
 
-    window.createSystemUser = () => {
+    // Creates (or links) a login. The ROLE is stored by email in registered_emails, so it works
+    // for password logins AND "Sign in with Google" – and for people who already had a login.
+    window.createSystemUser = async (linksOnly = false) => {
         const name = document.getElementById('nu-name').value.trim();
         const email = document.getElementById('nu-email').value.trim().toLowerCase();
         const role = document.getElementById('nu-role').value;
@@ -2355,87 +2408,137 @@
         const lecturerId = document.getElementById('nu-lecturer-picker') ? document.getElementById('nu-lecturer-picker').value : '';
         const lect = lecturerId ? window.getLecturerById(lecturerId) : null;
         const faculty = FACULTY_SCOPED.includes(role) ? document.getElementById('nu-fac').value : (lect ? window.getFaculty(lect) : '');
-        if (!email || !pass) return alert("Please enter an email and a temporary password.");
-        if (pass.length < 6) return alert("Password must be at least 6 characters (Firebase's minimum).");
-        if (role === 'COORDINATOR' && !lecturerId) return alert("Please select which lecturer record this Coordinator corresponds to.");
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert("Please enter a valid email.");
+        if (role === 'COORDINATOR' && !lecturerId) return alert("Please select which lecturer record this Coordinator is (Linked Lecturer Record).");
+        if (!linksOnly && pass && pass.length < 6) return alert("Password must be at least 6 characters (Firebase's minimum) – or leave it empty to use Google sign-in only.");
+        if (!dbCloud || !navigator.onLine) return alert("You are offline – accounts can only be created online.");
 
-        const secAuth = getSecondaryAuth();
-        createUserWithEmailAndPassword(secAuth, email, pass).then((cred) => {
-            const newUid = cred.user.uid;
+        const btns = document.querySelectorAll('.nu-btn'); btns.forEach(b => b.disabled = true);
+        const loader = document.getElementById('loader'); loader.style.display = 'flex'; document.getElementById('loader-text').innerText = 'Creating account...';
+        let authResult = 'skipped', uid = '';
+        try {
+            // 1) Firebase Authentication login (only when a password was given)
+            if (!linksOnly && pass) {
+                try {
+                    const sec = getSecondaryAuth();
+                    const cred = await createUserWithEmailAndPassword(sec, email, pass);
+                    uid = cred.user.uid; authResult = 'created';
+                    await signOut(sec);
+                } catch (err) {
+                    if (err.code === 'auth/email-already-in-use') authResult = 'exists';
+                    else { showFbError('The login could not be created in Firebase Authentication', err); return; }
+                }
+            }
+            // 2) Role by email (required)
             const createdBy = auth.currentUser ? auth.currentUser.email : 'admin';
-            const payload = { role, name, email, disabled: false, createdAt: new Date().toISOString(), createdBy };
+            const payload = { role, name: name || (lect ? window.getLecturerName(lect) : ''), email, disabled: false, updatedAt: new Date().toISOString(), updatedBy: createdBy };
             if (lecturerId) payload.lecturerId = lecturerId;
             if (faculty) payload.faculty = faculty;
-            Promise.all([
-                setDoc(doc(dbCloud, 'user_roles', newUid), payload),
-                setDoc(doc(dbCloud, 'registered_emails', email), { ...payload, updatedAt: new Date().toISOString() }, { merge: true })
-            ]).then(() => {
-                signOut(secAuth);
-                if (lect && email && !window.getLecturerEmail(lect)) { lect.Email = email; window.saveLocal(true); }
-                alert(`✅ Account created for ${email} (role: ${ROLE_LABELS[role] || role}). Share the email and temporary password securely.`);
-                document.getElementById('nu-name').value = ''; document.getElementById('nu-email').value = ''; document.getElementById('nu-pass').value = '';
-                const pk = document.getElementById('nu-lecturer-picker'); pk.value = ''; pk.dataset.keep = '';
-                window.renderUserDirectory();
-            }).catch(err => alert("❌ Login created but the role could not be saved: " + (err.code || err.message)));
-        }).catch(err => {
-            alert("❌ Could not create the account: " + (err.message || err.code || 'unknown error'));
-        });
+            if (lect) payload.positions = window.getPositions(lect);
+            try { await setDoc(doc(dbCloud, 'registered_emails', email), payload, { merge: true }); }
+            catch (err) { showFbError(authResult === 'created' ? 'The login was created, but the ROLE could not be saved' : 'The role could not be saved', err); return; }
+            // 3) Legacy uid record (best effort – not required any more)
+            if (uid) { try { await setDoc(doc(dbCloud, 'user_roles', uid), { ...payload, createdAt: payload.updatedAt, createdBy }); } catch (e) { console.warn('user_roles write skipped', e.code); } }
+            // 4) Lecturer record + coordinator links (all the lecturers/modules ticked in the list)
+            let linked = 0;
+            if (lect) {
+                if (!window.getLecturerEmail(lect)) { lect.Email = email; delete lect.emailSuggested; }
+                if (role === 'COORDINATOR') window.addPosition(lect, 'COORDINATOR');
+                if (['DEAN', 'HOD', 'SECRETARY'].includes(role)) window.addPosition(lect, role);
+                lect.accessSyncedAt = payload.updatedAt;
+                if (role === 'COORDINATOR' && window.applyCoordLinks) linked = window.applyCoordLinks('nu-links', lecturerId);
+                window.invalidateLecturerCache();
+                window.saveLocal(true);
+            }
+            const linkTxt = role === 'COORDINATOR' ? `\n\n🔗 ${linked} module(s) now under this coordinator – they can tick all of them.` : '';
+            if (linksOnly) alert(`✅ Role and links saved for ${email}.${linkTxt}`);
+            else if (authResult === 'created') alert(`✅ Account created for ${email}\nRole: ${ROLE_LABELS[role] || role}\nTemporary password: ${pass}\n\nShare these securely. The person can also press "Sign in with Google".${linkTxt}`);
+            else if (authResult === 'exists') { if (confirm(`ℹ️ ${email} already had a login (probably Google sign-in).\nThe role "${ROLE_LABELS[role] || role}" has been linked to it.${linkTxt}\n\nSend a "set your password" email to them as well?`)) { try { await sendPasswordResetEmail(auth, email); alert('✉ Sent.'); } catch (e) { showFbError('Could not send the email', e); } } }
+            else alert(`✅ Role saved for ${email} (no password – they log in with "Sign in with Google").${linkTxt}`);
+            document.getElementById('nu-name').value = ''; document.getElementById('nu-email').value = ''; document.getElementById('nu-pass').value = '';
+            const pk = document.getElementById('nu-lecturer-picker'); pk.value = ''; pk.dataset.keep = '';
+            window.onNewUserRoleChange();
+            window.renderUserDirectory();
+        } finally { loader.style.display = 'none'; btns.forEach(b => b.disabled = false); }
     };
 
-    window.renderUserDirectory = () => {
+    // ===== Firebase connection check =====
+    window.runFirebaseCheck = async () => {
+        const out = document.getElementById('fb-check-out'); if (!out) return;
+        out.classList.remove('hidden');
+        const rows = []; const add = (ok, label, detail) => { rows.push(`<div class="flex gap-2 items-start py-1 border-b border-gray-100"><span>${ok === null ? '⏳' : ok ? '✅' : '❌'}</span><div><b>${label}</b>${detail ? `<div class="text-[9px] ${ok ? 'text-gray-500' : 'text-red-700'} whitespace-pre-wrap">${esc(detail)}</div>` : ''}</div></div>`); out.innerHTML = rows.join(''); };
+        const u = auth && auth.currentUser;
+        add(!!u, 'Signed in', u ? `${u.email} (${(u.providerData || []).map(p => p.providerId).join(', ')}) · app role: ${activeRole}` : 'Not signed in');
+        add(navigator.onLine, 'Internet connection', navigator.onLine ? '' : 'Offline');
+        try { const sn = await getDoc(doc(collection(dbCloud, 'workload_data'), 'master_record')); add(true, 'Read portal data (workload_data/master_record)', sn.exists() ? 'OK' : 'OK – document does not exist yet'); }
+        catch (e) { add(false, 'Read portal data', window.fbErrorHelp(e)); }
+        try { await getDoc(doc(dbCloud, 'registered_emails', (u && u.email || 'x').toLowerCase())); add(true, 'Read access list (registered_emails)', ''); }
+        catch (e) { add(false, 'Read access list (registered_emails)', window.fbErrorHelp(e)); }
+        try { await setDoc(doc(dbCloud, 'registered_emails', '__healthcheck__'), { at: new Date().toISOString(), by: u ? u.email : '' }); await deleteDoc(doc(dbCloud, 'registered_emails', '__healthcheck__')); add(true, 'Write access list (needed to give roles)', ''); }
+        catch (e) { add(false, 'Write access list (needed to give roles)', window.fbErrorHelp(e)); }
+        try {
+            const sec = getSecondaryAuth();
+            const testEmail = `healthcheck.${Date.now()}@example.com`;
+            const cred = await createUserWithEmailAndPassword(sec, testEmail, 'Hc-' + Math.random().toString(36).slice(2, 10) + '9!');
+            await cred.user.delete(); await signOut(sec).catch(() => {});
+            add(true, 'Create password logins (Email/Password sign-up)', 'OK – a test login was created and deleted again');
+        } catch (e) { add(false, 'Create password logins (Email/Password sign-up)', window.fbErrorHelp(e)); }
+        add(true, 'Done', 'If everything is ✅, account creation will work. Google sign-in needs: Authentication → Sign-in method → Google enabled, and this site in Authorized domains (' + location.hostname + ').');
+    };
+
+    // ===== Account directory: roles by email (registered_emails) + legacy uid accounts =====
+    window.renderUserDirectory = async () => {
         const list = document.getElementById('user-directory-list');
         if (!list) return;
         list.innerHTML = '<p class="text-gray-400 text-xs">Loading...</p>';
-        getDocs(collection(dbCloud, 'user_roles')).then(snap => {
-            if (snap.empty) { list.innerHTML = '<p class="text-gray-400 text-xs">No accounts created yet.</p>'; return; }
-            let html = '';
-            snap.forEach(d => {
-                const u = d.data();
-                const uid = d.id;
-                const roleLabel = ROLE_LABELS[u.role] || u.role;
-                const disabledBadge = u.disabled ? '<span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:900;margin-left:6px;">DISABLED</span>' : '';
-                let lecturerNote = '';
-                if (u.lecturerId) {
-                    const l = window.getLecturerById(u.lecturerId);
-                    lecturerNote = `<div style="font-size:10px;color:#6b7280;">Linked to: ${l ? window.getSafeVal(l, ['LecturerName']) : u.lecturerId}${u.faculty ? ' · ' + u.faculty : ''}</div>`;
-                }
-                html += `<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; border-bottom:1px solid #e5e7eb; padding:10px 0;">
-                    <div>
-                        <b>${u.name || '(no name)'}</b>${disabledBadge}<br>
-                        <span style="color:#555; font-size:11px;">${u.email || ''}</span><br>
-                        <span style="font-size:10px; color:var(--royal-blue); font-weight:900;">${roleLabel}</span>
-                        ${lecturerNote}
-                    </div>
-                    <div style="text-align:right; font-size:10px; color:#888;">
-                        Created ${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : ''}<br>by ${u.createdBy || ''}
-                        <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
-                            <button class="btn-royal-blue" style="padding:4px 10px; font-size:9px; border-radius:6px;" onclick="window.sendUserPasswordReset('${(u.email||'').replace(/'/g,"\\'")}')">Reset Password</button>
-                            <button class="btn-royal-blue" style="padding:4px 10px; font-size:9px; border-radius:6px;" onclick="window.toggleUserDisabled('${uid}', ${!u.disabled})">${u.disabled ? 'Enable' : 'Disable'}</button>
-                            <button style="padding:4px 10px; font-size:9px; border-radius:6px; background:#dc2626; color:#fff; border:none;" onclick="window.removeSystemUser('${uid}')">Remove</button>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            list.innerHTML = html;
-        }).catch(err => {
-            list.innerHTML = '<p style="color:#dc2626; font-size:11px;">Could not load the directory: ' + (err.code || err.message) + '</p>';
-        });
+        const q = (document.getElementById('ud-search')?.value || '').toLowerCase();
+        const byEmail = {};
+        let err = null;
+        try { (await getDocs(collection(dbCloud, 'registered_emails'))).forEach(d => { if (d.id === '__healthcheck__') return; byEmail[d.id] = { ...d.data(), email: d.id, src: 'registry' }; }); } catch (e) { err = e; }
+        try { (await getDocs(collection(dbCloud, 'user_roles'))).forEach(d => { const u = d.data(); const em = (u.email || '').toLowerCase(); if (!em) return; byEmail[em] = { ...u, ...(byEmail[em] || {}), uid: d.id, email: em }; }); } catch (e) { err = err || e; }
+        const arr = Object.values(byEmail).filter(u => !q || [u.email, u.name, u.role, u.faculty].join(' ').toLowerCase().includes(q)).sort((a, b) => String(a.role).localeCompare(String(b.role)) || String(a.name || a.email).localeCompare(String(b.name || b.email)));
+        if (!arr.length) { list.innerHTML = err ? `<p class="text-red-600 text-xs whitespace-pre-wrap">Could not load the directory:\n${esc(window.fbErrorHelp(err))}</p>` : '<p class="text-gray-400 text-xs">No accounts yet.</p>'; return; }
+        list.innerHTML = `<p class="text-[9px] text-gray-500 mb-1">${arr.length} account(s)</p>` + arr.map(u => {
+            const l = u.lecturerId ? window.getLecturerById(u.lecturerId) : null;
+            const nCoord = u.lecturerId ? (localDB.checklist || []).filter(r => r.coordinatorId === u.lecturerId).length : 0;
+            const e = esc(u.email).replace(/'/g, "\\'");
+            return `<div class="flex justify-between items-start flex-wrap gap-2 border-b border-gray-100 py-2">
+                <div><b>${esc(u.name || '(no name)')}</b>${u.disabled ? '<span class="ml-1 bg-red-600 text-white px-2 rounded-full text-[8px] font-black">DISABLED</span>' : ''}<br>
+                <span class="text-[11px] text-gray-600">${esc(u.email)}</span><br>
+                <span class="text-[10px] font-black text-royal-blue">${ROLE_LABELS[u.role] || u.role || '-'}</span>${u.faculty ? ` · <span class="text-[10px] font-bold">${esc(u.faculty)}</span>` : ''}
+                ${l ? `<div class="text-[10px] text-gray-500">Linked to: ${esc(window.getLecturerName(l))}${nCoord ? ` · coordinates ${nCoord} module(s)` : ''}</div>` : ''}</div>
+                <div class="text-right text-[10px] text-gray-400">${u.uid ? '🔑 password login' : '🌐 Google / role only'}<br>${u.updatedAt || u.createdAt ? 'Updated ' + new Date(u.updatedAt || u.createdAt).toLocaleDateString() : ''}
+                <div class="mt-1 flex gap-1 flex-wrap justify-end">
+                    <button class="btn-royal-blue px-2 py-1 rounded text-[9px]" onclick="window.sendUserPasswordReset('${e}')">Reset Password</button>
+                    <button class="btn-royal-blue px-2 py-1 rounded text-[9px]" onclick="window.toggleUserDisabled('${e}', '${u.uid || ''}', ${!u.disabled})">${u.disabled ? 'Enable' : 'Disable'}</button>
+                    <button class="bg-red-600 text-white px-2 py-1 rounded text-[9px]" onclick="window.removeSystemUser('${e}', '${u.uid || ''}')">Remove</button>
+                </div></div></div>`;
+        }).join('');
     };
 
     window.sendUserPasswordReset = (email) => {
         if (!email) return alert("No email on file for this account.");
         if (!confirm("Send a password reset email to " + email + "?")) return;
-        sendPasswordResetEmail(auth, email).then(() => alert("✅ Password reset email sent to " + email + ".")).catch(err => alert("❌ " + (err.message || err.code)));
+        sendPasswordResetEmail(auth, email).then(() => alert("✅ Password reset email sent to " + email + ".")).catch(err => showFbError('Could not send the email', err));
     };
-
-    window.toggleUserDisabled = (uid, disable) => {
-        if (!confirm(disable ? "Disable this account's access?" : "Re-enable this account's access?")) return;
-        setDoc(doc(dbCloud, 'user_roles', uid), { disabled: !!disable }, { merge: true }).then(() => window.renderUserDirectory());
+    window.toggleUserDisabled = (email, uid, disable) => {
+        window.requireVerification(`${disable ? 'Disable' : 'Enable'} login: ${email}`, async () => {
+            try {
+                await setDoc(doc(dbCloud, 'registered_emails', email), { disabled: !!disable, email }, { merge: true });
+                if (uid) await setDoc(doc(dbCloud, 'user_roles', uid), { disabled: !!disable }, { merge: true }).catch(() => {});
+                window.renderUserDirectory();
+            } catch (e) { showFbError('Could not change the account', e); }
+        });
     };
-
-    window.removeSystemUser = (uid) => {
-        if (!confirm("Remove this account from the directory and disable its access?\n\nTheir Firebase login itself is not deleted (that needs a server-side step) - this blocks them from using the system and removes them from this list.")) return;
-        setDoc(doc(dbCloud, 'user_roles', uid), { disabled: true }, { merge: true }).then(() => deleteDoc(doc(dbCloud, 'user_roles', uid))).then(() => window.renderUserDirectory());
+    window.removeSystemUser = (email, uid) => {
+        window.requireVerification(`Remove access: ${email}`, async () => {
+            try {
+                await deleteDoc(doc(dbCloud, 'registered_emails', email));
+                if (uid) await deleteDoc(doc(dbCloud, 'user_roles', uid)).catch(() => {});
+                alert('Access removed. (The Firebase login itself can only be deleted in Firebase Console → Authentication → Users.)');
+                window.renderUserDirectory();
+            } catch (e) { showFbError('Could not remove the account', e); }
+        });
     };
 
     window.getSafeVal = (row, possibleKeys) => {
@@ -4353,6 +4456,102 @@
         const w2 = XLSX.utils.aoa_to_sheet(s2); w2['!cols'] = [{ wch: 30 }, { wch: 22 }, { wch: 12 }, { wch: 32 }, { wch: 45 }, { wch: 45 }, { wch: 30 }, { wch: 9 }, { wch: 12 }, { wch: 18 }];
         XLSX.utils.book_append_sheet(wb, w1, 'Lecturers'); XLSX.utils.book_append_sheet(wb, w2, 'Modules by Person');
         XLSX.writeFile(wb, `${fac || 'All'}_Lecturers_Coordinators_${todayStr()}.xlsx`);
+    };
+
+    // =====================================================================================
+    // ============ LINK MANY LECTURERS / MODULES TO ONE COORDINATOR (picker) ==============
+    // =====================================================================================
+    // Used in Manage Users (role = Subject Coordinator) and in "Link Lecturers to a Coordinator".
+    // Ticking a lecturer selects ALL their modules; single modules can be ticked too.
+    const CLP = {};   // containerId -> { coordId, sel:Set(rowIds), initial:Set(rowIds), q }
+    const clpRows = (coordId) => {
+        const coord = coordId ? window.getLecturerById(coordId) : null;
+        const fac = (coord && window.getFaculty(coord)) || window.scopeFaculty() || (document.getElementById('facView')?.value !== 'ALL' ? document.getElementById('facView')?.value : '');
+        const rows = (localDB.checklist || []).filter(r => !fac || fac === 'UNKNOWN' || r.faculty === fac);
+        return rows.length ? rows : (localDB.checklist || []);
+    };
+    window.renderCoordLinkPicker = (cid, coordId, reset = false) => {
+        const box = document.getElementById(cid); if (!box) return;
+        if (!coordId) { box.innerHTML = '<p class="italic text-gray-400 p-2 border rounded">Select the coordinator\'s own lecturer record first.</p>'; CLP[cid] = null; return; }
+        if (!(localDB.checklist || []).length) { box.innerHTML = '<p class="italic text-gray-400 p-2 border rounded">No checklist yet – import the Subject Coordinator Checklist first.</p>'; return; }
+        const coord = window.getLecturerById(coordId);
+        const cname = coord ? window.normName(window.getLecturerName(coord)) : '';
+        if (reset || !CLP[cid] || CLP[cid].coordId !== coordId) {
+            const pre = new Set(clpRows(coordId).filter(r => r.coordinatorId === coordId || (cname && window.normName(r.coordinatorName) === cname)).map(r => r.id));
+            CLP[cid] = { coordId, sel: new Set(pre), initial: new Set(pre), q: (CLP[cid] && CLP[cid].q) || '' };
+        }
+        const st = CLP[cid];
+        const rows = clpRows(coordId).sort(rowSort);
+        const groups = {};
+        rows.forEach(r => { const k = r.lecturerId || ('__' + (r.lecturerName || 'none')); (groups[k] = groups[k] || { name: r.lecturerName || 'Not allocated', id: r.lecturerId, rows: [] }).rows.push(r); });
+        const q = st.q.toLowerCase();
+        const list = Object.entries(groups).sort((a, b) => {
+            const as = a[1].rows.some(r => st.sel.has(r.id)), bs = b[1].rows.some(r => st.sel.has(r.id));
+            return (bs - as) || a[1].name.localeCompare(b[1].name);
+        }).filter(([, g]) => !q || g.name.toLowerCase().includes(q) || g.rows.some(r => (r.code + ' ' + r.name + ' ' + r.batch + ' ' + r.course).toLowerCase().includes(q)));
+        const nSel = st.sel.size, nLect = Object.values(groups).filter(g => g.rows.some(r => st.sel.has(r.id))).length;
+        box.innerHTML = `<div class="border-2 border-purple-200 rounded-xl bg-white">
+            <div class="flex flex-wrap gap-2 items-center p-2 bg-purple-50 border-b border-purple-100 sticky top-0">
+                <input value="${esc(st.q)}" oninput="window.clpSearch('${cid}', this.value)" placeholder="🔍 Search lecturer / module / batch..." class="p-1.5 border rounded text-[10px] outline-none flex-1 min-w-[160px]">
+                <button onclick="window.clpAll('${cid}', true)" class="bg-white border px-2 py-1 rounded text-[9px] font-bold">Tick all shown</button>
+                <button onclick="window.clpAll('${cid}', false)" class="bg-white border px-2 py-1 rounded text-[9px] font-bold">Untick all shown</button>
+                <span class="text-[10px] font-black text-purple-900">✔ ${nSel} modules · ${nLect} lecturers selected</span>
+            </div>
+            <div class="max-h-80 overflow-y-auto divide-y">${list.map(([k, g]) => {
+                const n = g.rows.filter(r => st.sel.has(r.id)).length; const all = n === g.rows.length;
+                return `<div class="p-2 ${n ? 'bg-green-50/60' : ''}">
+                    <label class="flex items-center gap-2 font-black text-[11px] cursor-pointer"><input type="checkbox" ${all ? 'checked' : ''} ${n && !all ? 'data-ind="1"' : ''} onchange="window.clpLect('${cid}','${esc(k)}',this.checked)" class="w-4 h-4 accent-purple-700"> 👨‍🏫 ${esc(g.name)} <span class="text-gray-400 font-bold">${n}/${g.rows.length} modules</span></label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3 pl-6 mt-1">${g.rows.map(r => {
+                        const other = r.coordinatorId && r.coordinatorId !== coordId && !(cname && window.normName(r.coordinatorName) === cname);
+                        return `<label class="flex items-start gap-1 text-[10px] cursor-pointer py-0.5"><input type="checkbox" ${st.sel.has(r.id) ? 'checked' : ''} onchange="window.clpRow('${cid}','${r.id}',this.checked)" class="mt-0.5"><span><b>${esc(r.code)}</b> ${esc(r.name)} <span class="text-gray-400">${esc(r.batch)}</span>${other ? ` <span class="text-orange-600 font-bold">(now: ${esc(r.coordinatorName)})</span>` : ''}</span></label>`; }).join('')}</div></div>`; }).join('') || '<p class="p-3 italic text-gray-400">Nothing matches.</p>'}</div></div>`;
+        box.querySelectorAll('input[data-ind]').forEach(el => el.indeterminate = true);
+    };
+    window.clpSearch = (cid, v) => { if (!CLP[cid]) return; CLP[cid].q = v; const pos = v.length; window.renderCoordLinkPicker(cid, CLP[cid].coordId); const inp = document.querySelector(`#${cid} input[oninput]`); if (inp) { inp.focus(); inp.setSelectionRange(pos, pos); } };
+    window.clpRow = (cid, id, on) => { const st = CLP[cid]; if (!st) return; on ? st.sel.add(id) : st.sel.delete(id); window.renderCoordLinkPicker(cid, st.coordId); };
+    window.clpLect = (cid, key, on) => {
+        const st = CLP[cid]; if (!st) return;
+        clpRows(st.coordId).filter(r => (r.lecturerId || ('__' + (r.lecturerName || 'none'))) === key).forEach(r => on ? st.sel.add(r.id) : st.sel.delete(r.id));
+        window.renderCoordLinkPicker(cid, st.coordId);
+    };
+    window.clpAll = (cid, on) => {
+        const st = CLP[cid]; if (!st) return; const q = st.q.toLowerCase();
+        clpRows(st.coordId).filter(r => !q || [r.lecturerName, r.code, r.name, r.batch, r.course].join(' ').toLowerCase().includes(q)).forEach(r => on ? st.sel.add(r.id) : st.sel.delete(r.id));
+        window.renderCoordLinkPicker(cid, st.coordId);
+    };
+    // Writes the selection: ticked rows → this coordinator; rows that were his but got unticked → no coordinator.
+    window.applyCoordLinks = (cid, coordId) => {
+        const st = CLP[cid]; if (!st || st.coordId !== coordId) return 0;
+        const coord = window.getLecturerById(coordId); if (!coord) return 0;
+        const cname = window.getLecturerName(coord);
+        let n = 0;
+        localDB.checklist.forEach(r => {
+            if (st.sel.has(r.id)) { if (r.coordinatorId !== coordId || r.coordinatorName !== cname) { r.coordinatorId = coordId; r.coordinatorName = cname; r.updatedAt = nowIso(); r.updatedBy = myEmail(); } n++; }
+            else if (st.initial.has(r.id) && (r.coordinatorId === coordId || window.normName(r.coordinatorName) === window.normName(cname))) { r.coordinatorId = ''; r.coordinatorName = ''; r.updatedAt = nowIso(); }
+        });
+        if (n) window.addPosition(coord, 'COORDINATOR');
+        st.initial = new Set(st.sel);
+        window.invalidateLecturerCache();
+        window.saveLocal(true);
+        return n;
+    };
+    window.openBulkCoord = () => {
+        if (!window.isManagerRole()) return alert('Only the faculty / Dean / Academic Affairs can link coordinators.');
+        const sel = document.getElementById('bc-coord');
+        const fac = window.scopeFaculty() || (document.getElementById('facView')?.value !== 'ALL' ? document.getElementById('facView')?.value : '');
+        const people = localDB.lecturers.filter(l => !fac || window.getFaculty(l) === fac).sort((a, b) => (window.getPositions(b).includes('COORDINATOR') - window.getPositions(a).includes('COORDINATOR')) || window.getLecturerName(a).localeCompare(window.getLecturerName(b)));
+        sel.innerHTML = '<option value="">-- Choose coordinator --</option>' + people.map(l => `<option value="${window.lecIdOf(l)}">${window.getPositions(l).includes('COORDINATOR') ? '👨‍💼 ' : ''}${esc(window.getLecturerName(l))} (${window.getFaculty(l)})</option>`).join('');
+        window.renderCoordLinkPicker('bc-links', '');
+        document.getElementById('bc-modal').style.display = 'flex';
+    };
+    window.saveBulkCoord = () => {
+        const id = document.getElementById('bc-coord').value;
+        if (!id) return alert('Choose the coordinator.');
+        const n = window.applyCoordLinks('bc-links', id);
+        const l = window.getLecturerById(id);
+        simulateEmail(window.getLecturerName(l), 'Coordinator modules updated', `You now coordinate ${n} module(s).`);
+        alert(`✅ ${window.getLecturerName(l)} now coordinates ${n} module(s). They can tick the checklist for all of them after logging in.`);
+        document.getElementById('bc-modal').style.display = 'none';
+        window.renderCoordinationTab();
     };
 
     window.populateLecturerDropdown = () => {
