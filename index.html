@@ -1328,6 +1328,28 @@
 
                     <div id="user-directory-list"><p class="text-gray-400 text-xs">Loading...</p></div>
                 </div>
+
+                <!-- NEW: every academic staff member + who coordinates them -->
+                <div class="card overflow-hidden p-4 border-t-4 border-purple-700">
+                    <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-2 mb-3">
+                        <div>
+                            <h2 class="font-black text-purple-900 uppercase text-sm">👥 Academic Staff & Their Coordinator</h2>
+                            <p class="text-[10px] text-gray-500 font-bold">Next to each lecturer, choose their coordinator (applies to all of that lecturer's modules). Tick several lecturers and use "Set for ticked" to give them all the same coordinator. 👑 opens a coordinator's team card.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 items-center text-[10px]">
+                            <input id="st-search" onkeyup="window.renderStaffCoordTable()" placeholder="🔍 Search name..." class="p-1.5 border rounded outline-none">
+                            <select id="st-fac" onchange="window.renderStaffCoordTable()" class="p-1.5 border rounded outline-none font-bold"></select>
+                            <select id="st-show" onchange="window.renderStaffCoordTable()" class="p-1.5 border rounded outline-none"><option value="">All staff</option><option value="none">Without coordinator</option><option value="coords">Coordinators only</option></select>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-center bg-purple-50 border border-purple-200 rounded-lg p-2 mb-2 text-[10px]">
+                        <b class="text-purple-900">Set for ticked lecturers →</b>
+                        <select id="st-bulk" class="p-1.5 border rounded outline-none font-bold min-w-[220px]"></select>
+                        <button onclick="window.staffBulkApply()" class="bg-purple-700 text-white px-3 py-1.5 rounded font-black uppercase text-[9px]">✔ Apply</button>
+                        <span id="st-count" class="text-gray-500 font-bold"></span>
+                    </div>
+                    <div class="overflow-x-auto max-h-[650px] border rounded-lg"><table class="w-full text-left text-[10px] min-w-[1000px]" id="st-table"></table></div>
+                </div>
             </div>
 
         </div>
@@ -2328,6 +2350,10 @@
             'auth/api-key-not-valid.-please-pass-a-valid-api-key.': 'The API key in the file is not valid for this project.\nFix: Firebase Console → Project settings → General → Your apps → copy the config again.',
             'auth/requests-from-referer-are-blocked': 'The API key is restricted to other websites.\nFix: Google Cloud Console → APIs & Services → Credentials → Browser key → Website restrictions → add ' + location.origin + '/*',
             'auth/unauthorized-domain': 'This website address is not authorised.\nFix: Firebase Console → Authentication → Settings → Authorized domains → add ' + location.hostname,
+            'auth/popup-blocked': 'The browser blocked the Google pop-up. Allow pop-ups for this site and try again.',
+            'auth/popup-closed-by-user': 'The Google window was closed before finishing.',
+            'auth/account-exists-with-different-credential': 'This email already has a login with another method. Use the same method as before, or ask the admin to reset it.',
+            'auth/internal-error': 'Google sign-in failed inside Firebase – usually the site is not in Authorized domains, or the IUM Google Workspace admin blocks third-party sign-in.',
             'permission-denied': 'Firestore Security Rules refused the write.\nFix: publish the latest firestore.rules (Firestore → Rules → Publish). Your own login must be Academic Affairs (academic.affairs@ium.edu.mv), a faculty account, or a Dean/HOD/Secretary in the access list.',
             'unavailable': 'Firestore is offline / unreachable. Check the internet connection.',
         };
@@ -2426,6 +2452,7 @@
                     await signOut(sec);
                 } catch (err) {
                     if (err.code === 'auth/email-already-in-use') authResult = 'exists';
+                    else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/admin-restricted-operation') authResult = 'google-only';
                     else { showFbError('The login could not be created in Firebase Authentication', err); return; }
                 }
             }
@@ -2454,6 +2481,7 @@
             if (linksOnly) alert(`✅ Role and links saved for ${email}.${linkTxt}`);
             else if (authResult === 'created') alert(`✅ Account created for ${email}\nRole: ${ROLE_LABELS[role] || role}\nTemporary password: ${pass}\n\nShare these securely. The person can also press "Sign in with Google".${linkTxt}`);
             else if (authResult === 'exists') { if (confirm(`ℹ️ ${email} already had a login (probably Google sign-in).\nThe role "${ROLE_LABELS[role] || role}" has been linked to it.${linkTxt}\n\nSend a "set your password" email to them as well?`)) { try { await sendPasswordResetEmail(auth, email); alert('✉ Sent.'); } catch (e) { showFbError('Could not send the email', e); } } }
+            else if (authResult === 'google-only') alert(`✅ Role saved for ${email} – ${ROLE_LABELS[role] || role}.\n\nPassword logins are switched OFF in Firebase, so NO password was created. That is fine: the person logs in with the "Sign in with Google" button using ${email}.${linkTxt}\n\n(To also allow passwords: Firebase Console → Authentication → Sign-in method → Email/Password → Enable.)`);
             else alert(`✅ Role saved for ${email} (no password – they log in with "Sign in with Google").${linkTxt}`);
             document.getElementById('nu-name').value = ''; document.getElementById('nu-email').value = ''; document.getElementById('nu-pass').value = '';
             const pk = document.getElementById('nu-lecturer-picker'); pk.value = ''; pk.dataset.keep = '';
@@ -2506,7 +2534,8 @@
                 <div><b>${esc(u.name || '(no name)')}</b>${u.disabled ? '<span class="ml-1 bg-red-600 text-white px-2 rounded-full text-[8px] font-black">DISABLED</span>' : ''}<br>
                 <span class="text-[11px] text-gray-600">${esc(u.email)}</span><br>
                 <span class="text-[10px] font-black text-royal-blue">${ROLE_LABELS[u.role] || u.role || '-'}</span>${u.faculty ? ` · <span class="text-[10px] font-bold">${esc(u.faculty)}</span>` : ''}
-                ${l ? `<div class="text-[10px] text-gray-500">Linked to: ${esc(window.getLecturerName(l))}${nCoord ? ` · coordinates ${nCoord} module(s)` : ''}</div>` : ''}</div>
+                ${l ? `<div class="text-[10px] text-gray-500">Linked to: ${esc(window.getLecturerName(l))}${nCoord ? ` · coordinates ${nCoord} module(s)` : ''}</div>` : ''}
+                ${u.lecturerId && window.teamOf && window.teamOf(u.lecturerId).length ? `<button onclick="window.openTeamCard('${u.lecturerId}')" class="btn-gold mt-1 px-2 py-0.5 rounded text-[9px] font-black">👑 Team card – ${window.teamOf(u.lecturerId).length} lecturers</button>` : ''}</div>
                 <div class="text-right text-[10px] text-gray-400">${u.uid ? '🔑 password login' : '🌐 Google / role only'}<br>${u.updatedAt || u.createdAt ? 'Updated ' + new Date(u.updatedAt || u.createdAt).toLocaleDateString() : ''}
                 <div class="mt-1 flex gap-1 flex-wrap justify-end">
                     <button class="btn-royal-blue px-2 py-1 rounded text-[9px]" onclick="window.sendUserPasswordReset('${e}')">Reset Password</button>
@@ -4278,7 +4307,7 @@
             coordHtml = sec(`As Subject Coordinator — ${p.coordRows.length} modules · ${lectCount} lecturers`) + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Lecturer & contact')}${th('Course')}${th('Module')}${th('Batch')}${th('Checklist')}${th('Exam paper')}</tr></thead><tbody>${Object.entries(byL).map(([lid, rs]) => rs.map((r, i) => `<tr>${i === 0 ? `<td style="${tdS}" rowspan="${rs.length}"><b>${esc(r.lecturerName || 'Not allocated')}</b><br><span style="color:#64748b">${esc(r.ftpt || '')} ${esc(lecturerPhone(lid, r))}</span></td>` : ''}<td style="${tdS}">${esc(r.course)}</td><td style="${tdS}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${tdS}">${esc(r.batch)}</td><td style="${tdS}font-weight:900;color:${pctC(window.rowPct(r))}">${window.rowPct(r)}%</td><td style="${tdS}">${exS(r)}</td></tr>`).join('')).join('')}</tbody></table>`;
         }
         let teachHtml = '';
-        if (p.teachRows.length) teachHtml = sec(`As Lecturer — ${p.teachRows.length} modules`) + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Course')}${th('Module')}${th('Batch')}${th('Coordinator')}${th('Checklist')}${th('Moodle / iSIMS pending')}${th('Exam paper')}</tr></thead><tbody>${p.teachRows.map(r => `<tr><td style="${tdS}">${esc(r.course)}</td><td style="${tdS}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${tdS}">${esc(r.batch)}</td><td style="${tdS}">${esc(r.coordinatorName)}</td><td style="${tdS}font-weight:900;color:${pctC(window.rowPct(r))}">${window.rowPct(r)}%</td><td style="${tdS}">${pendingIn(r, 'moodle').length} / ${pendingIn(r, 'isims').length}</td><td style="${tdS}">${exS(r)}</td></tr>`).join('')}</tbody></table>`;
+        if (p.teachRows.length) teachHtml = sec(`As Lecturer — ${p.teachRows.length} modules`) + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Course')}${th('Module')}${th('Batch')}${th('Weekly hrs')}${th('Credit')}${th('Coordinator')}${th('Checklist')}${th('Moodle / iSIMS pending')}${th('Exam paper')}</tr></thead><tbody>${p.teachRows.map(r => { const mi = modInfo(r.code, r.batch); return `<tr><td style="${tdS}">${esc(r.course)}</td><td style="${tdS}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${tdS}">${esc(r.batch)}</td><td style="${tdS}text-align:center">${esc(mi.wch || '–')}</td><td style="${tdS}text-align:center">${esc(mi.credit || '–')}</td><td style="${tdS}">${esc(r.coordinatorName)}</td><td style="${tdS}font-weight:900;color:${pctC(window.rowPct(r))}">${window.rowPct(r)}%</td><td style="${tdS}">${pendingIn(r, 'moodle').length} / ${pendingIn(r, 'isims').length}</td><td style="${tdS}">${exS(r)}</td></tr>`; }).join('')}</tbody></table>`;
         const fus = [...p.coordRows, ...p.teachRows].flatMap(r => (r.followUps || []).map(f => ({ ...f, code: r.code, batch: r.batch }))).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
         const fuHtml = fus.length ? sec('Recent follow-ups') + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Date')}${th('Module')}${th('Action')}${th('Response')}${th('Note')}</tr></thead><tbody>${fus.map(f => `<tr><td style="${tdS}">${fmtD(f.date)}</td><td style="${tdS}">${esc(f.code)} ${esc(f.batch)}</td><td style="${tdS}">${esc(f.action)}</td><td style="${tdS}">${esc(f.response)}${f.promised ? ' (by ' + fmtD(f.promised) + ')' : ''}</td><td style="${tdS}">${esc(f.note || '')}</td></tr>`).join('')}</tbody></table>` : '';
         return `<div style="font-family:Inter,sans-serif;color:#1e293b;">
@@ -4554,6 +4583,143 @@
         window.renderCoordinationTab();
     };
 
+    // =====================================================================================
+    // ================= STAFF ↔ COORDINATOR LIST + COORDINATOR TEAM CARD ==================
+    // =====================================================================================
+    // Person-level link: lecturer.coordinatorId. Setting it also sets the coordinator of all that
+    // lecturer's checklist modules, so the coordinator can tick every one of them.
+    const modInfo = (code, batch) => {
+        const ms = localDB.modules.filter(m => window.makeSafeId(window.getSafeVal(m, ['ModuleCode', 'Code'])) === window.makeSafeId(code));
+        const m = ms.find(x => String(window.getSafeVal(x, ['OfferedBatch', 'Batch'])).trim() === String(batch || '').trim()) || ms[0];
+        return { wch: m ? (window.getSafeVal(m, ['WCH', 'WeeklyContactHours']) || '') : '', credit: m ? (window.getSafeVal(m, ['CreditHours', 'Credits', 'Credit']) || '') : '', students: m ? (window.getSafeVal(m, ['NoofStudents', 'Students']) || '') : '' };
+    };
+    const slotHrs = (ts) => { if (!ts) return 0; const [a, b] = [ts.start, ts.end].map(t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; }); return Math.max(0, (b - a) / 60); };
+    const scheduledHrs = (lid, code) => localDB.timetable.filter(t => t.lectId === lid && (!code || t.modCode === window.makeSafeId(code))).reduce((a, t) => a + slotHrs(localDB.settings.timeslots[t.tsIndex]), 0);
+    // everything a lecturer teaches: checklist rows + modules assigned in the Assignment Matrix
+    const teachingList = (lid) => {
+        const rows = (localDB.checklist || []).filter(r => r.lecturerId === lid).sort(rowSort).map(r => ({ src: 'checklist', r, course: r.course, batch: r.batch, code: r.code, name: r.name, pct: window.rowPct(r), exam: window.examDocs(r).status.t, totalHrs: r.totalHrs, ...modInfo(r.code, r.batch) }));
+        const have = new Set(rows.map(x => window.makeSafeId(x.code)));
+        localDB.modules.forEach(m => {
+            const code = window.makeSafeId(window.getSafeVal(m, ['ModuleCode', 'Code']));
+            if (localDB.assignments[code] && localDB.assignments[code].id === lid && !have.has(code)) { have.add(code); rows.push({ src: 'matrix', course: window.getSafeVal(m, ['ProgramName']), batch: window.getSafeVal(m, ['OfferedBatch']), code, name: window.getSafeVal(m, ['ModuleName']), pct: null, exam: '', totalHrs: '', ...modInfo(code, window.getSafeVal(m, ['OfferedBatch'])) }); }
+        });
+        return rows;
+    };
+    window.teamOf = (cid) => {
+        const set = new Set();
+        localDB.lecturers.forEach(l => { if (l.coordinatorId === cid) set.add(window.lecIdOf(l)); });
+        (localDB.checklist || []).forEach(r => { if (r.coordinatorId === cid && r.lecturerId) set.add(r.lecturerId); });
+        set.delete(cid);
+        return [...set];
+    };
+    const coordOfLecturer = (l) => {
+        const lid = window.lecIdOf(l);
+        const ids = [...new Set((localDB.checklist || []).filter(r => r.lecturerId === lid && r.coordinatorId).map(r => r.coordinatorId))];
+        if (l.coordinatorId && !ids.includes(l.coordinatorId)) ids.unshift(l.coordinatorId);
+        return ids;
+    };
+    window.setLecturerCoordinator = (lid, cid, quiet = false) => {
+        const l = window.getLecturerById(lid); if (!l) return;
+        if (!window.isManagerFor(window.getFaculty(l))) return window.showToast('Only the faculty / Academic Affairs can change coordinators.', 'warning');
+        const c = cid ? window.getLecturerById(cid) : null;
+        if (cid && cid === lid) return alert('A lecturer cannot be their own coordinator.');
+        l.coordinatorId = cid || '';
+        (localDB.checklist || []).forEach(r => { if (r.lecturerId === lid) { r.coordinatorId = cid || ''; r.coordinatorName = c ? window.getLecturerName(c) : ''; r.updatedAt = nowIso(); r.updatedBy = myEmail(); } });
+        if (c) window.addPosition(c, 'COORDINATOR');
+        window.invalidateLecturerCache();
+        window.saveLocal(true);
+        if (!quiet) window.showToast(c ? `${window.getLecturerName(l)} → coordinator ${window.getLecturerName(c)}` : 'Coordinator removed', 'success');
+    };
+    const staffScope = () => {
+        const sel = document.getElementById('st-fac');
+        if (sel && !sel.options.length) { sel.innerHTML = '<option value="">All faculties</option>' + FACULTIES.map(f => `<option value="${f}">${f}</option>`).join(''); const counts = {}; localDB.lecturers.forEach(l => counts[window.getFaculty(l)] = (counts[window.getFaculty(l)] || 0) + 1); sel.value = window.scopeFaculty() || Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || ''; }
+        const fac = window.scopeFaculty() || (sel ? sel.value : '');
+        return localDB.lecturers.filter(l => !fac || window.getFaculty(l) === fac);
+    };
+    const coordOptions = (people, selected) => '<option value="">— No coordinator —</option>' + people.slice().sort((a, b) => (window.getPositions(b).includes('COORDINATOR') - window.getPositions(a).includes('COORDINATOR')) || window.getLecturerName(a).localeCompare(window.getLecturerName(b))).map(p => { const id = window.lecIdOf(p); return `<option value="${id}" ${id === selected ? 'selected' : ''}>${window.getPositions(p).includes('COORDINATOR') ? '👨‍💼 ' : ''}${esc(window.getLecturerName(p))}</option>`; }).join('');
+    window.renderStaffCoordTable = () => {
+        const t = document.getElementById('st-table'); if (!t) return;
+        const people = staffScope();
+        const q = (document.getElementById('st-search').value || '').toLowerCase();
+        const show = document.getElementById('st-show').value;
+        const bulk = document.getElementById('st-bulk'); const bv = bulk.value; bulk.innerHTML = coordOptions(people, bv);
+        const list = people.filter(l => {
+            if (q && !window.getLecturerName(l).toLowerCase().includes(q)) return false;
+            if (show === 'none' && coordOfLecturer(l).length) return false;
+            if (show === 'coords' && !window.teamOf(window.lecIdOf(l)).length) return false;
+            return true;
+        }).sort((a, b) => window.getLecturerName(a).localeCompare(window.getLecturerName(b)));
+        t.innerHTML = `<thead class="bg-purple-900 text-white uppercase text-[9px] sticky top-0 z-10"><tr><th class="p-2"><input type="checkbox" onchange="document.querySelectorAll('.st-chk').forEach(c=>c.checked=this.checked); window.staffCount()"></th><th class="p-2">Lecturer</th><th class="p-2">Positions</th><th class="p-2">Type</th><th class="p-2">Phone</th><th class="p-2">Email</th><th class="p-2 text-center">Modules</th><th class="p-2 min-w-[220px]">Coordinator</th><th class="p-2">Team</th></tr></thead><tbody class="divide-y bg-white">${list.map(l => {
+            const id = window.lecIdOf(l); const cs = coordOfLecturer(l); const team = window.teamOf(id);
+            const cur = cs.length === 1 ? cs[0] : (l.coordinatorId || '');
+            const mixed = cs.length > 1 ? `<div class="text-[8px] text-orange-600 font-bold">Mixed: ${cs.map(c => esc(window.getLecturerName(window.getLecturerById(c)) || c)).join(', ')} – choosing one sets it for all modules</div>` : '';
+            return `<tr class="hover:bg-purple-50/40"><td class="p-2"><input type="checkbox" class="st-chk" value="${id}" onchange="window.staffCount()"></td>
+                <td class="p-2 font-bold"><span class="text-royal-blue cursor-pointer hover:underline" onclick="window.openPersonCard('${id}')">${esc(window.getLecturerName(l))}</span></td>
+                <td class="p-2">${window.positionBadges(l)}</td><td class="p-2">${esc(window.getSafeVal(l, ['LecturerType']))}</td>
+                <td class="p-2 whitespace-nowrap">${esc(window.getSafeVal(l, ['MobileNumber', 'Mobile', 'Phone']))}</td><td class="p-2 font-mono text-[9px]">${esc(window.getLecturerEmail(l))}</td>
+                <td class="p-2 text-center font-black">${teachingList(id).length}</td>
+                <td class="p-2"><select onchange="window.setLecturerCoordinator('${id}', this.value); window.renderStaffCoordTable();" class="w-full p-1 border rounded outline-none font-bold ${cur ? 'text-purple-800' : 'text-gray-400'}">${coordOptions(people.filter(p => window.lecIdOf(p) !== id), cur)}</select>${mixed}</td>
+                <td class="p-2">${team.length ? `<button onclick="window.openTeamCard('${id}')" class="btn-gold px-2 py-0.5 rounded text-[9px] font-black whitespace-nowrap">👑 ${team.length} lecturers</button>` : ''}</td></tr>`;
+        }).join('') || '<tr><td colspan="9" class="p-6 text-center italic text-gray-400">No staff found.</td></tr>'}</tbody>`;
+        window.staffCount();
+    };
+    window.staffCount = () => { const n = document.querySelectorAll('.st-chk:checked').length; const el = document.getElementById('st-count'); if (el) el.innerText = n ? `${n} ticked` : 'tick lecturers in the list below'; };
+    window.staffBulkApply = () => {
+        const cid = document.getElementById('st-bulk').value;
+        const ids = [...document.querySelectorAll('.st-chk:checked')].map(c => c.value).filter(x => x !== cid);
+        if (!ids.length) return alert('Tick the lecturers first.');
+        const c = cid ? window.getLecturerById(cid) : null;
+        if (!confirm(c ? `Set ${window.getLecturerName(c)} as coordinator of ${ids.length} lecturer(s) (all their modules)?` : `Remove the coordinator from ${ids.length} lecturer(s)?`)) return;
+        ids.forEach(id => window.setLecturerCoordinator(id, cid, true));
+        window.showToast(`${ids.length} lecturer(s) updated`, 'success');
+        window.renderStaffCoordTable(); window.renderUserDirectory();
+    };
+
+    // ---------- Coordinator team royal card ----------
+    const teamCardHtml = (cid, forPdf) => {
+        const c = window.getLecturerById(cid);
+        const team = window.teamOf(cid).map(id => window.getLecturerById(id)).filter(Boolean).sort((a, b) => window.getLecturerName(a).localeCompare(window.getLecturerName(b)));
+        const td = 'padding:4px 5px;border:1px solid #e2e8f0;vertical-align:top;';
+        const th = (x) => `<th style="padding:5px;border:1px solid #cbd5e1;background:#0f172a;color:#d4af37;font-size:8px;text-transform:uppercase;text-align:left;">${x}</th>`;
+        let allMods = 0, allWch = 0;
+        const blocks = team.map(l => {
+            const id = window.lecIdOf(l); const mods = teachingList(id);
+            const wch = mods.reduce((a, m) => a + (parseFloat(m.wch) || 0), 0); allMods += mods.length; allWch += wch;
+            const sched = scheduledHrs(id);
+            const ph = String(window.getSafeVal(l, ['MobileNumber', 'Mobile', 'Phone']) || '').replace(/\D/g, ''); const em = window.getLecturerEmail(l);
+            const avg = mods.filter(m => m.pct !== null).length ? Math.round(mods.filter(m => m.pct !== null).reduce((a, m) => a + m.pct, 0) / mods.filter(m => m.pct !== null).length) : null;
+            const table = `<table style="width:100%;border-collapse:collapse;font-size:8.5px;margin-top:6px;"><thead><tr>${th('Course')}${th('Batch')}${th('Code')}${th('Module')}${th('Weekly hrs')}${th('Credit')}${th('Scheduled / wk')}${th('Sem. hrs')}${th('Checklist')}${th('Exam paper')}</tr></thead><tbody>${mods.map(m => `<tr><td style="${td}">${esc(m.course)}</td><td style="${td}">${esc(m.batch)}</td><td style="${td}font-weight:800;color:#0d47a1">${esc(m.code)}</td><td style="${td}">${esc(m.name)}</td><td style="${td}text-align:center">${esc(m.wch || '–')}</td><td style="${td}text-align:center">${esc(m.credit || '–')}</td><td style="${td}text-align:center">${scheduledHrs(id, m.code) ? scheduledHrs(id, m.code).toFixed(1) : '–'}</td><td style="${td}text-align:center">${esc(m.totalHrs || '–')}</td><td style="${td}text-align:center;font-weight:800">${m.pct === null ? '–' : m.pct + '%'}</td><td style="${td}">${esc(m.exam || '')}</td></tr>`).join('') || `<tr><td colspan="10" style="${td}text-align:center;color:#94a3b8">No modules recorded</td></tr>`}</tbody></table>`;
+            const head = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;"><div><b style="font-size:12px;color:#004d40">${esc(window.getLecturerName(l))}</b> <span style="font-size:9px;color:#64748b">${esc(window.getSafeVal(l, ['LecturerType']))}</span><div style="font-size:9px;color:#334155">📞 ${esc(ph || '—')} · ✉ ${esc(em || '—')}</div></div><div style="font-size:9px;text-align:right;color:#334155"><b>${mods.length}</b> modules · <b>${wch}</b> WCH · <b>${sched.toFixed(1)}</b> scheduled hrs/wk${avg !== null ? ` · <b>${avg}%</b> checklist` : ''}</div></div>`;
+            if (forPdf) return `<div style="border:1px solid #e5d9a8;border-radius:10px;padding:8px;margin-top:8px;background:#fffdf5;page-break-inside:avoid;">${head}${table}</div>`;
+            return `<details class="border rounded-xl bg-white mb-2 overflow-hidden"><summary class="cursor-pointer p-2 hover:bg-yellow-50" style="list-style:none">${head}</summary><div class="px-2 pb-2">
+                <div class="flex gap-1 flex-wrap mt-1">${ph ? `<a href="tel:+960${ph}" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[9px] font-bold">📞 Call</a><a href="https://wa.me/960${ph}" target="_blank" class="bg-green-600 text-white px-2 py-0.5 rounded text-[9px] font-bold">WhatsApp</a>` : ''}${em ? `<a href="mailto:${esc(em)}" class="bg-gray-700 text-white px-2 py-0.5 rounded text-[9px] font-bold">✉ Email</a>` : ''}<button onclick="window.openPersonCard('${id}')" class="bg-purple-700 text-white px-2 py-0.5 rounded text-[9px] font-bold">👤 Full profile</button></div>${table}</div></details>`;
+        }).join('');
+        const cph = c ? String(window.getSafeVal(c, ['MobileNumber', 'Mobile']) || '') : '';
+        return `<div style="font-family:Inter,sans-serif;color:#1e293b;">
+            <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:8px;">
+                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">Islamic University of Maldives</div>
+                <div style="font-family:'Playfair Display',serif;font-size:21px;font-weight:900;color:#004d40;text-transform:uppercase;">Coordinator Team Card</div>
+                <div style="font-size:10px;font-weight:800;color:#0d47a1;">${window.weekLabel(window.weekKey())}</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#004d40,#0d47a1,#4a148c);color:white;">
+                <div><div style="font-size:18px;font-weight:900;color:#d4af37;">👨‍💼 ${esc(c ? window.getLecturerName(c) : cid)}</div>
+                <div style="font-size:10px;">Subject Coordinator · ${esc(c ? window.getFaculty(c) : '')} · 📞 ${esc(cph || '—')} · ✉ ${esc(c ? window.getLecturerEmail(c) : '')}</div></div>
+                <div style="display:flex;gap:10px;text-align:center;">${[['Lecturers', team.length], ['Modules', allMods], ['Weekly hrs', allWch]].map(([k, v]) => `<div style="border:2px solid #d4af37;border-radius:10px;padding:4px 10px;"><div style="font-size:18px;font-weight:900;color:#d4af37">${v}</div><div style="font-size:7px;letter-spacing:1px;text-transform:uppercase">${k}</div></div>`).join('')}</div>
+            </div>
+            ${forPdf ? '' : '<p class="text-[9px] text-gray-500 font-bold my-2">Click a lecturer to see courses, batches, modules, weekly hours, credit and contact.</p>'}
+            ${blocks || '<p style="text-align:center;color:#94a3b8;margin:16px">No lecturers linked yet.</p>'}
+            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:12px;">Generated ${new Date().toLocaleString()} · Presidential Executive Workload Portal</div></div>`;
+    };
+    window.openTeamCard = (cid) => {
+        document.getElementById('pc-body').innerHTML = teamCardHtml(cid, false);
+        document.getElementById('pc-actions').innerHTML = `<button onclick="window.exportTeamCardPdf('${cid}')" class="btn-gold px-2 py-1 rounded text-[9px] font-black">👑 Export PDF</button>`;
+        document.getElementById('pc-modal').style.display = 'flex';
+    };
+    window.exportTeamCardPdf = async (cid) => {
+        const c = window.getLecturerById(cid);
+        document.getElementById('report-content-area').innerHTML = teamCardHtml(cid, true);
+        await window.renderAreaToPdf(`Coordinator_Team_${(c ? window.getLecturerName(c) : cid).replace(/[^a-z0-9]+/gi, '_')}.pdf`, 'Designing the team card...');
+    };
+
     window.populateLecturerDropdown = () => {
         const select = document.getElementById('lecturerSelectStandalone'); if(!select) return;
         let opts = [];
@@ -4758,7 +4924,7 @@
         } else if (activeRole !== 'STUDENT') {
             const activeTabContent = document.querySelector('.tab-content.active');
             const activeTabId = activeTabContent ? activeTabContent.id.replace('tab-', '') : null;
-            if (activeTabId === 'users') window.populateNewUserLecturerPicker();
+            if (activeTabId === 'users') { window.populateNewUserLecturerPicker(); window.renderStaffCoordTable(); }
             else if (activeTabId) window.switchTab(activeTabId);
         }
 
@@ -4914,7 +5080,7 @@
                     if (activeRole === 'LECTURER') {
                         let ok = false;
                         try { const s = await getDoc(doc(collection(dbCloud, 'workload_data'), 'master_record')); if (s.exists()) ok = (s.data().lecturers || []).some(l => window.getLecturerEmail(l) === email); } catch (e) { console.warn(e); }
-                        if (!ok) return denyAccess(`މި އީމެއިލް (${email}) ސޮފްޓްވެއަރގައި ރަޖިސްޓްރީ ކުރެވިފައެއް ނުވޭ.\nThis email is not registered. Ask your faculty to add it in Lecturers data and press "Sync Access List".`);
+                        if (!ok) return denyAccess(`މި އީމެއިލް (${email}) ސޮފްޓްވެއަރގައި ރަޖިސްޓްރީ ކުރެވިފައެއް ނުވޭ.\n\nGoogle sign-in worked, but "${email}" is not in the portal.\nAdmin: Manage Users → enter exactly this email → role → "Save Role & Links Only" (or correct the Email in Lecturers data → 🔐 Login Access → Sync Access List).`);
                     }
                 }
 
@@ -5121,7 +5287,7 @@
             if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
             if (e.code === 'auth/unauthorized-domain') return alert("Google sign-in is not yet allowed on this website address.\nAdmin: Firebase Console → Authentication → Settings → Authorized domains → add " + location.hostname);
             if (e.code === 'auth/operation-not-allowed') return alert("Google sign-in is not enabled.\nAdmin: Firebase Console → Authentication → Sign-in method → Google → Enable.");
-            alert("Google sign-in failed: " + (e.code || e.message));
+            alert("Google sign-in failed.\n\n" + window.fbErrorHelp(e) + "\n\nIf the Google window said 'Access blocked' or 'admin policy', the IUM Google Workspace admin must allow sign-in to this app (Firebase project: timetableworkload).");
         }
     };
 
@@ -5201,7 +5367,7 @@
         if (tabId === 'coordinators') window.renderCoordinationTab();
         if (tabId === 'facdash') window.renderFacultyDashboard();
         if (tabId === 'myws') { window.renderLecturerWorkspace(); document.getElementById('lecturer-dashboard').scrollIntoView({ behavior: 'smooth' }); }
-        if (tabId === 'users') { window.renderUserDirectory(); window.populateNewUserLecturerPicker(); }
+        if (tabId === 'users') { window.renderUserDirectory(); window.populateNewUserLecturerPicker(); window.renderStaffCoordTable(); }
     };
 
     function downloadCSV(data, filename) {
