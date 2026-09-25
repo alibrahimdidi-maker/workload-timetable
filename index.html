@@ -2474,7 +2474,7 @@
         catch (e) { add(false, 'Read portal data', window.fbErrorHelp(e)); }
         try { await getDoc(doc(dbCloud, 'registered_emails', (u && u.email || 'x').toLowerCase())); add(true, 'Read access list (registered_emails)', ''); }
         catch (e) { add(false, 'Read access list (registered_emails)', window.fbErrorHelp(e)); }
-        try { await setDoc(doc(dbCloud, 'registered_emails', '__healthcheck__'), { at: new Date().toISOString(), by: u ? u.email : '' }); await deleteDoc(doc(dbCloud, 'registered_emails', '__healthcheck__')); add(true, 'Write access list (needed to give roles)', ''); }
+        try { await setDoc(doc(dbCloud, 'registered_emails', 'healthcheck-test'), { at: new Date().toISOString(), by: u ? u.email : '' }); await deleteDoc(doc(dbCloud, 'registered_emails', 'healthcheck-test')); add(true, 'Write access list (needed to give roles)', ''); }
         catch (e) { add(false, 'Write access list (needed to give roles)', window.fbErrorHelp(e)); }
         try {
             const sec = getSecondaryAuth();
@@ -2494,7 +2494,7 @@
         const q = (document.getElementById('ud-search')?.value || '').toLowerCase();
         const byEmail = {};
         let err = null;
-        try { (await getDocs(collection(dbCloud, 'registered_emails'))).forEach(d => { if (d.id === '__healthcheck__') return; byEmail[d.id] = { ...d.data(), email: d.id, src: 'registry' }; }); } catch (e) { err = e; }
+        try { (await getDocs(collection(dbCloud, 'registered_emails'))).forEach(d => { if (d.id === 'healthcheck-test') return; byEmail[d.id] = { ...d.data(), email: d.id, src: 'registry' }; }); } catch (e) { err = e; }
         try { (await getDocs(collection(dbCloud, 'user_roles'))).forEach(d => { const u = d.data(); const em = (u.email || '').toLowerCase(); if (!em) return; byEmail[em] = { ...u, ...(byEmail[em] || {}), uid: d.id, email: em }; }); } catch (e) { err = err || e; }
         const arr = Object.values(byEmail).filter(u => !q || [u.email, u.name, u.role, u.faculty].join(' ').toLowerCase().includes(q)).sort((a, b) => String(a.role).localeCompare(String(b.role)) || String(a.name || a.email).localeCompare(String(b.name || b.email)));
         if (!arr.length) { list.innerHTML = err ? `<p class="text-red-600 text-xs whitespace-pre-wrap">Could not load the directory:\n${esc(window.fbErrorHelp(err))}</p>` : '<p class="text-gray-400 text-xs">No accounts yet.</p>'; return; }
