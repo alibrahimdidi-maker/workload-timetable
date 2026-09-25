@@ -1348,7 +1348,7 @@
                     </div>
 
                     <div class="flex justify-between items-center mb-2"><h3 style="color:var(--royal-blue); font-weight:900; font-size:0.8rem; text-transform:uppercase;">Account Directory</h3>
-                    <div class="flex gap-2"><input id="ud-search" onkeyup="window.renderUserDirectory()" placeholder="🔍 Search..." class="p-1.5 border rounded text-[10px] outline-none"><button onclick="window.renderUserDirectory()" class="bg-gray-200 px-2 rounded text-[10px] font-bold">↻</button></div></div>
+                    <div class="flex gap-2"><input id="ud-search" oninput="window.renderUserCards()" placeholder="🔍 Search name, email, role..." class="p-1.5 border rounded text-[10px] outline-none min-w-[200px]"><button onclick="window.renderUserDirectory()" title="Reload from server" class="bg-gray-200 hover:bg-gray-300 px-2 rounded text-[10px] font-bold">↻</button></div></div>
 
                     <div id="user-directory-list"><p class="text-gray-400 text-xs">Loading...</p></div>
                 </div>
@@ -2527,30 +2527,71 @@
         const list = document.getElementById('user-directory-list');
         if (!list) return;
         list.innerHTML = '<p class="text-gray-400 text-xs">Loading...</p>';
-        const q = (document.getElementById('ud-search')?.value || '').toLowerCase();
         const byEmail = {};
         let err = null;
         try { (await getDocs(collection(dbCloud, 'registered_emails'))).forEach(d => { if (d.id === 'healthcheck-test') return; byEmail[d.id] = { ...d.data(), email: d.id, src: 'registry' }; }); } catch (e) { err = e; }
         try { (await getDocs(collection(dbCloud, 'user_roles'))).forEach(d => { const u = d.data(); const em = (u.email || '').toLowerCase(); if (!em) return; byEmail[em] = { ...u, ...(byEmail[em] || {}), uid: d.id, email: em }; }); } catch (e) { err = err || e; }
-        const arr = Object.values(byEmail).filter(u => !q || [u.email, u.name, u.role, u.faculty].join(' ').toLowerCase().includes(q)).sort((a, b) => String(a.role).localeCompare(String(b.role)) || String(a.name || a.email).localeCompare(String(b.name || b.email)));
-        if (!arr.length) { list.innerHTML = err ? `<p class="text-red-600 text-xs whitespace-pre-wrap">Could not load the directory:\n${esc(window.fbErrorHelp(err))}</p>` : '<p class="text-gray-400 text-xs">No accounts yet.</p>'; return; }
-        list.innerHTML = `<p class="text-[9px] text-gray-500 mb-1">${arr.length} account(s)</p>` + arr.map(u => {
+        const all = Object.values(byEmail);
+        if (!all.length) { list.innerHTML = err ? `<p class="text-red-600 text-xs whitespace-pre-wrap">Could not load the directory:\n${esc(window.fbErrorHelp(err))}</p>` : '<p class="text-gray-400 text-xs">No accounts yet.</p>'; return; }
+        window._udCache = all;
+        window.renderUserCards();
+    };
+    // ---- compact, grouped account cards ----
+    const ROLE_STYLE = {
+        ALL: ['#b91c1c', '#fee2e2', '🛡️'], EXAM: ['#0f766e', '#ccfbf1', '📑'], DEAN: ['#92400e', '#fef3c7', '🏛️'], HOD: ['#1e40af', '#dbeafe', '🎓'],
+        SECRETARY: ['#166534', '#dcfce7', '🗂️'], COORDINATOR: ['#5b21b6', '#ede9fe', '👨‍💼'], LECTURER: ['#334155', '#f1f5f9', '👨‍🏫'],
+        REGISTRAR: ['#9d174d', '#fce7f3', '📋'], VC: ['#7c2d12', '#ffedd5', '⭐'], FINANCE: ['#065f46', '#d1fae5', '💰']
+    };
+    const ROLE_ORDER = ['ALL', 'VC', 'REGISTRAR', 'DEAN', 'HOD', 'SECRETARY', 'EXAM', 'FINANCE', 'COORDINATOR', 'LECTURER'];
+    window._udRole = '';
+    window.setUdRole = (r) => { window._udRole = r; window.renderUserCards(); };
+    window.renderUserCards = () => {
+        const list = document.getElementById('user-directory-list'); const all = window._udCache || []; if (!list) return;
+        const q = (document.getElementById('ud-search')?.value || '').toLowerCase();
+        const counts = {}; all.forEach(u => counts[u.role] = (counts[u.role] || 0) + 1);
+        const roles = ROLE_ORDER.filter(r => counts[r]).concat(Object.keys(counts).filter(r => !ROLE_ORDER.includes(r)));
+        const chip = (r, label, n) => { const on = window._udRole === r; const st = ROLE_STYLE[r] || ['#334155', '#f1f5f9', '👤']; return `<button onclick="window.setUdRole('${r}')" class="px-2.5 py-1 rounded-full text-[10px] font-black border transition" style="${on ? `background:${r ? st[0] : '#1e293b'};color:white;border-color:transparent` : `background:white;color:${r ? st[0] : '#334155'};border-color:#e2e8f0`}">${r ? st[2] + ' ' : ''}${label} <span class="opacity-70">${n}</span></button>`; };
+        const shown = all.filter(u => (!window._udRole || u.role === window._udRole) && (!q || [u.email, u.name, u.role, u.faculty, ROLE_LABELS[u.role]].join(' ').toLowerCase().includes(q)));
+        const groups = {}; shown.forEach(u => (groups[u.role] = groups[u.role] || []).push(u));
+        const initials = (n, e) => { const w = String(n || e || '?').replace(/\b(dr|uz|uza)\b\.?/gi, '').trim().split(/\s+/); return ((w[0] || '?')[0] + ((w[1] || '')[0] || '')).toUpperCase(); };
+        const card = (u) => {
+            const st = ROLE_STYLE[u.role] || ['#334155', '#f1f5f9', '👤'];
             const l = u.lecturerId ? window.getLecturerById(u.lecturerId) : null;
-            const nCoord = u.lecturerId ? (localDB.checklist || []).filter(r => r.coordinatorId === u.lecturerId).length : 0;
+            const nMod = u.lecturerId ? (localDB.checklist || []).filter(r => r.coordinatorId === u.lecturerId).length : 0;
+            const nCourse = u.lecturerId ? Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.coordinatorId === u.lecturerId).length : 0;
+            const team = u.lecturerId && window.teamOf ? window.teamOf(u.lecturerId).length : 0;
             const e = esc(u.email).replace(/'/g, "\\'");
-            return `<div class="flex justify-between items-start flex-wrap gap-2 border-b border-gray-100 py-2">
-                <div><b>${esc(u.name || '(no name)')}</b>${u.disabled ? '<span class="ml-1 bg-red-600 text-white px-2 rounded-full text-[8px] font-black">DISABLED</span>' : ''}<br>
-                <span class="text-[11px] text-gray-600">${esc(u.email)}</span><br>
-                <span class="text-[10px] font-black text-royal-blue">${ROLE_LABELS[u.role] || u.role || '-'}</span>${u.faculty ? ` · <span class="text-[10px] font-bold">${esc(u.faculty)}</span>` : ''}
-                ${l ? `<div class="text-[10px] text-gray-500">Linked to: ${esc(window.getLecturerName(l))}${nCoord ? ` · coordinates ${nCoord} module(s)` : ''}</div>` : ''}
-                ${u.lecturerId && window.teamOf && window.teamOf(u.lecturerId).length ? `<button onclick="window.openTeamCard('${u.lecturerId}')" class="btn-gold mt-1 px-2 py-0.5 rounded text-[9px] font-black">👑 Team card – ${window.teamOf(u.lecturerId).length} lecturers</button>` : ''}</div>
-                <div class="text-right text-[10px] text-gray-400">${u.uid ? '🔑 password login' : '🌐 Google / role only'}<br>${u.updatedAt || u.createdAt ? 'Updated ' + new Date(u.updatedAt || u.createdAt).toLocaleDateString() : ''}
-                <div class="mt-1 flex gap-1 flex-wrap justify-end">
-                    <button class="btn-royal-blue px-2 py-1 rounded text-[9px]" onclick="window.sendUserPasswordReset('${e}')">Reset Password</button>
-                    <button class="btn-royal-blue px-2 py-1 rounded text-[9px]" onclick="window.toggleUserDisabled('${e}', '${u.uid || ''}', ${!u.disabled})">${u.disabled ? 'Enable' : 'Disable'}</button>
-                    <button class="bg-red-600 text-white px-2 py-1 rounded text-[9px]" onclick="window.removeSystemUser('${e}', '${u.uid || ''}')">Remove</button>
-                </div></div></div>`;
-        }).join('');
+            const info = [nMod ? `${nMod} modules` : '', nCourse ? `${nCourse} course/batch` : ''].filter(Boolean).join(' · ');
+            return `<div class="relative bg-white border rounded-xl p-3 flex flex-col gap-2 hover:shadow-md transition ${u.disabled ? 'opacity-50 grayscale' : ''}" style="border-left:4px solid ${st[0]}">
+                <div class="flex items-start gap-2">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black shrink-0" style="background:${st[1]};color:${st[0]}">${initials(u.name, u.email)}</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="font-black text-[12px] text-gray-900 truncate cursor-pointer hover:underline" title="${esc(u.name || '')}" ${u.lecturerId ? `onclick="window.openPersonCard('${u.lecturerId}')"` : ''}>${esc(u.name || '(no name)')}</div>
+                        <div class="text-[10px] text-gray-500 truncate" title="${esc(u.email)}">${esc(u.email)}</div>
+                    </div>
+                    <span title="${u.uid ? 'Password login' : 'Google sign-in'}" class="text-[11px]">${u.uid ? '🔑' : '🌐'}</span>
+                </div>
+                <div class="flex flex-wrap gap-1 items-center">
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase" style="background:${st[1]};color:${st[0]}">${ROLE_LABELS[u.role] || u.role || '-'}</span>
+                    ${u.faculty ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-gray-100 text-gray-700">${esc(u.faculty)}</span>` : ''}
+                    ${u.disabled ? '<span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-red-600 text-white">DISABLED</span>' : ''}
+                    ${info ? `<span class="text-[9px] text-gray-500 font-bold">${info}</span>` : ''}
+                    ${!l && u.lecturerId ? '<span class="text-[8px] text-orange-600 font-bold">⚠ lecturer record missing</span>' : ''}
+                </div>
+                <div class="flex items-center gap-1 mt-auto pt-2 border-t border-gray-100">
+                    ${team ? `<button onclick="window.openTeamCard('${u.lecturerId}')" class="btn-gold px-2 py-1 rounded text-[9px] font-black">👑 Team · ${team}</button>` : ''}
+                    <span class="ml-auto flex gap-1">
+                        ${u.uid ? `<button title="Send password reset email" onclick="window.sendUserPasswordReset('${e}')" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-blue-100 text-[12px]">✉️</button>` : ''}
+                        <button title="${u.disabled ? 'Enable access' : 'Disable access'}" onclick="window.toggleUserDisabled('${e}', '${u.uid || ''}', ${!u.disabled})" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-yellow-100 text-[12px]">${u.disabled ? '▶️' : '⏸️'}</button>
+                        <button title="Remove access" onclick="window.removeSystemUser('${e}', '${u.uid || ''}')" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-red-100 text-[12px]">🗑️</button>
+                    </span>
+                </div>
+            </div>`;
+        };
+        const orderedRoles = Object.keys(groups).sort((a, b) => (ROLE_ORDER.indexOf(a) + 99 * (ROLE_ORDER.indexOf(a) < 0)) - (ROLE_ORDER.indexOf(b) + 99 * (ROLE_ORDER.indexOf(b) < 0)));
+        list.innerHTML = `<div class="flex flex-wrap gap-1.5 mb-3">${chip('', 'All', all.length)}${roles.map(r => chip(r, ROLE_LABELS[r] || r, counts[r])).join('')}</div>` +
+            (orderedRoles.map(r => { const st = ROLE_STYLE[r] || ['#334155', '#f1f5f9', '👤']; return `<div class="mb-4"><div class="flex items-center gap-2 mb-2"><span class="text-[11px] font-black uppercase tracking-wider" style="color:${st[0]}">${st[2]} ${ROLE_LABELS[r] || r}</span><span class="text-[10px] font-bold text-gray-400">${groups[r].length}</span><div class="flex-1 h-px bg-gray-200"></div></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">${groups[r].sort((x, y) => String(x.name || x.email).localeCompare(String(y.name || y.email))).map(card).join('')}</div></div>`; }).join('') || '<p class="text-center italic text-gray-400 p-6">No accounts match.</p>');
     };
 
     window.sendUserPasswordReset = (email) => {
