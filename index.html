@@ -293,40 +293,49 @@
     <p class="font-bold text-royal-green uppercase tracking-widest text-sm text-center px-4" id="loader-text">Initializing System...</p>
 </div>
 
-<div id="login-screen" class="min-h-screen bg-gradient-royal flex flex-col items-center justify-center p-4 relative" style="display: none;">
-    <div class="absolute bottom-4 text-center opacity-50 hover:opacity-100 transition-opacity cursor-default z-10">
-        <p class="text-[9px] font-bold uppercase tracking-widest text-gold mb-0.5">Designed & Developed by</p>
-        <p class="text-xs font-black tracking-wider text-white mb-1">Ali Ibrahim Didi <span class="text-gray-300 font-bold text-[10px] tracking-normal">| +960 7791550</span></p>
-        <p class="text-[8px] font-bold text-gray-400 tracking-widest uppercase">Copyright © RASFAHI<br>Reg No: MED.03.IP.CR.26.EW5889</p>
-    </div>
-    
+<div id="login-screen" class="min-h-screen bg-gradient-royal flex flex-col items-center justify-center p-4 gap-5" style="display: none;">
     <div class="bg-white p-6 md:p-10 rounded-2xl shadow-2xl w-full max-w-md text-center border-t-8 border-gold">
-        <h1 class="text-2xl md:text-3xl font-black text-[#004d40] uppercase tracking-tighter mb-2">Workload Portal</h1>
+        <h1 class="text-2xl md:text-3xl font-black text-[#004d40] uppercase tracking-tighter mb-1">Workload Portal</h1>
         <p class="text-[10px] md:text-xs text-gray-500 font-bold mb-6 uppercase tracking-widest">Authorized Access Only</p>
 
-        <button onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-3 rounded-xl border-2 border-gray-200 hover:border-[#4285F4] hover:bg-blue-50 transition font-bold text-sm text-gray-700 shadow-sm">
-            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 38.2 44 33 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
-            Sign in with Google (IUM email)
+        <button onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-4 rounded-xl border-2 border-[#4285F4] bg-white hover:bg-blue-50 transition font-black text-sm text-gray-800 shadow-md">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 38.2 44 33 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
+            Sign in with Google
         </button>
-        <div class="flex items-center gap-2 my-5 text-[9px] font-black text-gray-400 uppercase"><div class="flex-1 h-px bg-gray-200"></div>or email & password<div class="flex-1 h-px bg-gray-200"></div></div>
-        
-        <div class="space-y-4 text-left">
-            <div>
-                <label class="text-[10px] font-bold text-gray-600 uppercase">Role (Auto-Detected)</label>
-                <select id="login-role" disabled class="w-full p-3 border-2 border-gray-200 bg-gray-50 rounded-lg font-bold text-sm outline-none text-gray-600 cursor-not-allowed"></select>
-                <p class="text-[8px] text-gray-400 mt-1">Your final role (Lecturer, Coordinator, HOD, Dean...) is set automatically from your registered position after login.</p>
+        <p class="text-[10px] text-gray-500 font-bold mt-2">Use your IUM email (firstname.lastname@ium.edu.mv). Your role is set automatically.</p>
+
+        <div id="login-diag" class="hidden text-left mt-4 bg-red-50 border-2 border-red-200 rounded-xl p-3 text-[10px]"></div>
+
+        <details id="pw-login" class="mt-6 text-left">
+            <summary class="cursor-pointer text-center text-[10px] font-black text-gray-400 uppercase tracking-wider hover:text-gray-600">Admin / email & password login ▾</summary>
+            <div class="space-y-4 mt-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-600 uppercase">Role (Auto-Detected)</label>
+                    <select id="login-role" disabled class="w-full p-3 border-2 border-gray-200 bg-gray-50 rounded-lg font-bold text-sm outline-none text-gray-600 cursor-not-allowed"></select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-600 uppercase">Email Address</label>
+                    <input type="email" id="login-email" class="w-full p-3 border-2 border-gray-200 rounded-lg font-bold text-sm outline-none focus:border-gold" placeholder="firstname.lastname@ium.edu.mv" oninput="window.detectFacultyFromEmail()">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-600 uppercase">Password</label>
+                    <input type="password" id="login-password" class="w-full p-3 border-2 border-gray-200 rounded-lg font-bold text-sm outline-none focus:border-gold" placeholder="••••••••" onkeydown="if(event.key==='Enter') window.handleLogin()">
+                </div>
+                <button onclick="window.handleLogin()" class="btn-mix-huru w-full py-4 rounded-xl uppercase tracking-widest text-sm shadow-lg">Secure Login</button>
+                <button onclick="window.forgotPassword()" class="w-full text-center text-[10px] font-bold text-royal-blue hover:underline">Forgot / first-time password? Send me a reset link</button>
             </div>
-            <div>
-                <label class="text-[10px] font-bold text-gray-600 uppercase">Email Address</label>
-                <input type="email" id="login-email" class="w-full p-3 border-2 border-gray-200 rounded-lg font-bold text-sm outline-none focus:border-gold" placeholder="firstname.lastname@ium.edu.mv" oninput="window.detectFacultyFromEmail()">
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-gray-600 uppercase">Password</label>
-                <input type="password" id="login-password" class="w-full p-3 border-2 border-gray-200 rounded-lg font-bold text-sm outline-none focus:border-gold" placeholder="••••••••" onkeydown="if(event.key==='Enter') window.handleLogin()">
-            </div>
-            <button onclick="window.handleLogin()" class="btn-mix-huru w-full py-4 rounded-xl mt-4 uppercase tracking-widest text-sm shadow-lg">Secure Login</button>
-            <button onclick="window.forgotPassword()" class="w-full text-center text-[10px] font-bold text-royal-blue hover:underline">Forgot / first-time password? Send me a reset link</button>
-        </div>
+        </details>
+    </div>
+
+    <!-- Ownership & copyright – always visible under the login card -->
+    <div class="w-full max-w-md text-center bg-black/30 border border-[#d4af37]/50 rounded-2xl px-4 py-3 shadow-lg">
+        <p class="text-[9px] font-bold uppercase tracking-[0.25em] text-[#d4af37]">A product of</p>
+        <p class="text-base font-black tracking-widest text-white uppercase">Zaadh Holding</p>
+        <div class="h-px bg-[#d4af37]/40 my-2"></div>
+        <p class="text-[9px] font-bold uppercase tracking-widest text-[#d4af37]">Designed & Developed by</p>
+        <p class="text-xs font-black tracking-wider text-white">Ali Ibrahim Didi <span class="text-gray-300 font-bold text-[10px] tracking-normal">| +960 7791550</span></p>
+        <p class="text-[10px] font-bold text-gray-200 tracking-wider mt-1">Copyright © RASFAHI · Reg No: <span class="text-white font-black">MED.03.IP.CR.26.EW5889</span></p>
+        <p class="text-[8px] text-gray-300 mt-1">All rights reserved. Unauthorised copying or redistribution is prohibited.</p>
     </div>
 </div>
 
@@ -336,7 +345,7 @@
             <p class="text-[9px] font-bold uppercase tracking-widest text-gold mb-0.5">Designed & Developed by</p>
             <p class="text-xs font-black tracking-wider text-white mb-1">Ali Ibrahim Didi <span class="text-gray-300 font-bold text-[10px] tracking-normal">| +960 7791550</span></p>
             <div class="bg-black/30 inline-block px-2 py-0.5 rounded border border-white/10">
-                <p class="text-[8px] font-bold text-gray-300 tracking-widest uppercase">© RASFAHI (Reg No: MED.03.IP.CR.26.EW5889)</p>
+                <p class="text-[8px] font-bold text-gray-300 tracking-widest uppercase">Zaadh Holding · © RASFAHI (Reg No: MED.03.IP.CR.26.EW5889)</p>
             </div>
         </div>
         <div class="absolute top-4 right-4 md:top-6 md:right-8 flex flex-col items-end gap-2 z-10">
@@ -524,6 +533,7 @@
                 <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('tasks')" id="tbtn-tasks">✅ Tasks & Requests</div>
                 <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('exam')" id="tbtn-exam">📑 Exam Unit Tracking</div>
                 <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('coordinators')" id="tbtn-coordinators">👨‍💼 Coordinator Checklist</div>
+                <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('coordsetup')" id="tbtn-coordsetup">🧭 Coordination Setup</div>
                 <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('events')" id="tbtn-events">🎉 Events</div>
                 <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('weekly')" id="tbtn-weekly">📝 Weekly Reports</div>
                 <div class="tab-btn text-[9px] md:text-[10px]" onclick="window.switchTab('studata')" id="tbtn-studata">🎓 Students</div>
@@ -687,6 +697,10 @@
                         <div class="bg-white border rounded-xl p-3 shadow-sm"><h4 class="text-[10px] font-black uppercase text-gray-700 mb-1">Completion by Area (%)</h4><div class="h-72"><canvas id="fdCatBar"></canvas></div></div>
                     </div>
                 </div>
+            </div>
+
+            <div id="tab-coordsetup" class="tab-content">
+                <div class="card overflow-hidden p-4 border-t-8 border-purple-700 shadow-lg"><div id="coordsetup-cs"></div></div>
             </div>
 
             <div id="tab-myws" class="tab-content">
@@ -1329,27 +1343,8 @@
                     <div id="user-directory-list"><p class="text-gray-400 text-xs">Loading...</p></div>
                 </div>
 
-                <!-- NEW: every academic staff member + who coordinates them -->
-                <div class="card overflow-hidden p-4 border-t-4 border-purple-700">
-                    <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-2 mb-3">
-                        <div>
-                            <h2 class="font-black text-purple-900 uppercase text-sm">👥 Academic Staff & Their Coordinator</h2>
-                            <p class="text-[10px] text-gray-500 font-bold">Next to each lecturer, choose their coordinator (applies to all of that lecturer's modules). Tick several lecturers and use "Set for ticked" to give them all the same coordinator. 👑 opens a coordinator's team card.</p>
-                        </div>
-                        <div class="flex flex-wrap gap-2 items-center text-[10px]">
-                            <input id="st-search" onkeyup="window.renderStaffCoordTable()" placeholder="🔍 Search name..." class="p-1.5 border rounded outline-none">
-                            <select id="st-fac" onchange="window.renderStaffCoordTable()" class="p-1.5 border rounded outline-none font-bold"></select>
-                            <select id="st-show" onchange="window.renderStaffCoordTable()" class="p-1.5 border rounded outline-none"><option value="">All staff</option><option value="none">Without coordinator</option><option value="coords">Coordinators only</option></select>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 items-center bg-purple-50 border border-purple-200 rounded-lg p-2 mb-2 text-[10px]">
-                        <b class="text-purple-900">Set for ticked lecturers →</b>
-                        <select id="st-bulk" class="p-1.5 border rounded outline-none font-bold min-w-[220px]"></select>
-                        <button onclick="window.staffBulkApply()" class="bg-purple-700 text-white px-3 py-1.5 rounded font-black uppercase text-[9px]">✔ Apply</button>
-                        <span id="st-count" class="text-gray-500 font-bold"></span>
-                    </div>
-                    <div class="overflow-x-auto max-h-[650px] border rounded-lg"><table class="w-full text-left text-[10px] min-w-[1000px]" id="st-table"></table></div>
-                </div>
+                <!-- Coordination setup (module coordinators + course/batch coordinators) -->
+                <div class="card overflow-hidden p-4 border-t-4 border-purple-700"><div id="coordsetup-u"></div></div>
             </div>
 
         </div>
@@ -1862,6 +1857,7 @@
                     </tfoot>
                 </table>
             </div>
+            <div id="hr-coord" class="mt-6"></div>
         </div>
         <div class="p-4 border-t-4 border-[#d4af37] bg-gradient-royal flex flex-wrap justify-end gap-3 items-center rounded-b-xl">
             <button onclick="window.closeHRView()" class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-black text-[10px] uppercase shadow-md mr-auto hover:bg-gray-300 transition">Close</button>
@@ -1895,7 +1891,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -2255,7 +2251,7 @@
         if (cat.includes('dean')) set.add('DEAN');
         if (cat.includes('head of department') || cat === 'hod') set.add('HOD');
         const lid = window.lecIdOf(l);
-        if ((localDB.checklist || []).some(r => r.coordinatorId === lid)) set.add('COORDINATOR');
+        if ((localDB.checklist || []).some(r => r.coordinatorId === lid) || Object.values((localDB.settings || {}).courseCoordinators || {}).some(c => c.coordinatorId === lid)) set.add('COORDINATOR');
         return POSITIONS.filter(p => set.has(p));
     };
     window.roleFromPositions = (l) => {
@@ -2327,8 +2323,10 @@
     async function resolveUserRole(uid, email) {
         email = (email || '').toLowerCase().trim();
         let ur = null, reg = null;
-        try { const s1 = await getDoc(doc(dbCloud, 'user_roles', uid)); if (s1.exists()) ur = s1.data(); } catch (e) { console.warn('[role lookup user_roles]', e.code || e); }
-        try { if (email) { const s2 = await getDoc(doc(dbCloud, 'registered_emails', email)); if (s2.exists()) reg = s2.data(); } } catch (e) { console.warn('[role lookup registry]', e.code || e); }
+        const dg = (window._loginDiag = window._loginDiag || {});
+        try { const s1 = await getDoc(doc(dbCloud, 'user_roles', uid)); if (s1.exists()) ur = s1.data(); } catch (e) { dg.urErr = e.code || String(e); console.warn('[role lookup user_roles]', e.code || e); }
+        try { if (email) { const s2 = await getDoc(doc(dbCloud, 'registered_emails', email)); if (s2.exists()) reg = s2.data(); } } catch (e) { dg.regErr = e.code || String(e); console.warn('[role lookup registry]', e.code || e); }
+        dg.regFound = !!reg; dg.regRole = reg ? reg.role : ''; dg.regDisabled = !!(reg && reg.disabled); dg.urFound = !!ur;
         if ((ur && ur.disabled) || (reg && reg.disabled)) return { role: '__DISABLED__', doc: reg || ur };
         // The email registry is the current source of truth (works for password AND Google logins).
         if (reg && reg.role) return { role: reg.role, doc: { ...(ur || {}), ...reg }, from: 'registry' };
@@ -3176,7 +3174,11 @@
     window.weekLabel = (key) => { const s = new Date(key + 'T00:00:00'); const e = new Date(s); e.setDate(e.getDate() + 6); const o = { day: 'numeric', month: 'short' }; return `Week of ${s.toLocaleDateString('en-GB', o)} – ${e.toLocaleDateString('en-GB', { ...o, year: 'numeric' })}`; };
     window.rowPct = (r) => Math.round(CL_BOOL.filter(f => clOn(r, f.k)).length / CL_BOOL.length * 100);
     const clRemaining = (r) => { const t = parseFloat(r.totalHrs), k = parseFloat(r.takenHrs); return (isNaN(t) && isNaN(k)) ? '-' : ((t || 0) - (k || 0)).toFixed(1); };
-    window.rowsForLecturer = (lid, scope = 'both') => !lid ? [] : (localDB.checklist || []).filter(r => (scope !== 'coord' && r.lecturerId === lid) || (scope !== 'teach' && r.coordinatorId === lid));
+    // Two kinds of coordination: MODULE coordinator (row.coordinatorId) and COURSE/BATCH coordinator
+    // (localDB.settings.courseCoordinators keyed by faculty|course|batch). Both can tick the rows they coordinate.
+    window.ccKey = (fac, course, batch) => window.makeSafeId(`${fac}|${course}|${batch}`);
+    window.courseCoordOf = (r) => { const c = ((localDB.settings || {}).courseCoordinators || {})[window.ccKey(r.faculty, r.course, r.batch)]; return (c && c.coordinatorId) || ''; };
+    window.rowsForLecturer = (lid, scope = 'both') => !lid ? [] : (localDB.checklist || []).filter(r => (scope !== 'coord' && r.lecturerId === lid) || (scope !== 'teach' && (r.coordinatorId === lid || window.courseCoordOf(r) === lid)));
     const rowSort = (a, b) => (a.order || 0) - (b.order || 0);
 
     window.progressFor = (lid) => {
@@ -3199,10 +3201,10 @@
         if (!r) return false;
         if (window.isManagerFor(r.faculty)) return true;
         if (activeRole === 'EXAM') return !!(CL_FIELDS.find(f => f.k === k) || {}).exam;
-        if (currentLecturerId && (r.lecturerId === currentLecturerId || r.coordinatorId === currentLecturerId)) return true;
+        if (currentLecturerId && (r.lecturerId === currentLecturerId || r.coordinatorId === currentLecturerId || window.courseCoordOf(r) === currentLecturerId)) return true;
         return false;
     };
-    window.canAllocateRow = (r) => !!r && (window.isManagerFor(r.faculty) || (!!currentLecturerId && r.coordinatorId === currentLecturerId));
+    window.canAllocateRow = (r) => !!r && (window.isManagerFor(r.faculty) || (!!currentLecturerId && (r.coordinatorId === currentLecturerId || window.courseCoordOf(r) === currentLecturerId)));
 
     // ---------- migrate the old per-module coordinator data (if any) into the new rows ----------
     window.migrateOldCoordinators = () => {
@@ -3357,7 +3359,8 @@
         const fields = CL_FIELDS.filter(f => cat === 'all' || f.cats.includes(cat));
         const roleTags = [];
         if (WS.lectId && r.lecturerId === WS.lectId) roleTags.push('<span class="pos-badge pos-LECTURER">Teaching</span>');
-        if (WS.lectId && r.coordinatorId === WS.lectId) roleTags.push('<span class="pos-badge pos-COORDINATOR">Coordinating</span>');
+        if (WS.lectId && r.coordinatorId === WS.lectId) roleTags.push('<span class="pos-badge pos-COORDINATOR">Module coordinator</span>');
+        if (WS.lectId && window.courseCoordOf(r) === WS.lectId) roleTags.push('<span class="pos-badge pos-HOD">Course / batch coordinator</span>');
         let groupsHtml = '';
         CL_GROUPS.forEach(g => {
             const gf = fields.filter(f => f.g === g.id); if (!gf.length) return;
@@ -3487,7 +3490,8 @@
                     <h4 class="text-[10px] font-black uppercase text-purple-800">👨‍💼 Modules I Coordinate (${coord.length}) · Lecturers under me</h4>
                     <div class="mt-1 space-y-1 max-h-32 overflow-y-auto">${Object.entries(byLect).map(([k, rs]) => { const avg = Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length); const nm = k === '__none' ? '⚠ Not allocated' : (rs[0].lecturerName || k); return `<div class="flex justify-between items-center text-[10px] gap-2"><span class="truncate"><b>${esc(nm)}</b> <span class="text-gray-400">${rs.length} module(s)</span></span><span class="flex items-center gap-1"><span class="mini-bar"><div style="width:${avg}%;background:#7e22ce"></div></span><b>${avg}%</b></span></div>`; }).join('')}</div></div>`;
             }
-            sum.innerHTML = h;
+            const cs = window.coordSummaryHtml ? window.coordSummaryHtml(lid, true) : '';
+            sum.innerHTML = h + (cs ? `<div class="md:col-span-2"><h4 class="text-[10px] font-black uppercase text-[#004d40] mb-1">🧭 My coordination information</h4>${cs}</div>` : '');
         }
         if (charts.lectCatBar) charts.lectCatBar.destroy();
         if (charts.lectCatPie) charts.lectCatPie.destroy();
@@ -4291,7 +4295,8 @@
         const coordRows = (localDB.checklist || []).filter(r => r.coordinatorId === id).sort(rowSort);
         const teachRows = (localDB.checklist || []).filter(r => r.lecturerId === id).sort(rowSort);
         const name = l ? window.getLecturerName(l) : ((coordRows[0] || {}).coordinatorName || (teachRows[0] || {}).lecturerName || id);
-        return { l, id, name, coordRows, teachRows, phone: lecturerPhone(id, teachRows[0]), email: l ? window.getLecturerEmail(l) : '', faculty: l ? window.getFaculty(l) : ((coordRows[0] || teachRows[0] || {}).faculty || ''), type: l ? window.getSafeVal(l, ['LecturerType']) : '', positions: l ? window.getPositions(l) : (coordRows.length ? ['COORDINATOR'] : []) };
+        const courseRoles = Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.coordinatorId === id);
+        return { l, id, name, coordRows, teachRows, courseRoles, phone: lecturerPhone(id, teachRows[0]), email: l ? window.getLecturerEmail(l) : '', faculty: l ? window.getFaculty(l) : ((coordRows[0] || teachRows[0] || {}).faculty || ''), type: l ? window.getSafeVal(l, ['LecturerType']) : '', positions: l ? window.getPositions(l) : (coordRows.length ? ['COORDINATOR'] : []) };
     };
     const personCardHtml = (p) => {
         const prog = window.progressFor(p.id);
@@ -4306,6 +4311,8 @@
             const lectCount = Object.keys(byL).filter(k => k !== '__none').length;
             coordHtml = sec(`As Subject Coordinator — ${p.coordRows.length} modules · ${lectCount} lecturers`) + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Lecturer & contact')}${th('Course')}${th('Module')}${th('Batch')}${th('Checklist')}${th('Exam paper')}</tr></thead><tbody>${Object.entries(byL).map(([lid, rs]) => rs.map((r, i) => `<tr>${i === 0 ? `<td style="${tdS}" rowspan="${rs.length}"><b>${esc(r.lecturerName || 'Not allocated')}</b><br><span style="color:#64748b">${esc(r.ftpt || '')} ${esc(lecturerPhone(lid, r))}</span></td>` : ''}<td style="${tdS}">${esc(r.course)}</td><td style="${tdS}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${tdS}">${esc(r.batch)}</td><td style="${tdS}font-weight:900;color:${pctC(window.rowPct(r))}">${window.rowPct(r)}%</td><td style="${tdS}">${exS(r)}</td></tr>`).join('')).join('')}</tbody></table>`;
         }
+        let courseHtml = '';
+        if (p.courseRoles && p.courseRoles.length) courseHtml = sec(`As Course / Batch Coordinator — ${p.courseRoles.length}`) + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Course')}${th('Batch')}${th('Modules')}${th('Lecturers')}${th('Avg checklist')}</tr></thead><tbody>${p.courseRoles.map(c => { const rs = (localDB.checklist || []).filter(r => window.ccKey(r.faculty, r.course, r.batch) === window.ccKey(c.faculty, c.course, c.batch)); const avg = rs.length ? Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length) : 0; return `<tr><td style="${tdS}">${esc(c.course)}</td><td style="${tdS}font-weight:800">${esc(c.batch)}</td><td style="${tdS}">${rs.map(r => esc(r.code)).join(', ')}</td><td style="${tdS}">${[...new Set(rs.map(r => r.lecturerName).filter(Boolean))].map(esc).join(', ')}</td><td style="${tdS}font-weight:900;color:${pctC(avg)}">${avg}%</td></tr>`; }).join('')}</tbody></table>`;
         let teachHtml = '';
         if (p.teachRows.length) teachHtml = sec(`As Lecturer — ${p.teachRows.length} modules`) + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Course')}${th('Module')}${th('Batch')}${th('Weekly hrs')}${th('Credit')}${th('Coordinator')}${th('Checklist')}${th('Moodle / iSIMS pending')}${th('Exam paper')}</tr></thead><tbody>${p.teachRows.map(r => { const mi = modInfo(r.code, r.batch); return `<tr><td style="${tdS}">${esc(r.course)}</td><td style="${tdS}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${tdS}">${esc(r.batch)}</td><td style="${tdS}text-align:center">${esc(mi.wch || '–')}</td><td style="${tdS}text-align:center">${esc(mi.credit || '–')}</td><td style="${tdS}">${esc(r.coordinatorName)}</td><td style="${tdS}font-weight:900;color:${pctC(window.rowPct(r))}">${window.rowPct(r)}%</td><td style="${tdS}">${pendingIn(r, 'moodle').length} / ${pendingIn(r, 'isims').length}</td><td style="${tdS}">${exS(r)}</td></tr>`; }).join('')}</tbody></table>`;
         const fus = [...p.coordRows, ...p.teachRows].flatMap(r => (r.followUps || []).map(f => ({ ...f, code: r.code, batch: r.batch }))).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
@@ -4322,8 +4329,8 @@
                 <div style="font-size:10px;margin-top:4px;">📞 ${esc(p.phone || '—')} &nbsp; ✉ ${esc(p.email || '—')}</div></div>
                 <div style="text-align:center;border:2px solid #d4af37;border-radius:50%;width:74px;height:74px;display:flex;flex-direction:column;justify-content:center;"><div style="font-size:20px;font-weight:900;color:#d4af37;">${prog.pct}%</div><div style="font-size:7px;letter-spacing:1px;">OVERALL</div></div>
             </div>
-            ${coordHtml}${teachHtml}${fuHtml}
-            ${!p.coordRows.length && !p.teachRows.length ? '<p style="text-align:center;color:#94a3b8;margin:20px">No modules linked in the Coordinator Checklist.</p>' : ''}
+            ${coordHtml}${courseHtml}${teachHtml}${fuHtml}
+            ${!p.coordRows.length && !p.teachRows.length && !(p.courseRoles || []).length ? '<p style="text-align:center;color:#94a3b8;margin:20px">No modules linked in the Coordinator Checklist.</p>' : ''}
             <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:14px;">Generated ${new Date().toLocaleString()} · Presidential Executive Workload Portal</div>
         </div>`;
     };
@@ -4720,6 +4727,147 @@
         await window.renderAreaToPdf(`Coordinator_Team_${(c ? window.getLecturerName(c) : cid).replace(/[^a-z0-9]+/gi, '_')}.pdf`, 'Designing the team card...');
     };
 
+    // =====================================================================================
+    // ========== COORDINATION SETUP: (1) MODULE coordinators  (2) COURSE / BATCH coordinators
+    // =====================================================================================
+    const modalityOf = (r) => {
+        const ms = localDB.modules.filter(m => window.makeSafeId(window.getSafeVal(m, ['ModuleCode', 'Code'])) === window.makeSafeId(r.code));
+        const m = ms.find(x => String(window.getSafeVal(x, ['OfferedBatch'])).trim() === String(r.batch || '').trim()) || ms[0];
+        let v = m ? window.getSafeVal(m, ['Modality']) : '';
+        if (!v) { const t = `${r.batch} ${r.course}`.toLowerCase(); v = /blended/.test(t) ? 'Blended' : /online/.test(t) ? 'Online' : /(f2f|face to face|face-to-face)/.test(t) ? 'Face to Face' : ''; }
+        return v || 'Not set';
+    };
+    const MOD_COL = { 'Blended': 'bg-purple-100 text-purple-800', 'Online': 'bg-blue-100 text-blue-800', 'Face to Face': 'bg-green-100 text-green-800', 'Not set': 'bg-gray-100 text-gray-500' };
+    const modBadge = (v) => `<span class="inline-block px-1.5 py-0.5 rounded text-[8px] font-black ${MOD_COL[v] || 'bg-gray-100 text-gray-600'}">${esc(v)}</span>`;
+    const CS = {};
+    window.renderCoordSetup = (cid) => {
+        const box = document.getElementById(cid); if (!box) return;
+        if (!CS[cid]) {
+            CS[cid] = { fac: '', q: '', open: new Set() };
+            box.innerHTML = `<div class="flex flex-col lg:flex-row justify-between lg:items-center gap-2 mb-3">
+                    <div><h2 class="font-black text-purple-900 uppercase text-sm">🧭 Coordination Setup</h2>
+                    <p class="text-[10px] text-gray-500 font-bold">IUM coordinates in two ways: <b>1) by module</b> and <b>2) by course & batch</b>. Choose the coordinator in the right-hand column – it saves immediately, and that person can then tick the checklist for everything they coordinate.</p></div>
+                    <div class="flex gap-2 items-center text-[10px]"><select data-el="fac" class="p-1.5 border rounded font-bold outline-none"></select>
+                    <input data-el="q" placeholder="🔍 Search module / course / batch / lecturer" class="p-1.5 border rounded outline-none min-w-[220px]"></div></div>
+                <div data-el="stats" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3"></div>
+                <h3 class="text-xs font-black uppercase text-royal-blue mb-1">1️⃣ Module Coordinators</h3>
+                <div data-el="mod" class="overflow-x-auto max-h-[560px] border rounded-lg mb-6"></div>
+                <h3 class="text-xs font-black uppercase text-green-800 mb-1">2️⃣ Course & Batch Coordinators</h3>
+                <div data-el="course" class="overflow-x-auto max-h-[560px] border rounded-lg"></div>`;
+            box.querySelector('[data-el=fac]').onchange = (e) => { CS[cid].fac = e.target.value; window.renderCoordSetupTables(cid); };
+            box.querySelector('[data-el=q]').oninput = (e) => { CS[cid].q = e.target.value; window.renderCoordSetupTables(cid); };
+        }
+        const st = CS[cid]; const fs = box.querySelector('[data-el=fac]');
+        const sf = window.scopeFaculty();
+        if (sf) { st.fac = sf; fs.style.display = 'none'; }
+        else {
+            const counts = {}; (localDB.checklist || []).forEach(r => counts[r.faculty] = (counts[r.faculty] || 0) + 1);
+            if (!st.fac) st.fac = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || FACULTIES[0];
+            fs.innerHTML = FACULTIES.map(f => `<option value="${f}" ${f === st.fac ? 'selected' : ''}>${f}${counts[f] ? ' (' + counts[f] + ' rows)' : ''}</option>`).join('');
+        }
+        window.renderCoordSetupTables(cid);
+    };
+    window.csToggle = (cid, code) => { const s = CS[cid].open; s.has(code) ? s.delete(code) : s.add(code); window.renderCoordSetupTables(cid); };
+    window.renderCoordSetupTables = (cid) => {
+        const box = document.getElementById(cid); const st = CS[cid]; if (!box || !st) return;
+        const fac = st.fac; const q = st.q.toLowerCase();
+        const can = window.isManagerFor(fac); const dis = can ? '' : 'disabled';
+        const people = localDB.lecturers.filter(l => window.getFaculty(l) === fac);
+        const rows = (localDB.checklist || []).filter(r => r.faculty === fac).sort(rowSort);
+        const nm = (id) => { const l = id ? window.getLecturerById(id) : null; return l ? window.getLecturerName(l) : ''; };
+        // ---- module groups ----
+        const mg = {};
+        rows.forEach(r => { (mg[r.code] = mg[r.code] || { code: r.code, name: r.name, rows: [] }).rows.push(r); });
+        const mods = Object.values(mg).filter(g => !q || [g.code, g.name, ...g.rows.map(r => `${r.course} ${r.batch} ${r.lecturerName} ${r.coordinatorName}`)].join(' ').toLowerCase().includes(q)).sort((a, b) => a.code.localeCompare(b.code));
+        const th = (cols, bg) => `<thead class="${bg} text-white text-[9px] uppercase sticky top-0 z-10"><tr>${cols.map(c => `<th class="p-2 text-left whitespace-nowrap">${c}</th>`).join('')}</tr></thead>`;
+        let modAssigned = 0;
+        const modHtml = mods.map(g => {
+            const cids = [...new Set(g.rows.map(r => r.coordinatorId || ''))];
+            const single = cids.length === 1 ? cids[0] : null; if (cids.every(Boolean)) modAssigned++;
+            const modalities = [...new Set(g.rows.map(modalityOf))];
+            const pairs = [...new Set(g.rows.map(r => `${r.course}|||${r.batch}`))].map(p => p.split('|||'));
+            const lects = [...new Map(g.rows.filter(r => r.lecturerName).map(r => [r.lecturerId || r.lecturerName, r])).values()];
+            const open = st.open.has(g.code);
+            let h = `<tr class="${single ? '' : 'bg-orange-50/60'} align-top">
+                <td class="p-2 min-w-[180px]"><b class="text-royal-blue">${esc(g.code)}</b><div class="text-[10px] text-gray-700">${esc(g.name)}</div><div class="mt-0.5 flex gap-1 flex-wrap">${modalities.map(modBadge).join('')}</div></td>
+                <td class="p-2 text-[9px] min-w-[220px]">${pairs.map(([c, b]) => `<div class="border-b border-gray-100 py-0.5"><b>${esc(b)}</b> <span class="text-gray-500">${esc(c)}</span></div>`).join('')}</td>
+                <td class="p-2 text-[10px] min-w-[150px]">${lects.map(r => `<div>${r.lecturerId ? `<span class="text-royal-blue font-bold cursor-pointer hover:underline" onclick="window.openPersonCard('${r.lecturerId}')">${esc(r.lecturerName)}</span>` : esc(r.lecturerName)} <span class="text-gray-400">${esc(r.ftpt || '')}</span></div>`).join('') || '<span class="text-red-500 font-bold">Not allocated</span>'}</td>
+                <td class="p-2 min-w-[230px]"><select ${dis} onchange="window.setModuleCoordinator('${cid}','${esc(g.code)}', this.value)" class="w-full p-1.5 border-2 rounded font-bold outline-none ${single ? 'border-purple-300 text-purple-900' : 'border-orange-300 text-orange-700'}">${single === null ? '<option value="__mixed" selected>⚠ Different per batch – choose to set for ALL</option>' : ''}${coordOptions(people, single || '')}</select>
+                ${g.rows.length > 1 ? `<button onclick="window.csToggle('${cid}','${esc(g.code)}')" class="mt-1 text-[9px] font-bold text-purple-700 hover:underline">${open ? '▲ hide batches' : `▼ set per batch (${g.rows.length})`}</button>` : ''}</td></tr>`;
+            if (open) h += g.rows.map(r => `<tr class="bg-purple-50/50 text-[9px]"><td class="p-1 pl-6 text-gray-500">↳ ${esc(r.code)}</td><td class="p-1"><b>${esc(r.batch)}</b> ${esc(r.course)} ${modBadge(modalityOf(r))}</td><td class="p-1">${esc(r.lecturerName || '—')}</td><td class="p-1"><select ${dis} onchange="window.allocateRowCoordinator('${r.id}', this.value); window.renderCoordSetupTables('${cid}')" class="w-full p-1 border rounded outline-none">${coordOptions(people, r.coordinatorId || '')}</select></td></tr>`).join('');
+            return h;
+        }).join('');
+        box.querySelector('[data-el=mod]').innerHTML = `<table class="w-full text-left text-[10px] min-w-[900px]">${th(['Module (code · modality)', 'Courses & batches', 'Lecturer(s)', 'Module coordinator'], 'bg-[#0d47a1]')}<tbody class="divide-y bg-white">${modHtml || '<tr><td colspan="4" class="p-6 text-center italic text-gray-400">No modules for this faculty. Import the Subject Coordinator Checklist first.</td></tr>'}</tbody></table>`;
+        // ---- course / batch groups ----
+        const cc = (localDB.settings.courseCoordinators = localDB.settings.courseCoordinators || {});
+        const cg = {};
+        rows.forEach(r => { const k = window.ccKey(fac, r.course, r.batch); (cg[k] = cg[k] || { key: k, course: r.course, batch: r.batch, rows: [] }).rows.push(r); });
+        const courses = Object.values(cg).filter(g => !q || `${g.course} ${g.batch} ${nm((cc[g.key] || {}).coordinatorId)} ${g.rows.map(r => r.code + ' ' + r.lecturerName).join(' ')}`.toLowerCase().includes(q)).sort((a, b) => a.course.localeCompare(b.course) || a.batch.localeCompare(b.batch));
+        let cAssigned = 0;
+        const courseHtml = courses.map(g => {
+            const cur = (cc[g.key] || {}).coordinatorId || ''; if (cur) cAssigned++;
+            const modalities = [...new Set(g.rows.map(modalityOf))];
+            const lectN = new Set(g.rows.map(r => r.lecturerId || r.lecturerName).filter(Boolean)).size;
+            const avg = Math.round(g.rows.reduce((a, r) => a + window.rowPct(r), 0) / g.rows.length);
+            return `<tr class="${cur ? '' : 'bg-orange-50/40'} align-top"><td class="p-2 font-bold min-w-[220px]">${esc(g.course)}</td>
+                <td class="p-2">${modalities.map(modBadge).join(' ')}</td>
+                <td class="p-2 font-black whitespace-nowrap">${esc(g.batch)}</td>
+                <td class="p-2 text-[9px] min-w-[200px]">${g.rows.map(r => `<span class="inline-block mr-1"><b>${esc(r.code)}</b></span>`).join('')}<div class="text-gray-500">${g.rows.length} modules · ${lectN} lecturers · checklist ${avg}%</div></td>
+                <td class="p-2 min-w-[230px]"><select ${dis} onchange="window.setCourseCoordinator('${cid}','${g.key}', this.value)" class="w-full p-1.5 border-2 rounded font-bold outline-none ${cur ? 'border-green-400 text-green-900' : 'border-orange-300 text-gray-500'}">${coordOptions(people, cur)}</select>
+                ${cur ? `<button onclick="window.openPersonCard('${cur}')" class="mt-1 text-[9px] font-bold text-green-800 hover:underline">👤 view card</button>` : ''}</td></tr>`;
+        }).join('');
+        box.querySelector('[data-el=course]').innerHTML = `<table class="w-full text-left text-[10px] min-w-[900px]">${th(['Course', 'Mode', 'Batch', 'Modules in this batch', 'Course / batch coordinator'], 'bg-green-800')}<tbody class="divide-y bg-white">${courseHtml || '<tr><td colspan="5" class="p-6 text-center italic text-gray-400">No courses.</td></tr>'}</tbody></table>`;
+        const stat = (l, v, c) => `<div class="bg-white border rounded-lg p-2 text-center" style="border-top:3px solid ${c}"><div class="text-lg font-black" style="color:${c}">${v}</div><div class="text-[8px] font-black uppercase text-gray-500">${l}</div></div>`;
+        box.querySelector('[data-el=stats]').innerHTML = [stat('Modules', mods.length, '#0d47a1'), stat('Modules with coordinator', `${modAssigned}/${mods.length}`, '#4a148c'), stat('Course · batches', courses.length, '#00695c'), stat('With course coordinator', `${cAssigned}/${courses.length}`, cAssigned === courses.length ? '#065f46' : '#ea580c')].join('');
+        if (!can) box.querySelector('[data-el=stats]').insertAdjacentHTML('beforeend', '<div class="col-span-full text-[10px] text-orange-700 font-bold">View only – only the faculty / Dean / Academic Affairs can change coordinators.</div>');
+    };
+    window.setModuleCoordinator = (cid, code, lid) => {
+        if (lid === '__mixed') return;
+        const st = CS[cid]; if (!st || !window.isManagerFor(st.fac)) return window.showToast('Only the faculty / Dean can set coordinators.', 'warning');
+        const c = lid ? window.getLecturerById(lid) : null;
+        let n = 0;
+        localDB.checklist.forEach(r => { if (r.faculty === st.fac && r.code === code) { r.coordinatorId = lid || ''; r.coordinatorName = c ? window.getLecturerName(c) : ''; r.updatedAt = nowIso(); r.updatedBy = myEmail(); n++; } });
+        if (c) window.addPosition(c, 'COORDINATOR');
+        window.invalidateLecturerCache(); window.saveLocal(true);
+        if (c) simulateEmail(window.getLecturerName(c), `Module coordinator: ${code}`, `You are now the module coordinator of ${code} (${n} batch(es)).`);
+        window.showToast(c ? `${code}: ${window.getLecturerName(c)} (${n} batch/es)` : `${code}: coordinator removed`, 'success');
+        window.renderCoordSetupTables(cid);
+    };
+    window.setCourseCoordinator = (cid, key, lid) => {
+        const st = CS[cid]; if (!st || !window.isManagerFor(st.fac)) return window.showToast('Only the faculty / Dean can set coordinators.', 'warning');
+        const cc = (localDB.settings.courseCoordinators = localDB.settings.courseCoordinators || {});
+        const any = localDB.checklist.find(r => window.ccKey(r.faculty, r.course, r.batch) === key);
+        if (!lid) delete cc[key];
+        else {
+            const c = window.getLecturerById(lid);
+            cc[key] = { faculty: st.fac, course: any ? any.course : '', batch: any ? any.batch : '', coordinatorId: lid, coordinatorName: window.getLecturerName(c), updatedAt: nowIso(), updatedBy: myEmail() };
+            window.addPosition(c, 'COORDINATOR');
+            simulateEmail(window.getLecturerName(c), `Course coordinator: ${cc[key].course} – ${cc[key].batch}`, 'You are now the course / batch coordinator.');
+        }
+        window.invalidateLecturerCache(); window.saveLocal(true);
+        window.showToast(lid ? 'Course / batch coordinator saved' : 'Course coordinator removed', 'success');
+        window.renderCoordSetupTables(cid);
+    };
+
+    // Coordination block used on the lecturer's Workload Slip, dashboard and profile card.
+    window.coordRolesOf = (lid) => {
+        const modRows = (localDB.checklist || []).filter(r => r.coordinatorId === lid);
+        const courseRoles = Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.coordinatorId === lid);
+        const teach = (localDB.checklist || []).filter(r => r.lecturerId === lid);
+        return { modRows, courseRoles, teach };
+    };
+    window.coordSummaryHtml = (lid, compact = false) => {
+        const { modRows, courseRoles, teach } = window.coordRolesOf(lid);
+        const nm = (id) => { const l = id ? window.getLecturerById(id) : null; return l ? window.getLecturerName(l) : ''; };
+        const byCode = {}; modRows.forEach(r => (byCode[r.code] = byCode[r.code] || { name: r.name, rows: [] }).rows.push(r));
+        const box = (title, color, inner) => `<div class="bg-white border rounded-xl p-3" style="border-top:4px solid ${color}"><h4 class="text-[10px] font-black uppercase mb-1" style="color:${color}">${title}</h4>${inner}</div>`;
+        const modBox = box(`👨‍💼 Module coordinator of ${Object.keys(byCode).length} module(s)`, '#4a148c', Object.entries(byCode).map(([code, g]) => `<div class="text-[10px] border-b border-gray-100 py-0.5"><b>${esc(code)}</b> ${esc(g.name)} <span class="text-gray-500">– ${g.rows.map(r => esc(r.batch) + (r.lecturerName ? ' (' + esc(r.lecturerName) + ')' : '')).join(', ')}</span></div>`).join('') || '<p class="text-[10px] italic text-gray-400">None</p>');
+        const courseBox = box(`🎓 Course / batch coordinator of ${courseRoles.length}`, '#00695c', courseRoles.map(c => { const rs = (localDB.checklist || []).filter(r => window.ccKey(r.faculty, r.course, r.batch) === window.ccKey(c.faculty, c.course, c.batch)); return `<div class="text-[10px] border-b border-gray-100 py-0.5"><b>${esc(c.batch)}</b> ${esc(c.course)} <span class="text-gray-500">– ${rs.length} modules</span></div>`; }).join('') || '<p class="text-[10px] italic text-gray-400">None</p>');
+        const teachBox = box(`📘 My modules & their coordinators (${teach.length})`, '#0d47a1', teach.map(r => `<div class="text-[10px] border-b border-gray-100 py-0.5"><b>${esc(r.code)}</b> ${esc(r.batch)} <span class="text-gray-500">– module: ${esc(r.coordinatorName || '—')} · course: ${esc(nm(window.courseCoordOf(r)) || '—')}</span></div>`).join('') || '<p class="text-[10px] italic text-gray-400">No modules in the checklist</p>');
+        if (compact) return (modRows.length || courseRoles.length || teach.length) ? `<div class="grid grid-cols-1 md:grid-cols-3 gap-3">${teachBox}${modBox}${courseBox}</div>` : '';
+        return `<h3 class="font-black text-[#004d40] uppercase mb-3 text-sm md:text-base tracking-widest border-b-2 border-[#d4af37] pb-2">🧭 Coordination Information</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${teachBox}${modBox}${courseBox}</div>`;
+    };
+
     window.populateLecturerDropdown = () => {
         const select = document.getElementById('lecturerSelectStandalone'); if(!select) return;
         let opts = [];
@@ -4867,6 +5015,7 @@
         });
         document.getElementById('hr-table-body').innerHTML = tbody || '<tr><td colspan="6" class="text-center p-6 italic text-gray-500">No modules assigned.</td></tr>';
         document.getElementById('hr-total').innerText = total.toFixed(1);
+        const hc = document.getElementById('hr-coord'); if (hc) hc.innerHTML = window.coordSummaryHtml ? window.coordSummaryHtml(id, false) : '';
         document.getElementById('hr-modal').style.display = 'flex';
     };
 
@@ -4924,7 +5073,7 @@
         } else if (activeRole !== 'STUDENT') {
             const activeTabContent = document.querySelector('.tab-content.active');
             const activeTabId = activeTabContent ? activeTabContent.id.replace('tab-', '') : null;
-            if (activeTabId === 'users') { window.populateNewUserLecturerPicker(); window.renderStaffCoordTable(); }
+            if (activeTabId === 'users') { window.populateNewUserLecturerPicker(); window.renderCoordSetup('coordsetup-u'); }
             else if (activeTabId) window.switchTab(activeTabId);
         }
 
@@ -4997,7 +5146,7 @@
             // Dean / HOD / Secretary: faculty dashboard, locked to their own faculty
             document.getElementById('main-dashboard-controls').style.display = 'block';
             document.getElementById('header-stats').style.display = 'flex';
-            const tabs = ['facdash', 'analytics', 'matrix', 'staff', 'timetable', 'exam-tt', 'tasks', 'coordinators', 'events', 'weekly', 'lectdata', 'moddata', 'studata'];
+            const tabs = ['facdash', 'analytics', 'matrix', 'staff', 'timetable', 'exam-tt', 'tasks', 'coordinators', 'coordsetup', 'events', 'weekly', 'lectdata', 'moddata', 'studata'];
             if (currentLecturerId) tabs.push('myws');
             showTabs(tabs);
             if (fv && userFaculty) { fv.value = userFaculty; fv.disabled = true; }
@@ -5006,7 +5155,7 @@
             document.getElementById('main-dashboard-controls').style.display = 'block';
             document.getElementById('header-stats').style.display = 'flex';
             if (up) up.style.display = 'none';
-            showTabs(['analytics', 'facdash', 'staff', 'coordinators', 'weekly', 'lectdata', 'moddata']);
+            showTabs(['analytics', 'facdash', 'staff', 'coordinators', 'coordsetup', 'weekly', 'lectdata', 'moddata']);
             window.switchTab('analytics');
         } else {
             // Academic Affairs (ALL) or a faculty login (KSL, KED ...)
@@ -5047,12 +5196,29 @@
         localStorage.setItem('userRole', activeRole);
     }
 
+    // Explains on the login screen exactly which step failed (kept across the reload).
     const denyAccess = async (msg) => {
-        alert(msg);
+        try { sessionStorage.setItem('loginDiag', JSON.stringify({ msg, d: window._loginDiag || {}, at: new Date().toISOString() })); } catch (e) {}
         if (auth) await signOut(auth);
         localStorage.removeItem('userRole');
         location.reload();
     };
+    window.showLoginDiag = () => {
+        let x = null; try { x = JSON.parse(sessionStorage.getItem('loginDiag') || 'null'); } catch (e) {}
+        const box = document.getElementById('login-diag'); if (!box || !x) return;
+        const d = x.d || {};
+        const line = (ok, t, sub) => `<div class="flex gap-2 py-0.5"><span>${ok === null ? '•' : ok ? '✅' : '❌'}</span><div><b>${t}</b>${sub ? `<div class="text-gray-600">${sub}</div>` : ''}</div></div>`;
+        const perm = (c) => c && c.includes('permission') ? 'Firestore rules blocked this read – publish the latest firestore.rules.' : (c || '');
+        box.innerHTML = `<div class="font-black text-red-800 mb-1">Login was not completed</div>
+            ${line(!!d.email, 'Google / Firebase sign-in', d.email ? `${d.email} (${d.provider || ''})` : 'no user')}
+            ${line(d.regErr ? false : d.regFound, 'Registered in the portal access list', d.regErr ? perm(d.regErr) : (d.regFound ? `role: ${d.regRole}${d.regDisabled ? ' – DISABLED' : ''}` : `No entry for "${esc(d.email || '')}". The admin must add EXACTLY this email (Manage Users → Save Role & Links Only).`))}
+            ${d.masterErr !== undefined ? line(false, 'Lecturer record with this email', d.masterErr ? perm(d.masterErr) : 'Not found in Lecturers data – check the Email column of this person.') : ''}
+            <div class="mt-2 p-2 bg-white rounded border text-gray-700 whitespace-pre-wrap">${esc(x.msg)}</div>
+            <div class="mt-2 flex gap-2"><button onclick="window.handleGoogleLogin()" class="bg-blue-600 text-white px-3 py-1 rounded font-black text-[9px]">Try again</button><button onclick="sessionStorage.removeItem('loginDiag'); document.getElementById('login-diag').classList.add('hidden')" class="bg-gray-200 px-3 py-1 rounded font-bold text-[9px]">Dismiss</button></div>`;
+        box.classList.remove('hidden');
+    };
+    // Finish a redirect-based Google sign-in (used when pop-ups are blocked) and surface its errors.
+    if (auth) getRedirectResult(auth).catch(e => { try { sessionStorage.setItem('loginDiag', JSON.stringify({ msg: 'Google sign-in failed.\n' + window.fbErrorHelp(e), d: {} })); } catch (x) {} window.showLoginDiag(); });
 
     if (auth) {
         onAuthStateChanged(auth, async (user) => {
@@ -5061,6 +5227,7 @@
                 document.getElementById('loader-text').innerText = "Checking your access...";
                 const email = (user.email || '').toLowerCase();
                 const isGoogle = (user.providerData || []).some(p => p.providerId === 'google.com');
+                window._loginDiag = { email, provider: (user.providerData || []).map(p => p.providerId).join(', ') };
                 const resolved = await resolveUserRole(user.uid, email);
                 if (resolved.role === '__DISABLED__') return denyAccess("މި އެކައުންޓް ވަނީ ޑިސްއޭބަލްކުރެވިފައި. Admin އަކާ ގުޅުއްވާ.");
                 activeRole = resolved.role;
@@ -5079,12 +5246,14 @@
                     }
                     if (activeRole === 'LECTURER') {
                         let ok = false;
-                        try { const s = await getDoc(doc(collection(dbCloud, 'workload_data'), 'master_record')); if (s.exists()) ok = (s.data().lecturers || []).some(l => window.getLecturerEmail(l) === email); } catch (e) { console.warn(e); }
+                        window._loginDiag.masterErr = '';
+                        try { const s = await getDoc(doc(collection(dbCloud, 'workload_data'), 'master_record')); if (s.exists()) ok = (s.data().lecturers || []).some(l => window.getLecturerEmail(l) === email); } catch (e) { window._loginDiag.masterErr = e.code || String(e); console.warn(e); }
                         if (!ok) return denyAccess(`މި އީމެއިލް (${email}) ސޮފްޓްވެއަރގައި ރަޖިސްޓްރީ ކުރެވިފައެއް ނުވޭ.\n\nGoogle sign-in worked, but "${email}" is not in the portal.\nAdmin: Manage Users → enter exactly this email → role → "Save Role & Links Only" (or correct the Email in Lecturers data → 🔐 Login Access → Sync Access List).`);
                     }
                 }
 
                 localStorage.setItem('userRole', activeRole);
+                try { sessionStorage.removeItem('loginDiag'); } catch (e) {}
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
                 applyRoleUI();
@@ -5093,6 +5262,7 @@
                 document.getElementById('app-screen').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('loader').style.display = 'none'; 
+                window.showLoginDiag();
             }
         });
     }
@@ -5266,7 +5436,7 @@
             await signInWithEmailAndPassword(auth, email, pass);
         } catch (error) {
             document.getElementById('loader').style.display = 'none';
-            alert(`[ފަޔަރބޭސް އެރަރ]: ${error.code}\n\nސަބަބު: އީމެއިލް ނުވަތަ ޕާސްވޯޑް ނުބައި ނުވަތަ ކަނެކްޝަން މައްސަލައެއް.\n\nTip: IUM staff can use "Sign in with Google" instead.`);
+            alert(`[ފަޔަރބޭސް އެރަރ]: ${error.code}\n\n${error.code === 'auth/operation-not-allowed' ? 'Password login is switched OFF in Firebase. Please use the "Sign in with Google" button.' : 'ސަބަބު: އީމެއިލް ނުވަތަ ޕާސްވޯޑް ނުބައި ނުވަތަ ކަނެކްޝަން މައްސަލައެއް.\n\nIUM staff: please use "Sign in with Google" (accounts created without a password can ONLY log in with Google).'}`);
         }
     };
 
@@ -5285,9 +5455,11 @@
             }
             document.getElementById('loader').style.display = 'none';
             if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
-            if (e.code === 'auth/unauthorized-domain') return alert("Google sign-in is not yet allowed on this website address.\nAdmin: Firebase Console → Authentication → Settings → Authorized domains → add " + location.hostname);
-            if (e.code === 'auth/operation-not-allowed') return alert("Google sign-in is not enabled.\nAdmin: Firebase Console → Authentication → Sign-in method → Google → Enable.");
-            alert("Google sign-in failed.\n\n" + window.fbErrorHelp(e) + "\n\nIf the Google window said 'Access blocked' or 'admin policy', the IUM Google Workspace admin must allow sign-in to this app (Firebase project: timetableworkload).");
+            let msg = window.fbErrorHelp(e);
+            if (e.code === 'auth/unauthorized-domain') msg = "Google sign-in is not allowed on this website address yet.\nAdmin: Firebase Console → Authentication → Settings → Authorized domains → Add domain → " + location.hostname;
+            if (e.code === 'auth/operation-not-allowed') msg = "Google sign-in is not enabled.\nAdmin: Firebase Console → Authentication → Sign-in method → Google → Enable.";
+            try { sessionStorage.setItem('loginDiag', JSON.stringify({ msg: msg + "\n\nIf the Google window said 'Access blocked' / 'admin policy', the IUM Google Workspace admin must allow this app (Firebase project: timetableworkload).", d: {} })); } catch (x) {}
+            window.showLoginDiag();
         }
     };
 
@@ -5367,7 +5539,8 @@
         if (tabId === 'coordinators') window.renderCoordinationTab();
         if (tabId === 'facdash') window.renderFacultyDashboard();
         if (tabId === 'myws') { window.renderLecturerWorkspace(); document.getElementById('lecturer-dashboard').scrollIntoView({ behavior: 'smooth' }); }
-        if (tabId === 'users') { window.renderUserDirectory(); window.populateNewUserLecturerPicker(); window.renderStaffCoordTable(); }
+        if (tabId === 'users') { window.renderUserDirectory(); window.populateNewUserLecturerPicker(); window.renderCoordSetup('coordsetup-u'); }
+        if (tabId === 'coordsetup') window.renderCoordSetup('coordsetup-cs');
     };
 
     function downloadCSV(data, filename) {
