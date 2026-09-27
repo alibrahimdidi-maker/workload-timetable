@@ -7349,10 +7349,20 @@
         const m = ms.find(x => String(window.getSafeVal(x, ['OfferedBatch', 'Batch'])).trim() === String(batch || '').trim()) || ms[0];
         const f = m ? window.getFaculty(m) : ''; return f === 'UNKNOWN' ? '' : f;
     };
+    const SEMW = () => parseInt((localDB.settings || {}).semesterWeeks) || 15;
+    // weekly teaching hours of one module: set on the card ⏱ → Modules WCH → timetable → total hrs ÷ weeks
+    const rowHrs = (r, lid) => {
+        if (!r) return { h: 0, src: '' };
+        if (r.weeklyHrs !== undefined && r.weeklyHrs !== '' && r.weeklyHrs !== null) return { h: n1(r.weeklyHrs), src: 'set' };
+        const w = n1(modInfo(r.code, r.batch).wch); if (w) return { h: w, src: 'module' };
+        const t = Math.round(scheduledHrs(lid || r.lecturerId, r.code) * 10) / 10; if (t) return { h: t, src: 'timetable' };
+        const tot = n1(r.totalHrs); if (tot) return { h: Math.round(tot / SEMW() * 10) / 10, src: 'total hrs' };
+        return { h: 0, src: '' };
+    };
+    window.iqRowHrs = rowHrs;
     const teachRows = (lid) => teachingList(lid).map(x => {
-        const sched = scheduledHrs(lid, x.code);
-        const wchN = n1(x.wch) || Math.round(sched * 10) / 10 || (n1(x.totalHrs) ? Math.round(n1(x.totalHrs) / ((localDB.settings || {}).semesterWeeks ? parseInt(localDB.settings.semesterWeeks) : 15) * 10) / 10 : 0);
-        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN, wchSrc: n1(x.wch) ? 'module' : sched ? 'timetable' : wchN ? 'total hrs' : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
+        const hh = x.r ? rowHrs(x.r, lid) : (n1(x.wch) ? { h: n1(x.wch), src: 'module' } : { h: Math.round(scheduledHrs(lid, x.code) * 10) / 10, src: 'timetable' });
+        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN: hh.h, wchSrc: hh.h ? hh.src : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
     });
     const workloadOf = (lid) => {
         const l = window.getLecturerById(lid); const home = lFac(l);
@@ -7424,7 +7434,7 @@
             document.getElementById('iq-360-title').textContent = 'Faculty of ' + S360.fac;
             const ls = localDB.lecturers.filter(l => lFac(l) === S360.fac);
             document.getElementById('iq-360-sub').textContent = `${ls.length} staff · ${localDB.modules.filter(m => window.getFaculty(m) === S360.fac).length} modules · ${(localDB.checklist || []).filter(r => r.faculty === S360.fac).length} checklist rows`;
-            document.getElementById('iq-360-actions').innerHTML = `${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
+            document.getElementById('iq-360-actions').innerHTML = `${!isReadOnly() && (activeRole === 'ALL' || facManaged() === S360.fac) ? `<button class="iq-btn-soft" onclick="window.iqHoursSetup('${js(S360.fac)}')">⏱ Weekly hours</button>` : ''}${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
             tabsEl.innerHTML = facTabs.map(([k, l]) => `<button class="iq-tab ${S360.tab === k ? 'on' : ''}" onclick="window.iq360Tab('${k}')">${l}</button>`).join('');
         } else {
             const p = personInfo();
@@ -7436,7 +7446,7 @@
                 ph ? `<a class="iq-btn-soft" href="tel:+960${ph}">📞 Call</a><a class="iq-btn-soft" target="_blank" href="https://wa.me/960${ph}">💬 WhatsApp</a>` : '',
                 p.email ? `<a class="iq-btn-soft" href="mailto:${esc(p.email)}">✉ Email</a>` : '',
                 !isViewer() && p.email && p.email !== meEmail() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ to: ['${js(p.email)}'] })">📨 Assign task</button>` : '',
-                p.lid ? `<button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 PDF</button>` : '',
+                p.lid ? `<button class="iq-btn-soft" onclick="window.iqWorkloadPdf('${js(p.lid)}')">👑 Workload card PDF</button><button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 Profile PDF</button>` : '',
                 `<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`
             ].join('');
             const tabs = personTabs(p); if (!tabs.some(t => t[0] === S360.tab)) S360.tab = 'overview';
@@ -7495,7 +7505,7 @@
             </div></div>`;
             let html = hero + `<div class="iq-kpis mb-3">${[
                 W ? kpi('Modules taught', W.rows.length, '#0d47a1', `${Object.keys(W.byFac).length} faculty(ies)`) : '',
-                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'set WCH in Modules / Timetable') : '',
+                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'press ⏱ to set weekly hours') : '',
                 W ? kpi('Own faculty', W.ownPct + '%', '#00695c', `${W.own} ${W.unit} in ${esc(W.home || '—')}`) : '',
                 W ? kpi('Other faculties', W.otherPct + '%', '#4a148c', `${W.other} ${W.unit} elsewhere`) : '',
                 hrs ? kpi('Hours taken', `${Math.round(hrs.taken)}/${Math.round(hrs.planned)}`, '#1565c0', `${Math.round(hrs.remaining)} h remaining`) : '',
@@ -7503,6 +7513,7 @@
                 kpi('Open tasks', openPortal + openDesk, openPortal + openDesk ? '#b91c1c' : '#065f46', `${openPortal} faculty · ${openDesk} desk`),
                 kpi('Daily works (7 days)', daily.filter(d => d.ts >= wkAgo).length, '#00838f', `${daily.filter(d => d.ts >= wkAgo).reduce((a, d) => a + n1(d.hours), 0)} h logged`)
             ].join('')}</div>`;
+            if (p.lid) html += teachCardHtml(p.lid) + coordCardHtml(p.lid);
             if (W && W.rows.length) {
                 html += `<div class="iq-grid2 mb-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'Modules (no weekly hours recorded yet)' : 'Weekly contact hours by module'}</div><div style="height:230px"><canvas id="iq-c-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">Workload by faculty (${W.unit})</div><div style="height:230px"><canvas id="iq-c-fac"></canvas></div></div></div>
                 <div class="iq-card"><div class="iq-h">Checklist progress by module (updated by coordinators)</div><div style="height:${Math.max(160, W.rows.length * 26)}px"><canvas id="iq-c-cl"></canvas></div></div>`;
@@ -7513,7 +7524,7 @@
         }
         if (tab === 'modules') {
             if (!W.rows.length) return '<p class="text-gray-400 italic text-center p-6">No modules assigned yet.</p>';
-            return `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
+            return teachCardHtml(p.lid) + `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
             <div class="iq-card overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Credit</th><th>Students</th><th>Coordinator</th><th>Checklist</th><th>Exam paper</th><th>Source</th></tr></thead><tbody>${W.rows.map(r => `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} ${r.fac === W.home ? '· own' : '· other'}</span></td><td class="font-black text-center">${r.wchN || '–'}${r.wchSrc && r.wchSrc !== 'module' ? `<div class="text-[8px] text-gray-400 font-bold">from ${r.wchSrc}</div>` : ''}</td><td class="text-center">${esc(r.credit || '–')}</td><td class="text-center">${esc(r.students || '–')}</td><td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td><td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td>${esc(r.exam || '—')}</td><td class="text-gray-500">${r.src === 'checklist' ? 'Checklist' : 'Assignment matrix'}</td></tr>`).join('')}</tbody></table></div>`;
         }
         if (tab === 'coord') {
@@ -7881,6 +7892,7 @@
         if (currentLecturerId) html += item(`window.iqOpen360('${js(currentLecturerId)}')`, '<span class="iq-av">🧭</span>', 'My 360 card', 'My modules, workload & coordinator updates');
         html += item(`window.iqOpenDesk()`, '<span class="iq-av">📨</span>', 'Task Desk', 'Tasks, requests & attachments', '<span class="iq-desk-badge"></span>');
         html += item(`window.iqOpenDaily()`, '<span class="iq-av">🗒️</span>', 'Daily Works', 'Record & review daily work');
+        if (!isReadOnly() && (activeRole === 'ALL' || facManaged())) html += item(`window.iqHoursSetup()`, '<span class="iq-av">⏱</span>', 'Weekly teaching hours', 'Set hours / week for every module');
         if (!isWorkspaceRole()) html += item(`window.switchTab('reports'); window.iqSide(false)`, '<span class="iq-av">📊</span>', 'Reports Center', 'Weekly & semester reports');
         const facs = isOversight() || activeRole === 'EXAM' ? FACULTIES.filter(f => localDB.lecturers.some(l => lFac(l) === f) || (localDB.checklist || []).some(r => r.faculty === f) || localDB.modules.some(m => window.getFaculty(m) === f)) : (facManaged() ? [facManaged()] : []);
         const fl = facs.filter(f => hit(f));
@@ -7930,8 +7942,7 @@
                 <button class="iq-btn-soft" onclick="window.iqOpen360('${js(currentLecturerId)}', '', 'coord')">🔎 Coordinator updates</button>
                 ${issues.length ? `<button class="iq-btn-soft" onclick="window.iqDeskSet('type','Issue to coordinator'); window.iqOpenDesk(null,'inbox')">🚩 ${issues.length} issue(s) raised to me</button>` : ''}
             </div></div></div>
-            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>
-            <div class="iq-card mt-3 overflow-x-auto"><div class="iq-h">📚 Modules I teach (${W.rows.length})</div><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Coordinator</th><th>Coordinator's checklist</th><th>Last update</th><th></th></tr></thead><tbody>${W.rows.map(r => { const ce = r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : ''; return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')}</span></td><td class="font-black text-center">${r.wchN || '–'}</td><td>${esc(r.coord || '—')}</td><td style="min-width:110px">${r.pct === null ? '<span class="text-gray-400">not in checklist</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td class="text-gray-500">${r.r && r.r.updatedAt ? fmtDT(r.r.updatedAt) : '—'}</td><td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="See what the coordinator ticked" onclick="window.iqOpen360('${js(currentLecturerId)}','','coord')">🔎</button>` : ''} ${ce ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="text-center text-gray-400 italic p-4">No modules assigned to you yet – they will appear here as soon as a faculty assigns them.</p>'}`;
+            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>` : ''}${teachCardHtml(currentLecturerId)}${coordCardHtml(currentLecturerId)}`;
         refreshBadges();
         setTimeout(() => drawWorkloadCharts(W, 'iq-l-mod', 'iq-l-fac', null), 30);
     };
@@ -7997,7 +8008,7 @@
         bar.insertAdjacentHTML('afterbegin', `<div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdesk" onclick="window.iqOpenDesk()">📨 Task Desk <span class="iq-desk-badge"></span></div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdaily" onclick="window.iqOpenDaily()">🗒️ Daily Works</div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iq360" onclick="window.iqSide(true)">🧭 ${IQ.short} 360</div>`);
     })();
     // faculty dashboard: "Faculty 360" button
-    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<button id="iq-fd-btn" class="iq-btn mt-1" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button>`); })();
+    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<div class="flex flex-wrap gap-2 mt-1"><button id="iq-fd-btn" class="iq-btn" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button><button class="iq-btn iq-hide-ro" onclick="window.iqHoursSetup(facultyForDash_iq())">⏱ Weekly teaching hours</button></div>`); })();
     window.facultyForDash_iq = () => { try { return facultyForDash(); } catch (e) { return meFac(); } };
     // faculty cards on the Analytics page → Faculty 360
     const _rac = window.renderAnalyticsCards;
@@ -8048,7 +8059,124 @@
         } catch (e) { console.error('[IQRA role UI]', e); }
         return res;
     };
-    window.__iqra = { TD, DW, S360, workloadOf, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
+
+    // =====================================================================================================
+    // ===================== ROYAL WEEKLY TEACHING WORKLOAD CARD + COORDINATION TEAM CARD ==================
+    // =====================================================================================================
+    const canEditHrs = (r) => !!r && !isReadOnly() && (activeRole === 'ALL' || (!!facManaged() && facManaged() === r.faculty)
+        || (!!currentLecturerId && (r.coordinatorId === currentLecturerId || window.courseCoordOf(r) === currentLecturerId)));
+    const loadStatus = (h, t) => !h ? ['Hours not set', '#94a3b8'] : !t ? ['—', '#475569'] : h < t ? ['Under target', '#7e22ce'] : h === t ? ['Target met', '#065f46'] : ['Over target', '#b91c1c'];
+    const SRC_TXT = { set: 'set on card', module: 'from Modules', timetable: 'from timetable', 'total hrs': 'total hrs ÷ weeks' };
+    const royalHead = (icon, title, sub, right = '') => `<div style="background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;border-radius:14px 14px 0 0;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div style="font-family:Cinzel,serif;font-weight:900;font-size:15px;letter-spacing:.06em">${icon} ${title}</div><div style="font-size:10px;font-weight:700;color:#bae6fd">${sub}</div></div>${right}</div>`;
+    const pill = (label, val, c = '#bae6fd') => `<div style="text-align:center;padding:4px 10px;border:1px solid rgba(186,230,253,.5);border-radius:10px;background:rgba(255,255,255,.08)"><div style="font-size:16px;font-weight:900;color:${c}">${val}</div><div style="font-size:8px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:#e0f2fe">${label}</div></div>`;
+    const teachCardHtml = (lid) => {
+        const W = workloadOf(lid); const self = lid === currentLecturerId;
+        if (!W.rows.length) return `<div class="iq-card mb-3 text-center text-gray-400 italic p-5">No modules assigned yet – they appear here automatically as soon as a faculty assigns them.</div>`;
+        const [st, stc] = loadStatus(W.wch, W.target);
+        const own = Math.round(W.rows.filter(r => r.fac === W.home).reduce((a, r) => a + r.wchN, 0) * 10) / 10;
+        const missing = W.rows.filter(r => !r.wchN).length;
+        const canAny = W.rows.some(r => canEditHrs(r.r));
+        return `<div class="mb-3" style="border:2px solid #7dd3fc;border-radius:16px;background:white;overflow:hidden">
+            ${royalHead('👑', 'Weekly Teaching Workload', `${W.rows.length} module(s) · ${Object.keys(W.byFac).length} faculty(ies) · semester of ${SEMW()} weeks`, `<div style="display:flex;gap:6px;flex-wrap:wrap">${pill('hrs / week', W.wch || '—')}${pill('target', W.target)}${pill('own faculty', own + ' h')}${pill('other fac.', Math.round((W.wch - own) * 10) / 10 + ' h')}${pill('status', st, stc === '#94a3b8' ? '#e2e8f0' : '#ffffff')}</div>`)}
+            ${missing ? `<div class="text-[10.5px] font-bold px-3 py-2" style="background:#eff6ff;color:#0d47a1">⏱ ${missing} module(s) have no weekly hours yet. ${canAny ? 'Type the hours in the “Hrs / week” boxes below – totals update at once.' : 'The faculty / coordinator can set them.'}</div>` : ''}
+            <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>Hrs / week</th><th>Semester hrs</th><th>Coordinator</th><th>Checklist</th>${self ? '<th></th>' : ''}</tr></thead><tbody>
+            ${W.rows.map(r => { const ed = canEditHrs(r.r); const ce = self && r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : '';
+                return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td>
+                <td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} · ${r.fac === W.home ? 'own' : 'other'}</span></td>
+                <td style="min-width:86px">${ed ? `<input type="number" min="0" max="40" step="0.5" value="${r.r.weeklyHrs !== undefined && r.r.weeklyHrs !== '' ? esc(r.r.weeklyHrs) : ''}" placeholder="${r.wchN || '?'}" onchange="window.iqSetHrs('${js(r.r.id)}', this.value)" class="iq-in !py-1 !px-2 !w-20 text-center font-black">` : `<b class="text-[13px]">${r.wchN || '–'}</b>`}${r.wchSrc && r.wchSrc !== 'set' ? `<div class="text-[8px] text-gray-400 font-bold">${SRC_TXT[r.wchSrc] || r.wchSrc}</div>` : ''}</td>
+                <td class="text-center font-bold">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td>
+                <td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td>
+                <td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td>
+                ${self ? `<td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="What the coordinator ticked" onclick="window.iqOpen360('${js(lid)}','','coord')">🔎</button>` : ''} ${ce && !isViewer() ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td>` : ''}</tr>`; }).join('')}
+            <tr style="background:#f0f9ff"><td colspan="3" class="font-black text-[#004d40]">TOTAL</td><td class="font-black text-[14px] text-[#0d47a1]">${W.wch || '–'} h</td><td class="text-center font-black">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'} h</td><td colspan="${self ? 3 : 2}" class="font-bold" style="color:${stc}">${st}${W.wch && W.target ? ` · ${W.wch >= W.target ? '+' : ''}${Math.round((W.wch - W.target) * 10) / 10} h vs target ${W.target}` : ''}</td></tr>
+            </tbody></table></div></div>`;
+    };
+    const coordCardHtml = (lid) => {
+        const rows = window.rowsForLecturer(lid, 'coord').sort(rowSort);
+        const team = window.teamOf(lid);
+        const courseRoles = Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.coordinatorId === lid);
+        if (!rows.length && !team.length && !courseRoles.length) return '';
+        const by = {}; rows.forEach(r => { const k = r.lecturerId || '__none'; (by[k] = by[k] || []).push(r); });
+        team.forEach(t => { if (!by[t]) by[t] = []; });
+        const people = Object.entries(by).sort((a, b) => (a[0] === '__none') - (b[0] === '__none') || nm(a[0]).localeCompare(nm(b[0])));
+        const totHrs = Math.round(rows.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10;
+        const avg = rows.length ? Math.round(rows.reduce((a, r) => a + window.rowPct(r), 0) / rows.length) : 0;
+        const nL = people.filter(([k]) => k !== '__none').length;
+        return `<div class="mb-3" style="border:2px solid #c4b5fd;border-radius:16px;background:white;overflow:hidden">
+            ${royalHead('👨‍💼', 'Coordination Team', 'Lecturers linked to this coordinator – modules, weekly hours and checklist progress', `<div style="display:flex;gap:6px;flex-wrap:wrap">${pill('lecturers', nL)}${pill('modules', rows.length)}${pill('hrs / week', totHrs || '—')}${pill('avg checklist', avg + '%')}</div>`)}
+            <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Lecturer</th><th>Modules coordinated</th><th>Hrs / week</th><th>Checklist</th><th>Contact</th></tr></thead><tbody>
+            ${people.map(([k, rs]) => { const l = k !== '__none' ? window.getLecturerById(k) : null; const h = Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10; const a = rs.length ? Math.round(rs.reduce((x, r) => x + window.rowPct(r), 0) / rs.length) : null; const ph = l ? String(window.getSafeVal(l, ['MobileNumber', 'Mobile', 'Phone']) || '').replace(/\.0$/, '') : ((rs[0] || {}).phone || '');
+                return `<tr><td>${k === '__none' ? '<i class="text-red-700 font-bold">Not allocated yet</i>' : `<b class="clickable-name text-[#0d47a1]" onclick="window.iqOpen360('${js(k)}')">${esc(l ? window.getLecturerName(l) : (rs[0] || {}).lecturerName || k)}</b>${k === lid ? ' <span class="text-[9px] text-gray-400">(self)</span>' : ''}<div class="text-[9px] text-gray-500 font-bold">${l ? (window.isFullTime(l) ? 'Full-time' : 'Part-time') + ' · ' + esc(lFac(l)) : esc((rs[0] || {}).ftpt || '')}</div>`}</td>
+                <td>${rs.map(r => `<span class="iq-chip mr-1 mb-1" style="background:#f5f3ff;color:#4a148c">${esc(r.code)} · ${esc(r.batch)}</span>`).join('') || '<span class="text-gray-400 text-[10px]">linked (no checklist module yet)</span>'}</td>
+                <td class="font-black text-center">${h || '–'}</td><td style="min-width:90px">${a === null ? '–' : `<b style="color:${pctColor(a)}">${a}%</b>${barHtml(a)}`}</td><td class="whitespace-nowrap">${ph ? `<a class="text-royal-blue font-bold" href="tel:+960${esc(String(ph).replace(/\D/g, ''))}">📞 ${esc(ph)}</a>` : '—'}</td></tr>`; }).join('')}
+            </tbody></table></div>
+            ${courseRoles.length ? `<div class="px-3 py-2 text-[10.5px] font-bold" style="background:#f5f3ff;color:#4a148c">🎓 Course / batch coordinator of: ${courseRoles.map(c => esc(c.course + ' · ' + c.batch)).join(' | ')}</div>` : ''}</div>`;
+    };
+    let _hrsT = null;
+    window.iqSetHrs = (rowId, v) => {
+        const r = (localDB.checklist || []).find(x => x.id === rowId); if (!r) return;
+        if (!canEditHrs(r)) return window.showToast('Only the faculty, the Super Admin or the module coordinator can set weekly hours.', 'warning');
+        const val = String(v).trim() === '' ? '' : Math.max(0, Math.min(40, n1(v)));
+        const old = r.weeklyHrs;
+        r.weeklyHrs = val; r.updatedAt = nowIso(); r.updatedBy = meEmail();
+        window.saveLocal(true);
+        log('CHECKLIST', 'Weekly teaching hours set', `${r.code} ${r.batch} · ${r.lecturerName || ''}: ${old === undefined || old === '' ? '—' : old} → ${val === '' ? '—' : val} h/week`);
+        clearTimeout(_hrsT); _hrsT = setTimeout(() => { if (S360.open) render360(); if (document.getElementById('iq-panel').dataset.view === 'hours') renderHoursSetup(); if (isWorkspaceRole()) renderLectRoyal(); }, 250);
+    };
+
+    // ------------------------------------------------------------------ ⏱ weekly hours set-up for a whole faculty
+    const HS = { fac: '', q: '', onlyEmpty: false };
+    window.iqHoursSetup = (fac) => { HS.fac = fac || facManaged() || HS.fac || ''; openPanel('hours', '⏱ Weekly Teaching Hours'); document.getElementById('iq-panel-actions').innerHTML = ''; renderHoursSetup(); };
+    window.iqHsSet = (k, v) => { HS[k] = v; renderHoursSetup(); };
+    window.iqHsApply = (key, v) => {
+        const h = n1(v); if (!h) return alert('Type the hours per week first.');
+        const rows = (localDB.checklist || []).filter(r => (r.faculty + '|' + r.course + '|' + r.batch) === key && canEditHrs(r) && !(r.weeklyHrs !== undefined && r.weeklyHrs !== ''));
+        rows.forEach(r => { r.weeklyHrs = h; r.updatedAt = nowIso(); r.updatedBy = meEmail(); });
+        window.saveLocal(true); log('CHECKLIST', 'Weekly teaching hours set (group)', `${key.replace(/\|/g, ' · ')}: ${rows.length} module(s) → ${h} h/week`);
+        window.showToast(`${rows.length} module(s) set to ${h} h/week`, 'success'); renderHoursSetup();
+    };
+    function renderHoursSetup() {
+        const body = document.getElementById('iq-panel-body'); if (!body) return;
+        const q = HS.q.toLowerCase();
+        const all = (localDB.checklist || []).filter(r => (!HS.fac || r.faculty === HS.fac) && canEditHrs(r));
+        const rows = all.filter(r => (!q || [r.code, r.name, r.lecturerName, r.course, r.batch].join(' ').toLowerCase().includes(q)) && (!HS.onlyEmpty || !rowHrs(r).h));
+        const groups = {}; rows.sort(rowSort).forEach(r => { const k = r.faculty + '|' + r.course + '|' + r.batch; (groups[k] = groups[k] || []).push(r); });
+        const set = all.filter(r => rowHrs(r).h).length;
+        body.innerHTML = `<div class="flex flex-wrap gap-2 items-center mb-3">
+            ${activeRole === 'ALL' || isOversight() ? `<select class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.iqHsSet('fac', this.value)"><option value="">All faculties</option>${FACULTIES.map(f => `<option ${HS.fac === f ? 'selected' : ''}>${f}</option>`).join('')}</select>` : `<b class="text-[#004d40]">Faculty of ${esc(HS.fac)}</b>`}
+            <input class="iq-in !w-56 !py-1.5 !text-[11px]" placeholder="🔍 module, lecturer, course…" value="${esc(HS.q)}" onchange="window.iqHsSet('q', this.value)">
+            <label class="text-[11px] font-bold flex items-center gap-1"><input type="checkbox" ${HS.onlyEmpty ? 'checked' : ''} onchange="window.iqHsSet('onlyEmpty', this.checked)"> Only modules without hours</label>
+            <span class="ml-auto text-[11px] font-black" style="color:${set === all.length ? '#065f46' : '#0d47a1'}">${set} / ${all.length} modules have weekly hours</span></div>
+            <p class="text-[10.5px] text-gray-600 font-bold mb-3">Type the teaching hours per week for each module (saved immediately). Use “Apply to empty” to give every module of a course/batch the same hours in one go. Lecturers see their total on their Royal Workload Card at once.</p>
+            ${Object.entries(groups).map(([k, rs]) => { const [f, c, b] = k.split('|'); const kid = js(k); const tot = Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10; return `<div class="iq-card mb-3"><div class="flex flex-wrap justify-between items-center gap-2 mb-2"><div><b class="text-[#004d40] text-[12px]">${esc(c)}</b> <span class="iq-chip" style="background:#e0f2fe;color:#0d47a1">${esc(b)}</span> <span class="text-[10px] text-gray-500 font-bold">${esc(f)} · ${rs.length} modules · ${tot} h/week</span></div>
+                <div class="flex gap-1 items-center"><input id="iq-hs-${esc(k.replace(/[^a-z0-9]/gi, '_'))}" type="number" min="0" max="40" step="0.5" class="iq-in !py-1 !w-20 text-center" placeholder="h/week"><button class="iq-btn-soft !py-1" onclick="window.iqHsApply('${kid}', document.getElementById('iq-hs-${esc(k.replace(/[^a-z0-9]/gi, '_'))}').value)">Apply to empty</button></div></div>
+                <table class="iq-tbl"><thead><tr><th>Module</th><th>Lecturer</th><th>Hrs / week</th><th>Semester hrs</th></tr></thead><tbody>${rs.map(r => { const hh = rowHrs(r); return `<tr><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td>${r.lecturerId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.lecturerId)}')">${esc(r.lecturerName || nm(r.lecturerId))}</span>` : '<i class="text-gray-400">not allocated</i>'}</td><td><input type="number" min="0" max="40" step="0.5" value="${r.weeklyHrs !== undefined && r.weeklyHrs !== '' ? esc(r.weeklyHrs) : ''}" placeholder="${hh.h || '?'}" onchange="window.iqSetHrs('${js(r.id)}', this.value)" class="iq-in !py-1 !w-20 text-center font-black">${hh.h && hh.src !== 'set' ? `<span class="text-[8px] text-gray-400 font-bold ml-1">${SRC_TXT[hh.src]}</span>` : ''}</td><td class="font-bold">${hh.h ? Math.round(hh.h * SEMW() * 10) / 10 : '–'}</td></tr>`; }).join('')}</tbody></table></div>`; }).join('') || '<p class="text-center text-gray-400 italic p-6">No modules you can edit here.</p>'}`;
+    }
+
+    // ------------------------------------------------------------------ 👑 Royal Workload Card → PDF
+    window.iqWorkloadPdf = async (lid) => {
+        const W = workloadOf(lid); const l = W.l; const name = l ? window.getLecturerName(l) : lid;
+        const th = (t) => `<th style="padding:6px;background:#004d40;color:#ffffff;font-size:8.5px;text-transform:uppercase;text-align:left;border:1px solid #cbd5e1">${t}</th>`;
+        const td = 'padding:5px;border:1px solid #e2e8f0;font-size:9.5px;vertical-align:top;';
+        const coordRows = window.rowsForLecturer(lid, 'coord').sort(rowSort);
+        const byL = {}; coordRows.forEach(r => (byL[r.lecturerId || '—'] = byL[r.lecturerId || '—'] || []).push(r));
+        const [st] = loadStatus(W.wch, W.target);
+        document.getElementById('report-content-area').innerHTML = `<div style="font-family:Inter,sans-serif;color:#0f172a">
+            <div style="text-align:center;border-bottom:4px double #0d47a1;padding-bottom:8px"><div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#00695c;text-transform:uppercase">${IQ.inst}</div><div style="font-family:Cinzel,'Playfair Display',serif;font-size:24px;font-weight:900;color:#004d40;letter-spacing:.12em">ROYAL WORKLOAD CARD</div><div style="font-size:10px;font-weight:800;color:#0d47a1">${IQ.short} · ${IQ.long}</div></div>
+            <div style="margin-top:10px;padding:14px;border-radius:12px;background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;display:flex;justify-content:space-between;align-items:center">
+                <div><div style="font-size:19px;font-weight:900">${esc(name)}</div><div style="font-size:10px;color:#bae6fd">${esc(l ? (window.getPositions(l).map(x => POSITION_LABELS[x]).join(' · ') || 'Lecturer') : '')} · Faculty of ${esc(W.home || '—')} · ${esc(l ? window.getSafeVal(l, ['LecturerType']) : '')}</div></div>
+                <div style="display:flex;gap:10px;text-align:center">${[[W.wch || '—', 'HRS / WEEK'], [W.target, 'TARGET'], [W.ownPct + '%', 'OWN FACULTY'], [st, 'STATUS']].map(([v, t]) => `<div style="border:1px solid #7dd3fc;border-radius:10px;padding:5px 9px"><div style="font-size:15px;font-weight:900">${v}</div><div style="font-size:7px;letter-spacing:1px">${t}</div></div>`).join('')}</div></div>
+            <h3 style="font-family:Cinzel,serif;color:#004d40;font-size:13px;margin:14px 0 6px;border-bottom:2px solid #0d47a1;padding-bottom:3px">Modules taught – weekly workload</h3>
+            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Module')}${th('Course / Batch')}${th('Faculty')}${th('Hrs / week')}${th('Semester hrs')}${th('Coordinator')}${th('Checklist')}</tr></thead><tbody>${W.rows.map(r => `<tr><td style="${td}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${td}">${esc(r.course)}<br>${esc(r.batch)}</td><td style="${td}">${esc(r.fac)} (${r.fac === W.home ? 'own' : 'other'})</td><td style="${td}text-align:center;font-weight:900">${r.wchN || '–'}</td><td style="${td}text-align:center">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td><td style="${td}">${esc(r.coord || '—')}</td><td style="${td}font-weight:900;color:${pctColor(r.pct)}">${r.pct === null ? '–' : r.pct + '%'}</td></tr>`).join('')}
+            <tr><td style="${td}font-weight:900" colspan="3">TOTAL</td><td style="${td}text-align:center;font-weight:900;color:#0d47a1">${W.wch || '–'}</td><td style="${td}text-align:center;font-weight:900">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'}</td><td style="${td}" colspan="2">${st}</td></tr></tbody></table>
+            ${coordRows.length ? `<h3 style="font-family:Cinzel,serif;color:#4a148c;font-size:13px;margin:14px 0 6px;border-bottom:2px solid #4a148c;padding-bottom:3px">Coordination team – ${Object.keys(byL).length} lecturer(s) · ${coordRows.length} module(s)</h3>
+            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Lecturer')}${th('Modules')}${th('Hrs / week')}${th('Checklist')}</tr></thead><tbody>${Object.entries(byL).map(([k, rs]) => `<tr><td style="${td}font-weight:800">${esc(k === '—' ? 'Not allocated' : nm(k))}</td><td style="${td}">${rs.map(r => esc(r.code + ' ' + r.batch)).join(', ')}</td><td style="${td}text-align:center">${Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10 || '–'}</td><td style="${td}font-weight:900">${Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length)}%</td></tr>`).join('')}</tbody></table>` : ''}
+            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:14px">Generated ${new Date().toLocaleString()} · ${IQ.short} – ${IQ.inst}</div></div>`;
+        log('REPORT', 'Royal workload card PDF', name);
+        await window.renderAreaToPdf(`Royal_Workload_Card_${name.replace(/[^a-z0-9]+/gi, '_')}.pdf`, 'Designing the royal workload card…');
+    };
+
+    window.__iqra = { TD, DW, S360, workloadOf, teachCardHtml, coordCardHtml, canEditHrs, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
     }
     // =================================== END OF ADD-ON 2 (IQRA) ===================================
 
