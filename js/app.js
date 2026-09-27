@@ -2068,7 +2068,7 @@
             <div style="font-family:Inter,sans-serif;color:#1e293b;">
                 <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:10px;">
                     <div style="font-size:26px;">👑</div>
-                    <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:${gold};text-transform:uppercase;">Islamic University of Maldives</div>
+                    <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:${gold};text-transform:uppercase;">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
                     <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#004d40;text-transform:uppercase;letter-spacing:1px;">Weekly Academic Delivery Card</div>
                     <div style="font-size:11px;font-weight:800;color:#0d47a1;">${window.weekLabel(wk)}</div>
                 </div>
@@ -2468,7 +2468,7 @@
         const fuHtml = fus.length ? sec('Recent follow-ups') + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Date')}${th('Module')}${th('Action')}${th('Response')}${th('Note')}</tr></thead><tbody>${fus.map(f => `<tr><td style="${tdS}">${fmtD(f.date)}</td><td style="${tdS}">${esc(f.code)} ${esc(f.batch)}</td><td style="${tdS}">${esc(f.action)}</td><td style="${tdS}">${esc(f.response)}${f.promised ? ' (by ' + fmtD(f.promised) + ')' : ''}</td><td style="${tdS}">${esc(f.note || '')}</td></tr>`).join('')}</tbody></table>` : '';
         return `<div style="font-family:Inter,sans-serif;color:#1e293b;">
             <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:8px;">
-                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">Islamic University of Maldives</div>
+                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
                 <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#004d40;text-transform:uppercase;">Royal Profile Card</div>
                 <div style="font-size:10px;font-weight:800;color:#0d47a1;">${window.weekLabel(window.weekKey())}</div>
             </div>
@@ -2853,7 +2853,7 @@
         const cph = c ? String(window.getSafeVal(c, ['MobileNumber', 'Mobile']) || '') : '';
         return `<div style="font-family:Inter,sans-serif;color:#1e293b;">
             <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:8px;">
-                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">Islamic University of Maldives</div>
+                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
                 <div style="font-family:'Playfair Display',serif;font-size:21px;font-weight:900;color:#004d40;text-transform:uppercase;">Coordinator Team Card</div>
                 <div style="font-size:10px;font-weight:800;color:#0d47a1;">${window.weekLabel(window.weekKey())}</div></div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#004d40,#0d47a1,#4a148c);color:white;">
@@ -6782,7 +6782,7 @@
         const charts = (S.charts || []).filter(Boolean);
         box.innerHTML = `
             <div class="rounded-2xl p-5 mb-4 text-white" style="background:linear-gradient(135deg,#004d40,#0d47a1 60%,#4a148c)">
-                <div class="text-[10px] font-bold" style="color:#d4af37;letter-spacing:2px">Islamic University of Maldives</div>
+                <div class="text-[10px] font-bold" style="color:#d4af37;letter-spacing:2px">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
                 <div class="text-2xl md:text-3xl font-black mt-1" style="font-family:'Playfair Display',serif">${S.icon} ${esc(S.title)}</div>
                 <div class="flex flex-wrap gap-2 mt-3 text-[10px] font-bold">
                     <span class="px-3 py-1 rounded-full" style="background:rgba(255,255,255,.14)">📅 ${esc(S.P.label)}</span>
@@ -6936,17 +6936,17 @@
 
 
     // =====================================================================================================
-    // ======  ADD-ON 2 : IQRA — Integrated Quality, Resources & Academic Administration System  =========
+    // ======  ADD-ON 2 : RASFAHI AIMS — Academic Institution Management Suite                   =========
     // ======  Staff 360 cards · Faculty 360 · Task Desk (with attachments) · Daily Works ·           =========
     // ======  DVC / View-only roles · role change on user cards · royal header · lecturer workload card ====
     // =====================================================================================================
     if (!window.__iqraAddon) { window.__iqraAddon = true;
 
     const IQ = {
-        short: 'IQRA',
-        arabic: 'اقْرَأْ',
-        long: 'Integrated Quality, Resources & Academic Administration System',
-        inst: 'Islamic University of Maldives'
+        short: 'RASFAHI',
+        arabic: 'AIMS',
+        long: 'Academic Institution Management Suite',
+        inst: 'Zaad Holdings Pvt Ltd'
     };
     window.IQRA_APP = IQ;
 
@@ -7194,7 +7194,7 @@
     .iq-brand { position:relative; z-index:5; margin: 8px auto 18px; max-width: 900px; }
     .iq-inst { font-family:'Cinzel',serif; font-size:10px; letter-spacing:6px; text-transform:uppercase; color:#bae6fd; font-weight:700; }
     .iq-title { font-family:'Cinzel',serif; font-weight:900; font-size:clamp(38px,6vw,68px); letter-spacing:.22em; line-height:1; margin:6px 0 4px; background:linear-gradient(180deg,#ffffff 0%,#e0f2fe 45%,#93c5fd 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 2px 18px rgba(147,197,253,.25); }
-    .iq-title small { font-family:'Amiri','Traditional Arabic',serif; font-size:.42em; letter-spacing:0; vertical-align:middle; margin-left:.3em; color:#e0f2fe; -webkit-text-fill-color:#e0f2fe; }
+    .iq-title small { font-family:'Cinzel',serif; font-size:.34em; letter-spacing:.25em; vertical-align:middle; margin-left:.45em; padding:2px 8px; border:1px solid rgba(186,230,253,.6); border-radius:8px; color:#e0f2fe; -webkit-text-fill-color:#e0f2fe; }
     .iq-long { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:700; font-size:clamp(14px,1.8vw,20px); color:#e0f2fe; letter-spacing:.04em; }
     .iq-rule { display:flex; align-items:center; gap:10px; justify-content:center; margin-top:8px; color:#7dd3fc; font-size:9px; }
     .iq-rule:before, .iq-rule:after { content:''; height:1px; width:120px; background:linear-gradient(90deg,transparent,#7dd3fc,transparent); }
@@ -7349,10 +7349,21 @@
         const m = ms.find(x => String(window.getSafeVal(x, ['OfferedBatch', 'Batch'])).trim() === String(batch || '').trim()) || ms[0];
         const f = m ? window.getFaculty(m) : ''; return f === 'UNKNOWN' ? '' : f;
     };
+    const SEMW = () => parseInt((localDB.settings || {}).semesterWeeks) || 15;
+    // weekly teaching hours of one module: set on the card ⏱ → Modules WCH → timetable → total hrs ÷ weeks
+    const rowHrs = (r, lid) => {
+        if (!r) return { h: 0, src: '' };
+        if (r.weeklyHrs !== undefined && r.weeklyHrs !== '' && r.weeklyHrs !== null) return { h: n1(r.weeklyHrs), src: 'set' };
+        const w = n1(modInfo(r.code, r.batch).wch); if (w) return { h: w, src: 'module' };
+        const tth = window.__ttHours ? Math.round(window.__ttHours(r.code, r.batch) * 10) / 10 : 0; if (tth) return { h: tth, src: 'timetable' };
+        const t = Math.round(scheduledHrs(lid || r.lecturerId, r.code) * 10) / 10; if (t) return { h: t, src: 'timetable' };
+        const tot = n1(r.totalHrs); if (tot) return { h: Math.round(tot / SEMW() * 10) / 10, src: 'total hrs' };
+        return { h: 0, src: '' };
+    };
+    window.iqRowHrs = rowHrs;
     const teachRows = (lid) => teachingList(lid).map(x => {
-        const sched = scheduledHrs(lid, x.code);
-        const wchN = n1(x.wch) || Math.round(sched * 10) / 10 || (n1(x.totalHrs) ? Math.round(n1(x.totalHrs) / ((localDB.settings || {}).semesterWeeks ? parseInt(localDB.settings.semesterWeeks) : 15) * 10) / 10 : 0);
-        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN, wchSrc: n1(x.wch) ? 'module' : sched ? 'timetable' : wchN ? 'total hrs' : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
+        const hh = x.r ? rowHrs(x.r, lid) : (n1(x.wch) ? { h: n1(x.wch), src: 'module' } : { h: Math.round(scheduledHrs(lid, x.code) * 10) / 10, src: 'timetable' });
+        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN: hh.h, wchSrc: hh.h ? hh.src : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
     });
     const workloadOf = (lid) => {
         const l = window.getLecturerById(lid); const home = lFac(l);
@@ -7405,7 +7416,7 @@
     };
     window.iq360Tab = (t) => { S360.tab = t; render360(); };
 
-    const personTabs = (p) => [
+    let personTabs = (p) => [
         ['overview', '👑 Overview'], ...(p.lid ? [['modules', '📚 Modules & Workload'], ['coord', '🧭 Coordinator Updates'], ['attendance', '🗓️ Hours & Attendance']] : []),
         ...(p.lead ? [['faculty', '🏛️ Faculty']] : []), ['tasks', '📌 Tasks'], ['daily', '🗒️ Daily Works'], ...(p.lid ? [['profile', '📜 Royal Profile']] : [])
     ];
@@ -7424,7 +7435,7 @@
             document.getElementById('iq-360-title').textContent = 'Faculty of ' + S360.fac;
             const ls = localDB.lecturers.filter(l => lFac(l) === S360.fac);
             document.getElementById('iq-360-sub').textContent = `${ls.length} staff · ${localDB.modules.filter(m => window.getFaculty(m) === S360.fac).length} modules · ${(localDB.checklist || []).filter(r => r.faculty === S360.fac).length} checklist rows`;
-            document.getElementById('iq-360-actions').innerHTML = `${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
+            document.getElementById('iq-360-actions').innerHTML = `${!isReadOnly() && (activeRole === 'ALL' || facManaged() === S360.fac) ? `<button class="iq-btn-soft" onclick="window.iqHoursSetup('${js(S360.fac)}')">⏱ Weekly hours</button>` : ''}${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
             tabsEl.innerHTML = facTabs.map(([k, l]) => `<button class="iq-tab ${S360.tab === k ? 'on' : ''}" onclick="window.iq360Tab('${k}')">${l}</button>`).join('');
         } else {
             const p = personInfo();
@@ -7436,7 +7447,7 @@
                 ph ? `<a class="iq-btn-soft" href="tel:+960${ph}">📞 Call</a><a class="iq-btn-soft" target="_blank" href="https://wa.me/960${ph}">💬 WhatsApp</a>` : '',
                 p.email ? `<a class="iq-btn-soft" href="mailto:${esc(p.email)}">✉ Email</a>` : '',
                 !isViewer() && p.email && p.email !== meEmail() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ to: ['${js(p.email)}'] })">📨 Assign task</button>` : '',
-                p.lid ? `<button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 PDF</button>` : '',
+                p.lid ? `<button class="iq-btn-soft" onclick="window.iqWorkloadPdf('${js(p.lid)}')">👑 Workload card PDF</button><button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 Profile PDF</button>` : '',
                 `<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`
             ].join('');
             const tabs = personTabs(p); if (!tabs.some(t => t[0] === S360.tab)) S360.tab = 'overview';
@@ -7495,7 +7506,7 @@
             </div></div>`;
             let html = hero + `<div class="iq-kpis mb-3">${[
                 W ? kpi('Modules taught', W.rows.length, '#0d47a1', `${Object.keys(W.byFac).length} faculty(ies)`) : '',
-                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'set WCH in Modules / Timetable') : '',
+                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'press ⏱ to set weekly hours') : '',
                 W ? kpi('Own faculty', W.ownPct + '%', '#00695c', `${W.own} ${W.unit} in ${esc(W.home || '—')}`) : '',
                 W ? kpi('Other faculties', W.otherPct + '%', '#4a148c', `${W.other} ${W.unit} elsewhere`) : '',
                 hrs ? kpi('Hours taken', `${Math.round(hrs.taken)}/${Math.round(hrs.planned)}`, '#1565c0', `${Math.round(hrs.remaining)} h remaining`) : '',
@@ -7503,6 +7514,7 @@
                 kpi('Open tasks', openPortal + openDesk, openPortal + openDesk ? '#b91c1c' : '#065f46', `${openPortal} faculty · ${openDesk} desk`),
                 kpi('Daily works (7 days)', daily.filter(d => d.ts >= wkAgo).length, '#00838f', `${daily.filter(d => d.ts >= wkAgo).reduce((a, d) => a + n1(d.hours), 0)} h logged`)
             ].join('')}</div>`;
+            if (p.lid) html += teachCardHtml(p.lid) + coordCardHtml(p.lid);
             if (W && W.rows.length) {
                 html += `<div class="iq-grid2 mb-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'Modules (no weekly hours recorded yet)' : 'Weekly contact hours by module'}</div><div style="height:230px"><canvas id="iq-c-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">Workload by faculty (${W.unit})</div><div style="height:230px"><canvas id="iq-c-fac"></canvas></div></div></div>
                 <div class="iq-card"><div class="iq-h">Checklist progress by module (updated by coordinators)</div><div style="height:${Math.max(160, W.rows.length * 26)}px"><canvas id="iq-c-cl"></canvas></div></div>`;
@@ -7513,7 +7525,7 @@
         }
         if (tab === 'modules') {
             if (!W.rows.length) return '<p class="text-gray-400 italic text-center p-6">No modules assigned yet.</p>';
-            return `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
+            return teachCardHtml(p.lid) + `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
             <div class="iq-card overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Credit</th><th>Students</th><th>Coordinator</th><th>Checklist</th><th>Exam paper</th><th>Source</th></tr></thead><tbody>${W.rows.map(r => `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} ${r.fac === W.home ? '· own' : '· other'}</span></td><td class="font-black text-center">${r.wchN || '–'}${r.wchSrc && r.wchSrc !== 'module' ? `<div class="text-[8px] text-gray-400 font-bold">from ${r.wchSrc}</div>` : ''}</td><td class="text-center">${esc(r.credit || '–')}</td><td class="text-center">${esc(r.students || '–')}</td><td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td><td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td>${esc(r.exam || '—')}</td><td class="text-gray-500">${r.src === 'checklist' ? 'Checklist' : 'Assignment matrix'}</td></tr>`).join('')}</tbody></table></div>`;
         }
         if (tab === 'coord') {
@@ -7881,6 +7893,7 @@
         if (currentLecturerId) html += item(`window.iqOpen360('${js(currentLecturerId)}')`, '<span class="iq-av">🧭</span>', 'My 360 card', 'My modules, workload & coordinator updates');
         html += item(`window.iqOpenDesk()`, '<span class="iq-av">📨</span>', 'Task Desk', 'Tasks, requests & attachments', '<span class="iq-desk-badge"></span>');
         html += item(`window.iqOpenDaily()`, '<span class="iq-av">🗒️</span>', 'Daily Works', 'Record & review daily work');
+        if (!isReadOnly() && (activeRole === 'ALL' || facManaged())) html += item(`window.iqHoursSetup()`, '<span class="iq-av">⏱</span>', 'Weekly teaching hours', 'Set hours / week for every module');
         if (!isWorkspaceRole()) html += item(`window.switchTab('reports'); window.iqSide(false)`, '<span class="iq-av">📊</span>', 'Reports Center', 'Weekly & semester reports');
         const facs = isOversight() || activeRole === 'EXAM' ? FACULTIES.filter(f => localDB.lecturers.some(l => lFac(l) === f) || (localDB.checklist || []).some(r => r.faculty === f) || localDB.modules.some(m => window.getFaculty(m) === f)) : (facManaged() ? [facManaged()] : []);
         const fl = facs.filter(f => hit(f));
@@ -7910,7 +7923,7 @@
     // =====================================================================================================
     // ================================ LECTURER DASHBOARD: ROYAL WORKLOAD CARD ============================
     // =====================================================================================================
-    const renderLectRoyal = () => {
+    let renderLectRoyal = () => {
         const dash = document.getElementById('lecturer-dashboard'); if (!dash) return;
         let el = document.getElementById('iq-lect-panel');
         if (!el) { el = document.createElement('div'); el.id = 'iq-lect-panel'; el.className = 'p-4'; const anchor = document.getElementById('lect-att-panel') || document.getElementById('lect-reminder-banner'); if (anchor) anchor.after(el); else dash.appendChild(el); }
@@ -7930,8 +7943,7 @@
                 <button class="iq-btn-soft" onclick="window.iqOpen360('${js(currentLecturerId)}', '', 'coord')">🔎 Coordinator updates</button>
                 ${issues.length ? `<button class="iq-btn-soft" onclick="window.iqDeskSet('type','Issue to coordinator'); window.iqOpenDesk(null,'inbox')">🚩 ${issues.length} issue(s) raised to me</button>` : ''}
             </div></div></div>
-            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>
-            <div class="iq-card mt-3 overflow-x-auto"><div class="iq-h">📚 Modules I teach (${W.rows.length})</div><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Coordinator</th><th>Coordinator's checklist</th><th>Last update</th><th></th></tr></thead><tbody>${W.rows.map(r => { const ce = r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : ''; return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')}</span></td><td class="font-black text-center">${r.wchN || '–'}</td><td>${esc(r.coord || '—')}</td><td style="min-width:110px">${r.pct === null ? '<span class="text-gray-400">not in checklist</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td class="text-gray-500">${r.r && r.r.updatedAt ? fmtDT(r.r.updatedAt) : '—'}</td><td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="See what the coordinator ticked" onclick="window.iqOpen360('${js(currentLecturerId)}','','coord')">🔎</button>` : ''} ${ce ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="text-center text-gray-400 italic p-4">No modules assigned to you yet – they will appear here as soon as a faculty assigns them.</p>'}`;
+            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>` : ''}${teachCardHtml(currentLecturerId)}${coordCardHtml(currentLecturerId)}`;
         refreshBadges();
         setTimeout(() => drawWorkloadCharts(W, 'iq-l-mod', 'iq-l-fac', null), 30);
     };
@@ -7997,7 +8009,7 @@
         bar.insertAdjacentHTML('afterbegin', `<div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdesk" onclick="window.iqOpenDesk()">📨 Task Desk <span class="iq-desk-badge"></span></div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdaily" onclick="window.iqOpenDaily()">🗒️ Daily Works</div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iq360" onclick="window.iqSide(true)">🧭 ${IQ.short} 360</div>`);
     })();
     // faculty dashboard: "Faculty 360" button
-    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<button id="iq-fd-btn" class="iq-btn mt-1" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button>`); })();
+    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<div class="flex flex-wrap gap-2 mt-1"><button id="iq-fd-btn" class="iq-btn" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button><button class="iq-btn iq-hide-ro" onclick="window.iqHoursSetup(facultyForDash_iq())">⏱ Weekly teaching hours</button></div>`); })();
     window.facultyForDash_iq = () => { try { return facultyForDash(); } catch (e) { return meFac(); } };
     // faculty cards on the Analytics page → Faculty 360
     const _rac = window.renderAnalyticsCards;
@@ -8048,7 +8060,998 @@
         } catch (e) { console.error('[IQRA role UI]', e); }
         return res;
     };
-    window.__iqra = { TD, DW, S360, workloadOf, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
+
+    // =====================================================================================================
+    // ===================== ROYAL WEEKLY TEACHING WORKLOAD CARD + COORDINATION TEAM CARD ==================
+    // =====================================================================================================
+    const canEditHrs = (r) => !!r && !isReadOnly() && (activeRole === 'ALL' || (!!facManaged() && facManaged() === r.faculty)
+        || (!!currentLecturerId && (r.coordinatorId === currentLecturerId || window.courseCoordOf(r) === currentLecturerId)));
+    const loadStatus = (h, t) => !h ? ['Hours not set', '#94a3b8'] : !t ? ['—', '#475569'] : h < t ? ['Under target', '#7e22ce'] : h === t ? ['Target met', '#065f46'] : ['Over target', '#b91c1c'];
+    const SRC_TXT = { set: 'set on card', module: 'from Modules', timetable: 'from timetable', 'total hrs': 'total hrs ÷ weeks' };
+    const royalHead = (icon, title, sub, right = '') => `<div style="background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;border-radius:14px 14px 0 0;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div style="font-family:Cinzel,serif;font-weight:900;font-size:15px;letter-spacing:.06em">${icon} ${title}</div><div style="font-size:10px;font-weight:700;color:#bae6fd">${sub}</div></div>${right}</div>`;
+    const pill = (label, val, c = '#bae6fd') => `<div style="text-align:center;padding:4px 10px;border:1px solid rgba(186,230,253,.5);border-radius:10px;background:rgba(255,255,255,.08)"><div style="font-size:16px;font-weight:900;color:${c}">${val}</div><div style="font-size:8px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:#e0f2fe">${label}</div></div>`;
+    const teachCardHtml = (lid) => {
+        const W = workloadOf(lid); const self = lid === currentLecturerId;
+        if (!W.rows.length) return `<div class="iq-card mb-3 text-center text-gray-400 italic p-5">No modules assigned yet – they appear here automatically as soon as a faculty assigns them.</div>`;
+        const [st, stc] = loadStatus(W.wch, W.target);
+        const own = Math.round(W.rows.filter(r => r.fac === W.home).reduce((a, r) => a + r.wchN, 0) * 10) / 10;
+        const missing = W.rows.filter(r => !r.wchN).length;
+        const canAny = W.rows.some(r => canEditHrs(r.r));
+        return `<div class="mb-3" style="border:2px solid #7dd3fc;border-radius:16px;background:white;overflow:hidden">
+            ${royalHead('👑', 'Weekly Teaching Workload', `${W.rows.length} module(s) · ${Object.keys(W.byFac).length} faculty(ies) · semester of ${SEMW()} weeks`, `<div style="display:flex;gap:6px;flex-wrap:wrap">${pill('hrs / week', W.wch || '—')}${pill('target', W.target)}${pill('own faculty', own + ' h')}${pill('other fac.', Math.round((W.wch - own) * 10) / 10 + ' h')}${pill('status', st, stc === '#94a3b8' ? '#e2e8f0' : '#ffffff')}</div>`)}
+            ${missing ? `<div class="text-[10.5px] font-bold px-3 py-2" style="background:#eff6ff;color:#0d47a1">⏱ ${missing} module(s) have no weekly hours yet. ${canAny ? 'Type the hours in the “Hrs / week” boxes below – totals update at once.' : 'The faculty / coordinator can set them.'}</div>` : ''}
+            <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>Hrs / week</th><th>Semester hrs</th><th>Coordinator</th><th>Checklist</th>${self ? '<th></th>' : ''}</tr></thead><tbody>
+            ${W.rows.map(r => { const ed = canEditHrs(r.r); const ce = self && r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : '';
+                return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td>
+                <td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} · ${r.fac === W.home ? 'own' : 'other'}</span></td>
+                <td style="min-width:86px">${ed ? `<input type="number" min="0" max="40" step="0.5" value="${r.r.weeklyHrs !== undefined && r.r.weeklyHrs !== '' ? esc(r.r.weeklyHrs) : ''}" placeholder="${r.wchN || '?'}" onchange="window.iqSetHrs('${js(r.r.id)}', this.value)" class="iq-in !py-1 !px-2 !w-20 text-center font-black">` : `<b class="text-[13px]">${r.wchN || '–'}</b>`}${r.wchSrc && r.wchSrc !== 'set' ? `<div class="text-[8px] text-gray-400 font-bold">${SRC_TXT[r.wchSrc] || r.wchSrc}</div>` : ''}</td>
+                <td class="text-center font-bold">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td>
+                <td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td>
+                <td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td>
+                ${self ? `<td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="What the coordinator ticked" onclick="window.iqOpen360('${js(lid)}','','coord')">🔎</button>` : ''} ${ce && !isViewer() ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td>` : ''}</tr>`; }).join('')}
+            <tr style="background:#f0f9ff"><td colspan="3" class="font-black text-[#004d40]">TOTAL</td><td class="font-black text-[14px] text-[#0d47a1]">${W.wch || '–'} h</td><td class="text-center font-black">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'} h</td><td colspan="${self ? 3 : 2}" class="font-bold" style="color:${stc}">${st}${W.wch && W.target ? ` · ${W.wch >= W.target ? '+' : ''}${Math.round((W.wch - W.target) * 10) / 10} h vs target ${W.target}` : ''}</td></tr>
+            </tbody></table></div></div>`;
+    };
+    const coordCardHtml = (lid) => {
+        const rows = window.rowsForLecturer(lid, 'coord').sort(rowSort);
+        const team = window.teamOf(lid);
+        const courseRoles = Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.coordinatorId === lid);
+        if (!rows.length && !team.length && !courseRoles.length) return '';
+        const by = {}; rows.forEach(r => { const k = r.lecturerId || '__none'; (by[k] = by[k] || []).push(r); });
+        team.forEach(t => { if (!by[t]) by[t] = []; });
+        const people = Object.entries(by).sort((a, b) => (a[0] === '__none') - (b[0] === '__none') || nm(a[0]).localeCompare(nm(b[0])));
+        const totHrs = Math.round(rows.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10;
+        const avg = rows.length ? Math.round(rows.reduce((a, r) => a + window.rowPct(r), 0) / rows.length) : 0;
+        const nL = people.filter(([k]) => k !== '__none').length;
+        return `<div class="mb-3" style="border:2px solid #c4b5fd;border-radius:16px;background:white;overflow:hidden">
+            ${royalHead('👨‍💼', 'Coordination Team', 'Lecturers linked to this coordinator – modules, weekly hours and checklist progress', `<div style="display:flex;gap:6px;flex-wrap:wrap">${pill('lecturers', nL)}${pill('modules', rows.length)}${pill('hrs / week', totHrs || '—')}${pill('avg checklist', avg + '%')}</div>`)}
+            <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Lecturer</th><th>Modules coordinated</th><th>Hrs / week</th><th>Checklist</th><th>Contact</th></tr></thead><tbody>
+            ${people.map(([k, rs]) => { const l = k !== '__none' ? window.getLecturerById(k) : null; const h = Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10; const a = rs.length ? Math.round(rs.reduce((x, r) => x + window.rowPct(r), 0) / rs.length) : null; const ph = l ? String(window.getSafeVal(l, ['MobileNumber', 'Mobile', 'Phone']) || '').replace(/\.0$/, '') : ((rs[0] || {}).phone || '');
+                return `<tr><td>${k === '__none' ? '<i class="text-red-700 font-bold">Not allocated yet</i>' : `<b class="clickable-name text-[#0d47a1]" onclick="window.iqOpen360('${js(k)}')">${esc(l ? window.getLecturerName(l) : (rs[0] || {}).lecturerName || k)}</b>${k === lid ? ' <span class="text-[9px] text-gray-400">(self)</span>' : ''}<div class="text-[9px] text-gray-500 font-bold">${l ? (window.isFullTime(l) ? 'Full-time' : 'Part-time') + ' · ' + esc(lFac(l)) : esc((rs[0] || {}).ftpt || '')}</div>`}</td>
+                <td>${rs.map(r => `<span class="iq-chip mr-1 mb-1" style="background:#f5f3ff;color:#4a148c">${esc(r.code)} · ${esc(r.batch)}</span>`).join('') || '<span class="text-gray-400 text-[10px]">linked (no checklist module yet)</span>'}</td>
+                <td class="font-black text-center">${h || '–'}</td><td style="min-width:90px">${a === null ? '–' : `<b style="color:${pctColor(a)}">${a}%</b>${barHtml(a)}`}</td><td class="whitespace-nowrap">${ph ? `<a class="text-royal-blue font-bold" href="tel:+960${esc(String(ph).replace(/\D/g, ''))}">📞 ${esc(ph)}</a>` : '—'}</td></tr>`; }).join('')}
+            </tbody></table></div>
+            ${courseRoles.length ? `<div class="px-3 py-2 text-[10.5px] font-bold" style="background:#f5f3ff;color:#4a148c">🎓 Course / batch coordinator of: ${courseRoles.map(c => esc(c.course + ' · ' + c.batch)).join(' | ')}</div>` : ''}</div>`;
+    };
+    let _hrsT = null;
+    window.iqSetHrs = (rowId, v) => {
+        const r = (localDB.checklist || []).find(x => x.id === rowId); if (!r) return;
+        if (!canEditHrs(r)) return window.showToast('Only the faculty, the Super Admin or the module coordinator can set weekly hours.', 'warning');
+        const val = String(v).trim() === '' ? '' : Math.max(0, Math.min(40, n1(v)));
+        const old = r.weeklyHrs;
+        r.weeklyHrs = val; r.updatedAt = nowIso(); r.updatedBy = meEmail();
+        window.saveLocal(true);
+        log('CHECKLIST', 'Weekly teaching hours set', `${r.code} ${r.batch} · ${r.lecturerName || ''}: ${old === undefined || old === '' ? '—' : old} → ${val === '' ? '—' : val} h/week`);
+        clearTimeout(_hrsT); _hrsT = setTimeout(() => { if (S360.open) render360(); if (document.getElementById('iq-panel').dataset.view === 'hours') renderHoursSetup(); if (isWorkspaceRole()) renderLectRoyal(); }, 250);
+    };
+
+    // ------------------------------------------------------------------ ⏱ weekly hours set-up for a whole faculty
+    const HS = { fac: '', q: '', onlyEmpty: false };
+    window.iqHoursSetup = (fac) => { HS.fac = fac || facManaged() || HS.fac || ''; openPanel('hours', '⏱ Weekly Teaching Hours'); document.getElementById('iq-panel-actions').innerHTML = ''; renderHoursSetup(); };
+    window.iqHsSet = (k, v) => { HS[k] = v; renderHoursSetup(); };
+    window.iqHsApply = (key, v) => {
+        const h = n1(v); if (!h) return alert('Type the hours per week first.');
+        const rows = (localDB.checklist || []).filter(r => (r.faculty + '|' + r.course + '|' + r.batch) === key && canEditHrs(r) && !(r.weeklyHrs !== undefined && r.weeklyHrs !== ''));
+        rows.forEach(r => { r.weeklyHrs = h; r.updatedAt = nowIso(); r.updatedBy = meEmail(); });
+        window.saveLocal(true); log('CHECKLIST', 'Weekly teaching hours set (group)', `${key.replace(/\|/g, ' · ')}: ${rows.length} module(s) → ${h} h/week`);
+        window.showToast(`${rows.length} module(s) set to ${h} h/week`, 'success'); renderHoursSetup();
+    };
+    function renderHoursSetup() {
+        const body = document.getElementById('iq-panel-body'); if (!body) return;
+        const q = HS.q.toLowerCase();
+        const all = (localDB.checklist || []).filter(r => (!HS.fac || r.faculty === HS.fac) && canEditHrs(r));
+        const rows = all.filter(r => (!q || [r.code, r.name, r.lecturerName, r.course, r.batch].join(' ').toLowerCase().includes(q)) && (!HS.onlyEmpty || !rowHrs(r).h));
+        const groups = {}; rows.sort(rowSort).forEach(r => { const k = r.faculty + '|' + r.course + '|' + r.batch; (groups[k] = groups[k] || []).push(r); });
+        const set = all.filter(r => rowHrs(r).h).length;
+        body.innerHTML = `<div class="flex flex-wrap gap-2 items-center mb-3">
+            ${activeRole === 'ALL' || isOversight() ? `<select class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.iqHsSet('fac', this.value)"><option value="">All faculties</option>${FACULTIES.map(f => `<option ${HS.fac === f ? 'selected' : ''}>${f}</option>`).join('')}</select>` : `<b class="text-[#004d40]">Faculty of ${esc(HS.fac)}</b>`}
+            <input class="iq-in !w-56 !py-1.5 !text-[11px]" placeholder="🔍 module, lecturer, course…" value="${esc(HS.q)}" onchange="window.iqHsSet('q', this.value)">
+            <label class="text-[11px] font-bold flex items-center gap-1"><input type="checkbox" ${HS.onlyEmpty ? 'checked' : ''} onchange="window.iqHsSet('onlyEmpty', this.checked)"> Only modules without hours</label>
+            <span class="ml-auto text-[11px] font-black" style="color:${set === all.length ? '#065f46' : '#0d47a1'}">${set} / ${all.length} modules have weekly hours</span></div>
+            <p class="text-[10.5px] text-gray-600 font-bold mb-3">Type the teaching hours per week for each module (saved immediately). Use “Apply to empty” to give every module of a course/batch the same hours in one go. Lecturers see their total on their Royal Workload Card at once.</p>
+            ${Object.entries(groups).map(([k, rs]) => { const [f, c, b] = k.split('|'); const kid = js(k); const tot = Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10; return `<div class="iq-card mb-3"><div class="flex flex-wrap justify-between items-center gap-2 mb-2"><div><b class="text-[#004d40] text-[12px]">${esc(c)}</b> <span class="iq-chip" style="background:#e0f2fe;color:#0d47a1">${esc(b)}</span> <span class="text-[10px] text-gray-500 font-bold">${esc(f)} · ${rs.length} modules · ${tot} h/week</span></div>
+                <div class="flex gap-1 items-center"><input id="iq-hs-${esc(k.replace(/[^a-z0-9]/gi, '_'))}" type="number" min="0" max="40" step="0.5" class="iq-in !py-1 !w-20 text-center" placeholder="h/week"><button class="iq-btn-soft !py-1" onclick="window.iqHsApply('${kid}', document.getElementById('iq-hs-${esc(k.replace(/[^a-z0-9]/gi, '_'))}').value)">Apply to empty</button></div></div>
+                <table class="iq-tbl"><thead><tr><th>Module</th><th>Lecturer</th><th>Hrs / week</th><th>Semester hrs</th></tr></thead><tbody>${rs.map(r => { const hh = rowHrs(r); return `<tr><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td>${r.lecturerId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.lecturerId)}')">${esc(r.lecturerName || nm(r.lecturerId))}</span>` : '<i class="text-gray-400">not allocated</i>'}</td><td><input type="number" min="0" max="40" step="0.5" value="${r.weeklyHrs !== undefined && r.weeklyHrs !== '' ? esc(r.weeklyHrs) : ''}" placeholder="${hh.h || '?'}" onchange="window.iqSetHrs('${js(r.id)}', this.value)" class="iq-in !py-1 !w-20 text-center font-black">${hh.h && hh.src !== 'set' ? `<span class="text-[8px] text-gray-400 font-bold ml-1">${SRC_TXT[hh.src]}</span>` : ''}</td><td class="font-bold">${hh.h ? Math.round(hh.h * SEMW() * 10) / 10 : '–'}</td></tr>`; }).join('')}</tbody></table></div>`; }).join('') || '<p class="text-center text-gray-400 italic p-6">No modules you can edit here.</p>'}`;
+    }
+
+    // ------------------------------------------------------------------ 👑 Royal Workload Card → PDF
+    window.iqWorkloadPdf = async (lid) => {
+        const W = workloadOf(lid); const l = W.l; const name = l ? window.getLecturerName(l) : lid;
+        const th = (t) => `<th style="padding:6px;background:#004d40;color:#ffffff;font-size:8.5px;text-transform:uppercase;text-align:left;border:1px solid #cbd5e1">${t}</th>`;
+        const td = 'padding:5px;border:1px solid #e2e8f0;font-size:9.5px;vertical-align:top;';
+        const coordRows = window.rowsForLecturer(lid, 'coord').sort(rowSort);
+        const byL = {}; coordRows.forEach(r => (byL[r.lecturerId || '—'] = byL[r.lecturerId || '—'] || []).push(r));
+        const [st] = loadStatus(W.wch, W.target);
+        document.getElementById('report-content-area').innerHTML = `<div style="font-family:Inter,sans-serif;color:#0f172a">
+            <div style="text-align:center;border-bottom:4px double #0d47a1;padding-bottom:8px"><div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#00695c;text-transform:uppercase">${IQ.inst}</div><div style="font-family:Cinzel,'Playfair Display',serif;font-size:24px;font-weight:900;color:#004d40;letter-spacing:.12em">ROYAL WORKLOAD CARD</div><div style="font-size:10px;font-weight:800;color:#0d47a1">${IQ.short} · ${IQ.long}</div></div>
+            <div style="margin-top:10px;padding:14px;border-radius:12px;background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;display:flex;justify-content:space-between;align-items:center">
+                <div><div style="font-size:19px;font-weight:900">${esc(name)}</div><div style="font-size:10px;color:#bae6fd">${esc(l ? (window.getPositions(l).map(x => POSITION_LABELS[x]).join(' · ') || 'Lecturer') : '')} · Faculty of ${esc(W.home || '—')} · ${esc(l ? window.getSafeVal(l, ['LecturerType']) : '')}</div></div>
+                <div style="display:flex;gap:10px;text-align:center">${[[W.wch || '—', 'HRS / WEEK'], [W.target, 'TARGET'], [W.ownPct + '%', 'OWN FACULTY'], [st, 'STATUS']].map(([v, t]) => `<div style="border:1px solid #7dd3fc;border-radius:10px;padding:5px 9px"><div style="font-size:15px;font-weight:900">${v}</div><div style="font-size:7px;letter-spacing:1px">${t}</div></div>`).join('')}</div></div>
+            <h3 style="font-family:Cinzel,serif;color:#004d40;font-size:13px;margin:14px 0 6px;border-bottom:2px solid #0d47a1;padding-bottom:3px">Modules taught – weekly workload</h3>
+            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Module')}${th('Course / Batch')}${th('Faculty')}${th('Hrs / week')}${th('Semester hrs')}${th('Coordinator')}${th('Checklist')}</tr></thead><tbody>${W.rows.map(r => `<tr><td style="${td}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${td}">${esc(r.course)}<br>${esc(r.batch)}</td><td style="${td}">${esc(r.fac)} (${r.fac === W.home ? 'own' : 'other'})</td><td style="${td}text-align:center;font-weight:900">${r.wchN || '–'}</td><td style="${td}text-align:center">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td><td style="${td}">${esc(r.coord || '—')}</td><td style="${td}font-weight:900;color:${pctColor(r.pct)}">${r.pct === null ? '–' : r.pct + '%'}</td></tr>`).join('')}
+            <tr><td style="${td}font-weight:900" colspan="3">TOTAL</td><td style="${td}text-align:center;font-weight:900;color:#0d47a1">${W.wch || '–'}</td><td style="${td}text-align:center;font-weight:900">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'}</td><td style="${td}" colspan="2">${st}</td></tr></tbody></table>
+            ${coordRows.length ? `<h3 style="font-family:Cinzel,serif;color:#4a148c;font-size:13px;margin:14px 0 6px;border-bottom:2px solid #4a148c;padding-bottom:3px">Coordination team – ${Object.keys(byL).length} lecturer(s) · ${coordRows.length} module(s)</h3>
+            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Lecturer')}${th('Modules')}${th('Hrs / week')}${th('Checklist')}</tr></thead><tbody>${Object.entries(byL).map(([k, rs]) => `<tr><td style="${td}font-weight:800">${esc(k === '—' ? 'Not allocated' : nm(k))}</td><td style="${td}">${rs.map(r => esc(r.code + ' ' + r.batch)).join(', ')}</td><td style="${td}text-align:center">${Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10 || '–'}</td><td style="${td}font-weight:900">${Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length)}%</td></tr>`).join('')}</tbody></table>` : ''}
+            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:14px">Generated ${new Date().toLocaleString()} · ${IQ.short} – ${IQ.inst}</div></div>`;
+        log('REPORT', 'Royal workload card PDF', name);
+        await window.renderAreaToPdf(`Royal_Workload_Card_${name.replace(/[^a-z0-9]+/gi, '_')}.pdf`, 'Designing the royal workload card…');
+    };
+
+
+    // =====================================================================================================
+    // ===============================  TIMETABLE STUDIO (classes & exams)  ===============================
+    // =====================================================================================================
+    const ALL_DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const DEF_SESSIONS = [{ name: 'Morning', start: '08:10', end: '12:00' }, { name: 'Afternoon', start: '13:00', end: '18:00' }, { name: 'Night', start: '18:00', end: '23:00' }];
+    const DEF_EXAM_SLOTS = [{ name: 'Morning', start: '09:00', end: '12:00' }, { name: 'Afternoon', start: '13:30', end: '16:30' }, { name: 'Evening', start: '19:00', end: '22:00' }];
+    const ROOM_TYPES = ['Classroom', 'Lecture Hall', 'Lab', 'Exam Hall', 'Online', 'Hybrid'];
+    // exam colours for hall seating – strong, easy to tell apart, no yellow
+    const EXAM_COLORS = [['#004d40', 'Emerald'], ['#0d47a1', 'Royal Blue'], ['#4a148c', 'Royal Purple'], ['#b71c1c', 'Crimson'], ['#1b5e20', 'Forest'], ['#01579b', 'Ocean'], ['#ad1457', 'Rose'], ['#00838f', 'Teal'], ['#283593', 'Indigo'], ['#5d4037', 'Walnut'], ['#37474f', 'Slate'], ['#6a1b9a', 'Violet'], ['#006064', 'Deep Cyan'], ['#c2185b', 'Magenta'], ['#2e7d32', 'Green'], ['#311b92', 'Night Blue']];
+    const TT = {
+        cfg: { days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'], slots: [], examSlots: DEF_EXAM_SLOTS, sessions: {}, rooms: {}, terms: {}, activeTerm: '' },
+        plans: {}, students: [], stuLoaded: false, stuLoading: null,
+        unsubCfg: null, unsubPlans: null, planTerm: '', started: false, ready: false, ver: 0,
+        ui: { mode: 'class', tab: 'week', fac: '', course: '', batch: '', lect: '', room: '', team: false, day: 'Sunday', sel: '', dur: 2, date: '', q: '', pubGroup: 'group', stuQ: '', stuSel: '' }
+    };
+    window.__tt = TT;
+    const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
+    const hm = (t) => { const m = toMin(t); const h = Math.floor(m / 60), mm = m % 60; return `${((h + 11) % 12) + 1}:${pad2(mm)} ${h >= 12 ? 'PM' : 'AM'}`; };
+    const durH = (e) => Math.max(0, (toMin(e.end) - toMin(e.start)) / 60);
+    const overlap = (a, b) => toMin(a.start) < toMin(b.end) && toMin(b.start) < toMin(a.end);
+    const sk = (s) => String(s || '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'X';
+    const offKey = (code, batch) => sk(code) + '__' + sk(batch);
+    const grpKey = (course, batch) => 'g_' + sk(course) + '__' + sk(batch);
+    const slots = () => (TT.cfg.slots && TT.cfg.slots.length ? TT.cfg.slots : (localDB.settings.timeslots || [])).slice().sort((a, b) => toMin(a.start) - toMin(b.start));
+    const exSlots = () => (TT.cfg.examSlots && TT.cfg.examSlots.length ? TT.cfg.examSlots : DEF_EXAM_SLOTS);
+    const days = () => ALL_DAYS.filter(d => (TT.cfg.days || []).includes(d));
+    const term = () => (TT.cfg.terms || {})[TT.cfg.activeTerm] || {};
+    const sessionsOf = (fac) => ((TT.cfg.sessions || {})[fac] && TT.cfg.sessions[fac].length ? TT.cfg.sessions[fac] : DEF_SESSIONS);
+    const rooms = () => Object.values(TT.cfg.rooms || {}).sort((a, b) => String(a.name).localeCompare(String(b.name), undefined, { numeric: true }));
+    const roomById = (id) => (TT.cfg.rooms || {})[id] || null;
+    const roomName = (id) => { const r = roomById(id); return r ? r.name : (id ? id : 'TBA'); };
+    const isVirtual = (r) => r && ['Online'].includes(r.type);
+    const canEditFacTT = (f) => !isReadOnly() && (activeRole === 'ALL' || (!!f && facManaged() === f));
+    const canEditExam = (f) => !isReadOnly() && (activeRole === 'ALL' || activeRole === 'EXAM' || (!!f && facManaged() === f));
+    const canCfg = () => !isReadOnly() && (activeRole === 'ALL' || activeRole === 'EXAM' || !!facManaged());
+    const allClasses = () => Object.values(TT.plans).flatMap(p => Object.values(p.classes || {}));
+    const allExams = () => Object.values(TT.plans).flatMap(p => Object.values(p.exams || {}));
+    const planOf = (f) => TT.plans[f] || (TT.plans[f] = { fac: f, termId: TT.cfg.activeTerm, classes: {}, exams: {}, offers: {}, courses: {}, amended: {}, effective: {}, published: {} });
+    const setPath = (obj, path, val) => { const ps = path.split('.'); let o = obj; for (let i = 0; i < ps.length - 1; i++) { o[ps[i]] = o[ps[i]] && typeof o[ps[i]] === 'object' ? o[ps[i]] : {}; o = o[ps[i]]; } if (val && val.__del) delete o[ps[ps.length - 1]]; else o[ps[ps.length - 1]] = val; };
+    const DEL = { __del: true };
+
+    // ------------------------------------------------------------------ cloud read/write
+    const cfgRef = () => doc(dbCloud, 'iqra_tt', 'config');
+    const planRef = (f) => doc(dbCloud, 'iqra_tt_plans', `${sk(TT.cfg.activeTerm)}__${sk(f)}`);
+    const toFs = async (obj) => { const F = await FSX(); const o = {}; Object.entries(obj).forEach(([k, v]) => o[k] = v && v.__del ? F.deleteField() : v); return o; };
+    const cfgUpdate = async (obj) => {
+        Object.entries(obj).forEach(([k, v]) => setPath(TT.cfg, k, v)); TT.ver++; ttRefresh();
+        if (!dbCloud) return;
+        try { const F = await FSX(); await setDoc(cfgRef(), { updatedAt: Date.now() }, { merge: true }); await F.updateDoc(cfgRef(), await toFs(obj)); }
+        catch (e) { window.showToast('Timetable settings not saved to cloud: ' + (e.code || e.message), 'warning'); }
+    };
+    const planUpdate = async (f, obj, note) => {
+        const p = planOf(f);
+        const now = Date.now();
+        const full = { ...obj, amendedAt: now, amendedBy: meEmail() };
+        Object.entries(full).forEach(([k, v]) => setPath(p, k, v)); TT.ver++; ttRefresh();
+        if (!dbCloud) return;
+        try { const F = await FSX(); await setDoc(planRef(f), { termId: TT.cfg.activeTerm, fac: f }, { merge: true }); await F.updateDoc(planRef(f), await toFs(full)); if (note) log('TIMETABLE', note.a, note.d); }
+        catch (e) { alert('❌ Timetable change not saved to the cloud.\n\n' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+    };
+    const markAmended = (obj, e) => { const t = Date.now(); obj[`amended.${grpKey(e.course, e.batch)}`] = t; if (e.lecturerId) obj[`amended.l_${sk(e.lecturerId)}`] = t; };
+
+    const subscribePlans = async () => {
+        if (!dbCloud || !TT.cfg.activeTerm || TT.planTerm === TT.cfg.activeTerm) return;
+        if (TT.unsubPlans) { try { TT.unsubPlans(); } catch (e) {} }
+        TT.planTerm = TT.cfg.activeTerm; TT.plans = {};
+        try {
+            const F = await FSX();
+            TT.unsubPlans = onSnapshot(F.query(collection(dbCloud, 'iqra_tt_plans'), F.where('termId', '==', TT.cfg.activeTerm)), (snap) => {
+                snap.docChanges().forEach(ch => { const d = ch.doc.data(); if (ch.type === 'removed') delete TT.plans[d.fac]; else TT.plans[d.fac] = { classes: {}, exams: {}, offers: {}, courses: {}, amended: {}, effective: {}, published: {}, ...d }; });
+                TT.ver++; TT.ready = true; ttRefresh(); ttNotifyMine();
+            }, (err) => { console.warn('[timetable plans]', err.code || err); if (String(err.code || '').includes('permission')) window.showToast('Timetable: publish the latest firestore.rules.', 'warning'); });
+        } catch (e) { console.warn(e); }
+    };
+    const startTT = () => {
+        if (TT.started || !dbCloud || !auth || !auth.currentUser) return;
+        TT.started = true;
+        TT.unsubCfg = onSnapshot(cfgRef(), (snap) => {
+            const d = snap.exists() ? snap.data() : {};
+            TT.cfg = { ...TT.cfg, ...d, days: d.days || TT.cfg.days, rooms: d.rooms || {}, terms: d.terms || {}, sessions: d.sessions || {} };
+            if (!TT.cfg.slots || !TT.cfg.slots.length) TT.cfg.slots = (localDB.settings.timeslots || []).map(s => ({ start: s.start, end: s.end }));
+            if (!TT.cfg.activeTerm && Object.keys(TT.cfg.terms).length) TT.cfg.activeTerm = Object.keys(TT.cfg.terms).sort().pop();
+            TT.ver++; subscribePlans(); ttRefresh();
+        }, (err) => console.warn('[timetable config]', err.code || err));
+    };
+    const ensureTerm = async () => {
+        if (TT.cfg.activeTerm && TT.cfg.terms[TT.cfg.activeTerm]) return true;
+        if (!canCfg()) return false;
+        const y = new Date().getFullYear();
+        const id = 'T' + y + '_1';
+        await cfgUpdate({ [`terms.${id}`]: { id, semester: 'Semester 1', year: String(y), label: `Semester 1 · ${y}`, examFrom: '', examTo: '', createdAt: Date.now() }, activeTerm: id, days: TT.cfg.days, slots: slots().map(s => ({ start: s.start, end: s.end })), examSlots: exSlots() });
+        subscribePlans();
+        return true;
+    };
+
+    // ------------------------------------------------------------------ students (with irregular registrations)
+    const loadStudents = async (force) => {
+        if (TT.stuLoaded && !force) return TT.students;
+        if (!(isOversight() || window.isManagerRole() || facManaged() || activeRole === 'EXAM')) { TT.stuLoaded = true; return TT.students = []; }
+        if (TT.stuLoading && !force) return TT.stuLoading;
+        TT.stuLoading = (async () => {
+            const list = [];
+            try { if (dbCloud) (await getDocs(collection(dbCloud, 'iqra_students'))).forEach(d => (d.data().list || []).forEach(s => list.push({ ...s, fac: s.fac || d.data().fac }))); }
+            catch (e) { console.warn('[students]', e.code || e); }
+            TT.students = list; TT.stuLoaded = true; TT.stuLoading = null; TT.ver++; return list;
+        })();
+        return TT.stuLoading;
+    };
+    const saveStudentsFac = async (fac) => {
+        const list = TT.students.filter(s => (s.fac || '') === fac).map(s => ({ id: s.id, name: s.name || '', fac, course: s.course || '', batch: s.batch || '', mode: s.mode || '', semester: s.semester || '', email: s.email || '', mobile: s.mobile || '', extra: s.extra || [], dropped: s.dropped || [] }));
+        const size = 1500; const n = Math.max(1, Math.ceil(list.length / size));
+        for (let i = 0; i < n; i++) await setDoc(doc(dbCloud, 'iqra_students', `${sk(fac)}__${i}`), { fac, n: i, list: list.slice(i * size, (i + 1) * size), updatedAt: Date.now(), updatedBy: meEmail() });
+        for (let i = n; i < n + 5; i++) { try { const r = doc(dbCloud, 'iqra_students', `${sk(fac)}__${i}`); const g = await getDoc(r); if (g.exists()) await deleteDoc(r); else break; } catch (e) { break; } }
+        TT.ver++;
+    };
+
+    // ------------------------------------------------------------------ offerings = every module/batch that needs a slot
+    let _offCache = null, _offVer = -1;
+    const offerings = () => {
+        const v = TT.ver + '|' + (localDB.checklist || []).length + '|' + localDB.modules.length + '|' + Object.keys(localDB.assignments || {}).length;
+        if (_offCache && _offVer === v) return _offCache;
+        const map = {};
+        (localDB.checklist || []).forEach(r => {
+            if (!r.code) return; const k = offKey(r.code, r.batch); const mi = modInfo(r.code, r.batch);
+            map[k] = { key: k, code: r.code, name: r.name || '', course: r.course || '', batch: r.batch || '', fac: r.faculty || '', lecturerId: r.lecturerId || '', coordinatorId: r.coordinatorId || '', students: n1(mi.students) || n1(r.students) || 0, wch: n1(r.weeklyHrs) || n1(mi.wch), mode: modalityOf(r), session: '', src: 'checklist' };
+        });
+        localDB.modules.forEach(m => {
+            const code = window.getSafeVal(m, ['ModuleCode', 'Code']); if (!code) return;
+            const batch = window.getSafeVal(m, ['OfferedBatch', 'Batch']); const k = offKey(code, batch);
+            const a = localDB.assignments[window.makeSafeId(code)];
+            const base = { code, name: window.getSafeVal(m, ['ModuleName', 'Name']), course: window.getSafeVal(m, ['ProgramName', 'Program']), batch, fac: window.getFaculty(m) === 'UNKNOWN' ? '' : window.getFaculty(m), lecturerId: a && a.id ? a.id : '', students: n1(window.getSafeVal(m, ['NoofStudents', 'Students'])), wch: n1(window.getSafeVal(m, ['WCH', 'WeeklyContactHours'])), mode: window.getSafeVal(m, ['Modality']) || '', session: window.getSafeVal(m, ['Session']) || '' };
+            if (map[k]) Object.entries(base).forEach(([f, val]) => { if (!map[k][f] && val) map[k][f] = val; });
+            else map[k] = { key: k, ...base, coordinatorId: '', src: 'modules' };
+        });
+        Object.values(TT.plans).forEach(p => Object.values(p.offers || {}).forEach(o => { if (!o || !o.key) return; const clean = Object.fromEntries(Object.entries(o).filter(([, x]) => x !== '' && x != null)); map[o.key] = { ...(map[o.key] || { src: 'timetable' }), ...clean, key: o.key }; }));
+        Object.values(map).forEach(o => { if (!o.mode || o.mode === 'Not set') o.mode = 'Face to Face'; });
+        _offCache = map; _offVer = v; return map;
+    };
+    const offList = () => Object.values(offerings());
+    // enrolment index: offering key → Set(student ids)  (regular course/batch students minus drops, plus irregular add-ons)
+    let _enr = null, _enrVer = -1;
+    const enrolment = () => {
+        if (_enr && _enrVer === TT.ver) return _enr;
+        const offs = offerings(); const byGroup = {}; Object.values(offs).forEach(o => (byGroup[grpKey(o.course, o.batch)] = byGroup[grpKey(o.course, o.batch)] || []).push(o));
+        const idx = {}; const add = (k, id) => (idx[k] = idx[k] || new Set()).add(id);
+        TT.students.forEach(s => {
+            const dropped = new Set((s.dropped || []).map(c => sk(c)));
+            (byGroup[grpKey(s.course, s.batch)] || []).forEach(o => { if (!dropped.has(sk(o.code))) add(o.key, s.id); });
+            (s.extra || []).forEach(x => {
+                const code = typeof x === 'string' ? x.split('|')[0] : x.code; const b = typeof x === 'string' ? (x.split('|')[1] || '') : (x.batch || '');
+                let k = offKey(code, b || s.batch);
+                if (!offs[k]) { const c = Object.values(offs).filter(o => sk(o.code) === sk(code)); const pick = c.find(o => o.course === s.course) || c[0]; if (pick) k = pick.key; }
+                add(k, s.id);
+            });
+        });
+        _enr = idx; _enrVer = TT.ver; return idx;
+    };
+    const stuById = (id) => TT.students.find(s => s.id === id);
+    const enrolledCount = (o) => { const e = enrolment()[o.key]; return e && e.size ? e.size : (n1(o.students) || 0); };
+    const sameGroup = (a, b) => a.course && b.course && sk(a.course) === sk(b.course) && sk(a.batch) === sk(b.batch);
+    const sharedStudents = (k1, k2) => { const A = enrolment()[k1], B = enrolment()[k2]; if (!A || !B) return []; const out = []; A.forEach(id => { if (B.has(id)) out.push(id); }); return out; };
+
+    // ------------------------------------------------------------------ clash engine
+    const entryLabel = (e) => `${e.code} (${e.course} · ${e.batch}) ${e.day || fmtDay(e.date)} ${hm(e.start)}–${hm(e.end)}`;
+    const classClashes = (c, ignoreId) => {
+        const out = [];
+        allClasses().forEach(e => {
+            if (e.id === ignoreId || e.day !== c.day || !overlap(e, c)) return;
+            const combined = sk(e.code) === sk(c.code) && e.key !== c.key && e.lecturerId && e.lecturerId === c.lecturerId && (e.roomId || '') === (c.roomId || '');
+            if (combined) { out.push({ soft: true, type: 'combined', e, msg: `Combined class with ${entryLabel(e)} (same module, lecturer and venue)` }); return; }
+            if (c.lecturerId && e.lecturerId === c.lecturerId) out.push({ type: 'lecturer', e, msg: `Lecturer ${nm(c.lecturerId)} already teaches ${entryLabel(e)}` });
+            if (c.roomId && e.roomId === c.roomId) out.push({ type: 'room', e, msg: `Venue ${roomName(c.roomId)} is taken by ${entryLabel(e)}` });
+            if (e.key === c.key) out.push({ type: 'self', e, msg: `This module is already scheduled at this time (${entryLabel(e)})` });
+            else if (sameGroup(e, c)) out.push({ type: 'group', e, msg: `Students of ${c.course} · ${c.batch} already have ${entryLabel(e)}` });
+            else { const sh = sharedStudents(e.key, c.key); if (sh.length) out.push({ type: 'student', e, students: sh, msg: `${sh.length} student(s) registered in both: ${sh.slice(0, 6).map(id => (stuById(id) || {}).name || id).join(', ')}${sh.length > 6 ? '…' : ''} – they also have ${entryLabel(e)}` }); }
+        });
+        return out;
+    };
+    const examClashes = (c, ignoreId) => {
+        const out = [];
+        const same = allExams().filter(e => e.id !== ignoreId && e.date === c.date && overlap(e, c));
+        same.forEach(e => {
+            if (e.key === c.key) out.push({ type: 'self', e, msg: `Already scheduled: ${entryLabel(e)}` });
+            else if (sameGroup(e, c)) out.push({ type: 'group', e, msg: `Students of ${c.course} · ${c.batch} already sit ${entryLabel(e)}` });
+            else { const sh = sharedStudents(e.key, c.key); if (sh.length) out.push({ type: 'student', e, students: sh, msg: `${sh.length} student(s) also sit ${entryLabel(e)}: ${sh.slice(0, 6).map(id => (stuById(id) || {}).name || id).join(', ')}` }); }
+        });
+        (c.rooms || []).forEach(rid => { const r = roomById(rid); if (!r) return; const used = same.filter(e => (e.rooms || []).includes(rid)).reduce((a, e) => a + (e.seats && e.seats[rid] !== undefined ? n1(e.seats[rid]) : Math.ceil(n1(e.students) / Math.max(1, (e.rooms || []).length))), 0); const need = c.seats && c.seats[rid] !== undefined ? n1(c.seats[rid]) : Math.ceil(n1(c.students) / Math.max(1, c.rooms.length)); if (n1(r.capacity) && used + need > n1(r.capacity)) out.push({ type: 'room', msg: `${r.name} holds ${r.capacity}; ${used} seats already used at this time – ${need} more will not fit` }); });
+        return out;
+    };
+    const hard = (cl) => cl.filter(x => !x.soft);
+    const inSession = (fac, start, end, pref) => {
+        let ss = sessionsOf(fac);
+        if (pref) { const p = String(pref).toLowerCase().slice(0, 4); const m = ss.filter(x => String(x.name).toLowerCase().startsWith(p)); if (m.length) ss = m; }
+        return ss.some(x => toMin(start) >= toMin(x.start) && toMin(end) <= toMin(x.end));
+    };
+    // venues that suit an offering (size + delivery mode) and are free at that time
+    const recommendRooms = (o, day, start, end, ignoreId) => {
+        const need = enrolledCount(o); const mode = String(o.mode || '').toLowerCase();
+        const busy = new Set(allClasses().filter(e => e.id !== ignoreId && e.day === day && overlap(e, { start, end })).map(e => e.roomId));
+        const fit = rooms().filter(r => !busy.has(r.id)).map(r => {
+            let score = 0; const cap = n1(r.capacity);
+            if (/online/.test(mode)) score += r.type === 'Online' ? 0 : r.type === 'Hybrid' ? 5 : 50;
+            else if (/blend|hybrid/.test(mode)) score += r.type === 'Hybrid' ? 0 : r.type === 'Online' ? 30 : 10;
+            else score += ['Online'].includes(r.type) ? 80 : r.type === 'Exam Hall' ? 15 : 0;
+            if (r.type !== 'Online') { if (cap && need > cap) score += 100 + (need - cap); else if (cap) score += Math.min(40, (cap - need) / 5); }
+            if (r.fac && r.fac !== o.fac) score += 8;
+            return { r, score, ok: r.type === 'Online' || !cap || !need || cap >= need };
+        }).sort((a, b) => a.score - b.score);
+        return fit;
+    };
+    const scheduledHrsTT = (key) => allClasses().filter(e => e.key === key).reduce((a, e) => a + durH(e), 0);
+    window.__ttHours = (code, batch) => scheduledHrsTT(offKey(code, batch));
+    const lecturerTTHours = (lid) => allClasses().filter(e => e.lecturerId === lid).reduce((a, e) => a + durH(e), 0);
+
+    // ------------------------------------------------------------------ studio shell
+    document.body.insertAdjacentHTML('beforeend', `<div id="tt-studio" class="iq-ov" style="z-index:1090;padding:0"><div class="iq-box" style="max-width:none;max-height:none;height:100vh;border-radius:0;border:none">
+        <div class="iq-head !py-2.5"><div class="iq-pattern"></div><div class="relative flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3"><div><div class="text-[9px] font-black tracking-[4px] uppercase text-sky-200">${IQ.short} ${IQ.arabic} · ${IQ.inst}</div><h2 id="tt-title">🗓️ Timetable Studio</h2></div>
+                <div class="flex rounded-xl overflow-hidden border border-sky-300"><button id="tt-m-class" onclick="window.ttMode('class')" class="px-3 py-1.5 text-[11px] font-black">📚 Class timetable</button><button id="tt-m-exam" onclick="window.ttMode('exam')" class="px-3 py-1.5 text-[11px] font-black">🎓 Exam timetable</button></div></div>
+            <div class="flex items-center gap-2 flex-wrap"><select id="tt-term" class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.ttSetTerm(this.value)"></select><span id="tt-live" class="text-[10px] font-bold text-sky-100"></span><button class="iq-x" onclick="window.ttClose()">&times;</button></div>
+        </div></div>
+        <div class="iq-tabs" id="tt-tabs"></div>
+        <div id="tt-filters" class="flex flex-wrap gap-1.5 items-center px-3 py-2 bg-white border-b"></div>
+        <div class="iq-body" id="tt-body" style="padding:12px"></div>
+    </div></div>
+    <div id="tt-dlg" class="iq-ov" style="z-index:1160"><div class="iq-box" style="max-width:720px"><div class="iq-head"><div class="iq-pattern"></div><div class="relative flex justify-between items-center"><h2 id="tt-dlg-title"></h2><button class="iq-x" onclick="window.ttDlgClose()">&times;</button></div></div><div class="iq-body" id="tt-dlg-body"></div></div></div>`);
+    const ttStyle = document.createElement('style');
+    ttStyle.textContent = `
+        #tt-m-class,#tt-m-exam{background:rgba(255,255,255,.1);color:#e0f2fe} #tt-m-class.on,#tt-m-exam.on{background:white;color:#004d40}
+        .tt-grid{border-collapse:separate;border-spacing:0;width:100%;font-size:10px;background:white}
+        .tt-grid th{background:linear-gradient(180deg,#004d40,#00695c);color:white;font-weight:800;padding:5px 3px;text-align:center;position:sticky;top:0;z-index:2;font-size:9px;border-right:1px solid rgba(255,255,255,.2)}
+        .tt-grid th.tt-day{background:linear-gradient(90deg,#0a2472,#0d47a1);position:sticky;left:0;z-index:3;min-width:86px}
+        .tt-grid td{border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:2px;vertical-align:top;min-width:78px;height:44px}
+        .tt-grid td.tt-dayc{background:#eff6ff;font-weight:900;color:#0a2472;position:sticky;left:0;z-index:1;text-align:center;vertical-align:middle;font-size:10.5px;border-right:3px solid #0d47a1}
+        .tt-grid td.tt-lane-end{border-bottom:2px solid #94a3b8}
+        .tt-e{border-radius:7px;padding:3px 5px;color:white;font-size:9.5px;line-height:1.25;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);height:100%;min-height:38px;overflow:hidden}
+        .tt-e b{font-size:10.5px;letter-spacing:.2px} .tt-e i{font-style:normal;opacity:.9;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .tt-e .tt-b{display:inline-block;background:rgba(255,255,255,.22);border-radius:4px;padding:0 3px;font-size:8px;font-weight:800;margin-top:1px}
+        .tt-cell{cursor:pointer;border-radius:6px;height:38px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
+        .tt-free{background:#dcfce7;color:#065f46;border:1px dashed #22c55e} .tt-free:hover{background:#22c55e;color:white}
+        .tt-out{background:#e0f2fe;color:#075985;border:1px dashed #7dd3fc} .tt-out:hover{background:#0284c7;color:white}
+        .tt-noroom{background:#f3e8ff;color:#6b21a8;border:1px dashed #c084fc}
+        .tt-clash{background:#fee2e2;color:#b91c1c;border:1px dashed #fca5a5;cursor:help}
+        .tt-off{border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;background:white;cursor:pointer;margin-bottom:5px;border-left:5px solid var(--c,#0d47a1)}
+        .tt-off.on{box-shadow:0 0 0 2px #0d47a1;background:#eff6ff}
+        .tt-sec{font-family:Cinzel,serif;font-weight:900;color:#004d40;font-size:13px;margin:12px 0 6px;letter-spacing:.05em}
+    `;
+    document.head.appendChild(ttStyle);
+    const COL = ['#004d40', '#0d47a1', '#4a148c', '#00695c', '#1565c0', '#6a1b9a', '#00838f', '#283593', '#2e7d32', '#ad1457', '#37474f', '#5d4037', '#006064', '#311b92', '#1b5e20', '#01579b'];
+    const hashN = (s) => { let h = 0; String(s).split('').forEach(c => h = (h * 31 + c.charCodeAt(0)) >>> 0); return h; };
+    const colorOf = (course, batch) => COL[hashN(grpKey(course, batch)) % COL.length];
+
+    window.ttClose = () => { document.getElementById('tt-studio').style.display = 'none'; };
+    window.ttDlgClose = () => { document.getElementById('tt-dlg').style.display = 'none'; };
+    const dlg = (title, html) => { document.getElementById('tt-dlg-title').innerHTML = title; document.getElementById('tt-dlg-body').innerHTML = html; document.getElementById('tt-dlg').style.display = 'flex'; };
+    window.ttOpen = async (mode, tab) => {
+        if (activeRole === 'STUDENT') return;
+        startTT();
+        TT.ui.mode = mode || TT.ui.mode; TT.ui.tab = tab || (isWorkspaceRole() ? 'mine' : TT.ui.tab || 'week');
+        if (!TT.ui.fac && facManaged()) TT.ui.fac = facManaged();
+        if (!TT.ui.fac && isWorkspaceRole() && meLect()) TT.ui.fac = '';
+        document.getElementById('tt-studio').style.display = 'flex';
+        ttRender();
+        log('TIMETABLE', 'Timetable Studio opened', mode || '');
+        if (!isWorkspaceRole()) { await loadStudents(); ttRender(); }
+        if (!TT.cfg.activeTerm && canCfg()) setTimeout(async () => { if (!TT.cfg.activeTerm && await ensureTerm()) ttRender(); }, 1500);
+    };
+    window.ttMode = (m) => { TT.ui.mode = m; TT.ui.sel = ''; TT.ui.moveId = ''; ttRender(); };
+    window.ttTab = (t) => { TT.ui.tab = t; ttRender(); };
+    window.ttSet = (k, v) => { TT.ui[k] = v; if (k === 'fac') { TT.ui.course = ''; TT.ui.batch = ''; } if (k === 'course') TT.ui.batch = ''; ttRender(); };
+    window.ttSetTerm = (id) => { if (!id) return; if (id === '__new') return window.ttNewTerm(); TT.cfg.activeTerm = id; TT.planTerm = ''; subscribePlans(); ttRender(); };
+    let _ttRefT = null;
+    function ttRefresh() { clearTimeout(_ttRefT); _ttRefT = setTimeout(() => { if (document.getElementById('tt-studio').style.display === 'flex' && !document.activeElement?.closest?.('#tt-body input:not([type=checkbox]),#tt-body textarea,#tt-body select')) ttRender(); try { if (isWorkspaceRole()) renderMyTT(); } catch (e) {} }, 250); }
+
+    const ttTabs = () => {
+        const ro = isWorkspaceRole();
+        return [...(currentLecturerId ? [['mine', '👤 My timetable']] : []), ['week', TT.ui.mode === 'exam' ? '📅 Exam dashboard' : '📅 Week dashboard'], ['day', TT.ui.mode === 'exam' ? '🏛️ Halls by date' : '☀️ Day dashboard'],
+            ...(!ro && !isReadOnly() ? [['build', TT.ui.mode === 'exam' ? '🧩 Build exam table' : '🧩 Build timetable']] : []), ['publish', '🖨️ Publish & download'],
+            ...(!ro ? [['setup', '⚙️ Times, sessions & venues'], ['data', '📥 Data & Excel']] : [])];
+    };
+    // entries visible in the current filter
+    const teamIds = () => { if (!currentLecturerId) return new Set(); return new Set([currentLecturerId, ...window.teamOf(currentLecturerId), ...window.rowsForLecturer(currentLecturerId, 'coord').map(r => r.lecturerId).filter(Boolean)]); };
+    const filt = (list) => {
+        const u = TT.ui; const q = u.q.toLowerCase(); const team = u.team ? teamIds() : null;
+        return list.filter(e => (!u.fac || e.fac === u.fac) && (!u.course || e.course === u.course) && (!u.batch || e.batch === u.batch) && (!u.lect || e.lecturerId === u.lect) && (!u.room || e.roomId === u.room || (e.rooms || []).includes(u.room)) && (!team || team.has(e.lecturerId) || (u.team === 'coord' && window.rowsForLecturer(currentLecturerId, 'coord').some(r => offKey(r.code, r.batch) === e.key))) && (!q || [e.code, e.name, e.course, e.batch, nm(e.lecturerId), roomName(e.roomId)].join(' ').toLowerCase().includes(q)));
+    };
+    const filtersHtml = () => {
+        const u = TT.ui; const offs = offList();
+        const facs = [...new Set(offs.map(o => o.fac).filter(Boolean))].sort();
+        const courses = [...new Set(offs.filter(o => !u.fac || o.fac === u.fac).map(o => o.course).filter(Boolean))].sort();
+        const batches = [...new Set(offs.filter(o => (!u.fac || o.fac === u.fac) && (!u.course || o.course === u.course)).map(o => o.batch).filter(Boolean))].sort();
+        const lects = [...new Set(offs.filter(o => !u.fac || o.fac === u.fac).map(o => o.lecturerId).filter(Boolean))].sort((a, b) => nm(a).localeCompare(nm(b)));
+        const sel = (k, label, opts, fmt = (x) => x) => `<select class="iq-in !w-auto !py-1 !text-[11px] max-w-[190px]" onchange="window.ttSet('${k}', this.value)"><option value="">${label}</option>${opts.map(x => `<option value="${esc(x)}" ${u[k] === x ? 'selected' : ''}>${esc(fmt(x))}</option>`).join('')}</select>`;
+        return `${sel('fac', 'All faculties', facs)}${sel('course', 'All courses', courses)}${sel('batch', 'All batches', batches)}${sel('lect', 'All lecturers', lects, nm)}${sel('room', 'All venues', rooms().map(r => r.id), roomName)}
+            ${currentLecturerId ? `<select class="iq-in !w-auto !py-1 !text-[11px]" onchange="window.ttSet('team', this.value)"><option value="">Everyone</option><option value="1" ${u.team === '1' ? 'selected' : ''}>👨‍💼 Me + my coordination team</option><option value="coord" ${u.team === 'coord' ? 'selected' : ''}>🧭 Modules I coordinate</option></select>` : ''}
+            <input class="iq-in !w-44 !py-1 !text-[11px]" placeholder="🔍 search" value="${esc(u.q)}" onchange="window.ttSet('q', this.value)">
+            <button class="iq-btn-soft !py-1" onclick="Object.assign(window.__tt.ui,{fac:'${js(facManaged())}',course:'',batch:'',lect:'',room:'',team:'',q:''}); window.ttTab(window.__tt.ui.tab)">↺ Clear</button>
+            <span class="ml-auto text-[10px] font-bold text-gray-500">${TT.ui.mode === 'exam' ? filt(allExams()).length + ' exam sitting(s)' : filt(allClasses()).length + ' class session(s) · ' + Math.round(filt(allClasses()).reduce((a, e) => a + durH(e), 0) * 10) / 10 + ' h/week'}</span>`;
+    };
+    function ttRender() {
+        const st = document.getElementById('tt-studio'); if (!st || st.style.display !== 'flex') return;
+        document.getElementById('tt-m-class').classList.toggle('on', TT.ui.mode === 'class');
+        document.getElementById('tt-m-exam').classList.toggle('on', TT.ui.mode === 'exam');
+        const ts = document.getElementById('tt-term');
+        ts.innerHTML = Object.values(TT.cfg.terms || {}).sort((a, b) => String(b.id).localeCompare(String(a.id))).map(t => `<option value="${esc(t.id)}" ${t.id === TT.cfg.activeTerm ? 'selected' : ''}>${esc(t.label || t.id)}</option>`).join('') + (canCfg() ? '<option value="__new">➕ New semester…</option>' : '') || '<option>No semester yet</option>';
+        document.getElementById('tt-live').innerHTML = TT.ready ? '● live' : (dbCloud ? 'connecting…' : 'offline');
+        const tabs = ttTabs(); if (!tabs.some(t => t[0] === TT.ui.tab)) TT.ui.tab = tabs[0][0];
+        document.getElementById('tt-tabs').innerHTML = tabs.map(([k, l]) => `<button class="iq-tab ${TT.ui.tab === k ? 'on' : ''}" onclick="window.ttTab('${k}')">${l}</button>`).join('');
+        document.getElementById('tt-filters').style.display = ['setup', 'data', 'mine'].includes(TT.ui.tab) ? 'none' : 'flex';
+        if (!['setup', 'data', 'mine'].includes(TT.ui.tab)) document.getElementById('tt-filters').innerHTML = filtersHtml();
+        const body = document.getElementById('tt-body');
+        if (!TT.cfg.activeTerm) { body.innerHTML = `<div class="iq-card text-center p-8"><div class="text-4xl">🗓️</div><div class="tt-sec">No semester set up yet</div><p class="text-[11px] text-gray-500 font-bold mb-3">${canCfg() ? 'Create the first semester to start building timetables.' : 'The Academic Affairs / faculty will publish the timetable soon.'}</p>${canCfg() ? '<button class="iq-btn" onclick="window.ttNewTerm()">➕ Create semester</button>' : ''}</div>`; return; }
+        try {
+            const t = TT.ui.tab, ex = TT.ui.mode === 'exam';
+            body.innerHTML = t === 'mine' ? mineHtml() : t === 'week' ? (ex ? examBoardHtml(filt(allExams())) : weekHtml(filt(allClasses()), { click: true })) : t === 'day' ? (ex ? examHallsHtml() : dayHtml()) : t === 'build' ? (ex ? buildExamHtml() : buildHtml()) : t === 'publish' ? publishHtml() : t === 'setup' ? setupHtml() : dataHtml();
+        } catch (e) { console.error(e); body.innerHTML = `<p class="text-red-600">Could not draw this view: ${esc(e.message)}</p>`; }
+    }
+
+    // ------------------------------------------------------------------ week grid (days × periods), with lanes for overlapping sessions
+    const slotSpan = (e) => { const ss = slots(); let i = ss.findIndex(s => toMin(s.end) > toMin(e.start)); if (i < 0) i = ss.length - 1; let j = i; while (j + 1 < ss.length && toMin(ss[j + 1].start) < toMin(e.end)) j++; return [i, j - i + 1]; };
+    const lanesFor = (list) => { const lanes = []; list.slice().sort((a, b) => toMin(a.start) - toMin(b.start)).forEach(e => { let L = lanes.find(l => !l.some(x => overlap(x, e))); if (!L) { L = []; lanes.push(L); } L.push(e); }); return lanes.length ? lanes : [[]]; };
+    const entryChip = (e, o = {}) => { const c = colorOf(e.course, e.batch); return `<div class="tt-e" style="background:linear-gradient(135deg,${c},${c}dd)" ${o.click ? `onclick="window.ttEntry('${e.id}')"` : ''} title="${esc(e.code + ' ' + e.name + ' · ' + e.course + ' ' + e.batch + ' · ' + nm(e.lecturerId) + ' · ' + roomName(e.roomId) + ' · ' + hm(e.start) + '–' + hm(e.end))}"><b>${esc(e.code)}</b>${o.noName ? '' : `<i>${esc(e.name)}</i>`}${o.noLect ? '' : `<i>👤 ${esc(e.lecturerId ? nm(e.lecturerId) : 'TBA')}</i>`}<i>📍 ${esc(roomName(e.roomId))}</i>${o.noGroup ? '' : `<span class="tt-b">${esc(e.course)} · ${esc(e.batch)}</span>`}${/online|blend|hybrid/i.test(e.mode || '') ? ` <span class="tt-b">${/online/i.test(e.mode) ? '💻 Online' : '🔀 Blended'}</span>` : ''}</div>`; };
+    const weekHtml = (list, o = {}) => {
+        const ss = slots(); if (!ss.length) return '<p class="text-gray-400 italic p-6 text-center">Set the teaching periods first (⚙️ Times, sessions & venues).</p>';
+        const used = list.map(slotSpan); let lo = 0, hi = ss.length - 1;
+        if (o.trim !== false && used.length) { lo = Math.max(0, Math.min(...used.map(u => u[0]))); hi = Math.min(ss.length - 1, Math.max(...used.map(u => u[0] + u[1] - 1))); }
+        const cols = ss.slice(lo, hi + 1);
+        let html = `<div style="overflow:auto;border:2px solid #0d47a1;border-radius:12px;max-height:${o.maxH || '72vh'}"><table class="tt-grid"><thead><tr><th class="tt-day">Day</th>${cols.map(s => `<th>${hm(s.start)}<br><span style="opacity:.75">${hm(s.end)}</span></th>`).join('')}</tr></thead><tbody>`;
+        days().forEach(d => {
+            const lanes = lanesFor(list.filter(e => e.day === d));
+            lanes.forEach((L, li) => {
+                html += `<tr>${li === 0 ? `<td class="tt-dayc" rowspan="${lanes.length}">${d.slice(0, 3).toUpperCase()}<div class="text-[8px] font-bold text-gray-500">${d}</div></td>` : ''}`;
+                for (let i = lo; i <= hi;) {
+                    const e = L.find(x => slotSpan(x)[0] === i || (i === lo && slotSpan(x)[0] < lo && slotSpan(x)[0] + slotSpan(x)[1] > lo));
+                    if (e) { const [si, sp] = slotSpan(e); const span = Math.min(hi + 1, si + sp) - Math.max(lo, i); html += `<td colspan="${span}" class="${li === lanes.length - 1 ? 'tt-lane-end' : ''}">${entryChip(e, o)}</td>`; i += span; }
+                    else { html += `<td class="${li === lanes.length - 1 ? 'tt-lane-end' : ''}">${o.cell ? o.cell(d, i) : ''}</td>`; i++; }
+                }
+                html += '</tr>';
+            });
+        });
+        return html + '</tbody></table></div>' + legendHtml(list);
+    };
+    const legendHtml = (list) => { const g = {}; list.forEach(e => g[grpKey(e.course, e.batch)] = e); const v = Object.values(g); return v.length > 1 && v.length < 40 ? `<div class="flex flex-wrap gap-1.5 mt-2">${v.map(e => `<span class="iq-chip" style="background:${colorOf(e.course, e.batch)};color:white">${esc(e.course)} · ${esc(e.batch)}</span>`).join('')}</div>` : ''; };
+
+    // day dashboard: venues × periods for one day
+    const dayHtml = () => {
+        const d = TT.ui.day && days().includes(TT.ui.day) ? TT.ui.day : days()[0]; TT.ui.day = d;
+        const ss = slots(); const list = filt(allClasses()).filter(e => e.day === d);
+        const rs = rooms(); const rows = [...rs.map(r => r.id), ...(list.some(e => !e.roomId || !roomById(e.roomId)) ? ['__none'] : [])];
+        const free = {}; rs.forEach(r => free[r.id] = ss.filter(s => !allClasses().some(e => e.day === d && e.roomId === r.id && overlap(e, s))).length);
+        let html = `<div class="flex flex-wrap gap-1.5 mb-2">${days().map(x => `<button class="iq-chip !text-[11px] !px-3 !py-1.5" style="${x === d ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.ttSet('day','${x}')">${x}</button>`).join('')}</div>
+            <div class="iq-kpis mb-2">${kpi('Sessions today', list.length, '#0d47a1')}${kpi('Lecturers teaching', new Set(list.map(e => e.lecturerId).filter(Boolean)).size, '#004d40')}${kpi('Venues in use', new Set(list.map(e => e.roomId).filter(Boolean)).size + ' / ' + rs.length, '#4a148c')}${kpi('Groups with class', new Set(list.map(e => grpKey(e.course, e.batch))).size, '#00838f')}</div>`;
+        html += `<div class="overflow-auto rounded-xl border-2 border-[#0d47a1]" style="max-height:62vh"><table class="tt-grid"><thead><tr><th class="tt-day">Venue</th>${ss.map(s => `<th>${hm(s.start)}<br><span style="opacity:.75">${hm(s.end)}</span></th>`).join('')}</tr></thead><tbody>`;
+        rows.forEach(rid => {
+            const r = roomById(rid); const L = list.filter(e => rid === '__none' ? (!e.roomId || !roomById(e.roomId)) : e.roomId === rid);
+            const lanes = lanesFor(L);
+            lanes.forEach((ln, li) => {
+                html += `<tr>${li === 0 ? `<td class="tt-dayc" rowspan="${lanes.length}" style="text-align:left">${rid === '__none' ? 'No venue / TBA' : esc(r.name)}<div class="text-[8px] font-bold text-gray-500">${r ? `${esc(r.type)} · ${r.capacity || '?'} seats · ${free[rid]} free periods` : ''}</div></td>` : ''}`;
+                for (let i = 0; i < ss.length;) { const e = ln.find(x => slotSpan(x)[0] === i); if (e) { const sp = slotSpan(e)[1]; html += `<td colspan="${sp}">${entryChip(e, { click: true, noName: true })}</td>`; i += sp; } else { html += `<td style="background:${rid !== '__none' && !allClasses().some(x => x.day === d && x.roomId === rid && overlap(x, ss[i])) ? '#f0fdf4' : ''}"></td>`; i++; } }
+                html += '</tr>';
+            });
+        });
+        return html + '</tbody></table></div><p class="text-[10px] text-gray-500 font-bold mt-1">Light green = venue free in that period.</p>';
+    };
+
+    // ------------------------------------------------------------------ click on a class → details / move / change venue / delete
+    window.ttEntry = (id) => {
+        const e = allClasses().find(x => x.id === id) || allExams().find(x => x.id === id); if (!e) return;
+        const isExam = !!e.date; const can = isExam ? canEditExam(e.fac) : canEditFacTT(e.fac);
+        const cl = isExam ? examClashes(e, e.id) : classClashes(e, e.id);
+        const o = offerings()[e.key] || e;
+        dlg(`${isExam ? '🎓' : '📚'} ${esc(e.code)} · ${esc(e.name)}`, `<div class="grid grid-cols-2 gap-2 text-[11.5px]">
+            <div><span class="iq-lbl">Course / batch</span><b>${esc(e.course)} · ${esc(e.batch)}</b></div><div><span class="iq-lbl">Faculty</span><b>${esc(e.fac)}</b></div>
+            <div><span class="iq-lbl">${isExam ? 'Date' : 'Day'}</span><b>${isExam ? fmtDay(e.date) : e.day}</b></div><div><span class="iq-lbl">Time</span><b>${hm(e.start)} – ${hm(e.end)}</b> (${durH(e)} h)</div>
+            <div><span class="iq-lbl">Lecturer</span><b>${e.lecturerId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(e.lecturerId)}')">${esc(nm(e.lecturerId))}</span>` : 'TBA'}</b></div><div><span class="iq-lbl">Venue${isExam ? 's' : ''}</span><b>${isExam ? (e.rooms || []).map(r => esc(roomName(r)) + (e.seats && e.seats[r] ? ` (${e.seats[r]})` : '')).join(', ') || 'TBA' : esc(roomName(e.roomId))}</b></div>
+            <div><span class="iq-lbl">Students</span><b>${enrolledCount(o)}</b></div><div><span class="iq-lbl">Mode</span><b>${esc(e.mode || o.mode || '')}</b></div>
+            <div class="col-span-2 text-[10px] text-gray-500">Last change ${fmtDT(e.at)} by ${esc(String(e.by || '').split('@')[0])}</div></div>
+            ${cl.length ? `<div class="mt-3 rounded-lg p-2 ${hard(cl).length ? 'bg-red-50 border border-red-200' : 'bg-sky-50 border border-sky-200'}">${cl.map(c => `<div class="text-[11px] font-bold ${c.soft ? 'text-sky-800' : 'text-red-700'}">${c.soft ? 'ℹ️' : '⛔'} ${esc(c.msg)}</div>`).join('')}</div>` : '<div class="mt-3 text-[11px] font-bold text-green-700">✔ No clashes</div>'}
+            ${can ? `<div class="flex flex-wrap gap-2 mt-4">
+                ${isExam ? '' : `<select id="tt-chg-room" class="iq-in !w-auto !py-1.5 !text-[11px]"><option value="">— change venue —</option>${recommendRooms(o, e.day, e.start, e.end, e.id).slice(0, 25).map(x => `<option value="${esc(x.r.id)}">${x.ok ? '✔' : '⚠'} ${esc(x.r.name)} · ${esc(x.r.type)} · ${x.r.capacity || '?'} seats</option>`).join('')}</select><button class="iq-btn-soft" onclick="window.ttChangeRoom('${e.id}', document.getElementById('tt-chg-room').value)">Save venue</button>`}
+                <button class="iq-btn-soft" onclick="window.ttMove('${e.id}')">↔ Move</button>
+                <button class="iq-btn-soft !text-red-700" onclick="window.ttDelete('${e.id}')">🗑️ Remove</button></div>` : ''}`);
+    };
+    window.ttChangeRoom = async (id, rid) => {
+        const e = allClasses().find(x => x.id === id); if (!e || !rid) return;
+        const c = { ...e, roomId: rid }; const h = hard(classClashes(c, id));
+        if (h.length) return showClash(h, c, null);
+        const obj = { [`classes.${id}`]: { ...c, by: meEmail(), at: Date.now() } }; markAmended(obj, e);
+        await planUpdate(e.fac, obj, { a: 'Class venue changed', d: `${e.code} ${e.batch} ${e.day} ${e.start}: ${roomName(e.roomId)} → ${roomName(rid)}` });
+        window.ttDlgClose(); window.showToast('Venue changed ✔', 'success');
+    };
+    window.ttMove = (id) => { const e = allClasses().find(x => x.id === id) || allExams().find(x => x.id === id); if (!e) return; TT.ui.sel = e.key; TT.ui.moveId = id; TT.ui.fac = e.fac; TT.ui.course = e.course; TT.ui.batch = e.batch; if (!e.date) TT.ui.dur = slotSpan(e)[1]; TT.ui.tab = 'build'; window.ttDlgClose(); ttRender(); window.showToast('Choose the new slot (green) – the class will be moved there.', 'info'); };
+    window.ttDelete = (id) => {
+        const e = allClasses().find(x => x.id === id) || allExams().find(x => x.id === id); if (!e) return;
+        if (!confirm(`Remove ${e.code} (${e.course} · ${e.batch}) ${e.date ? fmtDay(e.date) : e.day} ${hm(e.start)} from the ${e.date ? 'exam' : 'class'} timetable?`)) return;
+        const obj = { [`${e.date ? 'exams' : 'classes'}.${id}`]: DEL }; markAmended(obj, e);
+        planUpdate(e.fac, obj, { a: e.date ? 'Exam removed' : 'Class removed', d: `${e.code} ${e.batch} ${e.date || e.day} ${e.start}` });
+        window.ttDlgClose();
+    };
+    const showClash = (h, c, onForce) => {
+        window.__ttForce = onForce;
+        dlg('⛔ Clash detected – not saved', `<p class="text-[11.5px] font-bold mb-2">${esc(c.code)} · ${esc(c.course)} · ${esc(c.batch)} — ${c.date ? fmtDay(c.date) : c.day} ${hm(c.start)}–${hm(c.end)}</p>
+            ${h.map(x => `<div class="rounded-lg bg-red-50 border border-red-200 p-2 mb-1.5 text-[11px]"><b class="text-red-700">${{ lecturer: '👤 Lecturer clash', room: '📍 Venue clash', group: '👥 Student group clash', student: '🎓 Individual student clash', self: '🔁 Duplicate' }[x.type] || '⛔ Clash'}</b><div>${esc(x.msg)}</div>${x.students ? `<details class="mt-1"><summary class="cursor-pointer font-bold text-[10px]">Show students (${x.students.length})</summary>${x.students.map(id => { const s = stuById(id) || {}; return `<div class="text-[10px]">• ${esc(s.name || id)} (${esc(id)}) – ${esc(s.course || '')} ${esc(s.batch || '')}</div>`; }).join('')}</details>` : ''}</div>`).join('')}
+            <p class="text-[10.5px] text-gray-600 font-bold mt-2">Tip: open 🧩 Build and pick a green cell – green cells are free for the lecturer, the venue and every registered student.</p>
+            ${onForce && activeRole === 'ALL' ? '<div class="flex justify-end mt-3"><button class="iq-btn-soft !text-red-700" onclick="window.__ttForce && window.__ttForce(); window.ttDlgClose()">Save anyway (Super Admin override)</button></div>' : ''}`);
+    };
+
+    // ------------------------------------------------------------------ BUILDER (classes)
+    const offColor = (o) => colorOf(o.course, o.batch);
+    const offsForBuild = () => { const u = TT.ui; const q = u.q.toLowerCase(); return offList().filter(o => (!u.fac || o.fac === u.fac) && (!u.course || o.course === u.course) && (!u.batch || o.batch === u.batch) && (!u.lect || o.lecturerId === u.lect) && (!q || [o.code, o.name, o.course, o.batch, nm(o.lecturerId)].join(' ').toLowerCase().includes(q))).sort((a, b) => String(a.course + a.batch + a.code).localeCompare(String(b.course + b.batch + b.code))); };
+    const cellStatus = (o, day, i, dur, ignoreId) => {
+        const ss = slots(); if (i + dur > ss.length) return { s: 'na' };
+        const c = { ...o, day, start: ss[i].start, end: ss[i + dur - 1].end, roomId: '' };
+        const h = hard(classClashes(c, ignoreId)); if (h.length) return { s: 'clash', h };
+        const rr = recommendRooms(o, day, c.start, c.end, ignoreId).filter(x => x.ok);
+        if (!rr.length) return { s: 'noroom' };
+        return { s: inSession(o.fac, c.start, c.end, o.session) ? 'free' : 'out', room: rr[0].r };
+    };
+    const buildHtml = () => {
+        const offs = offsForBuild(); const o = offerings()[TT.ui.sel];
+        const listHtml = offs.map(x => { const done = scheduledHrsTT(x.key); const need = x.wch || 0; const p = need ? Math.min(100, Math.round(done / need * 100)) : (done ? 100 : 0); return `<div class="tt-off ${TT.ui.sel === x.key ? 'on' : ''}" style="--c:${offColor(x)}" onclick="window.ttSet('sel','${js(x.key)}')"><div class="flex justify-between gap-1"><b class="text-[11px] text-[#0d47a1]">${esc(x.code)}</b><span class="text-[9px] font-black" style="color:${need && done >= need ? '#065f46' : '#7e22ce'}">${Math.round(done * 10) / 10}/${need || '?'} h</span></div><div class="text-[10px] font-bold truncate">${esc(x.name)}</div><div class="text-[9px] text-gray-500 font-bold truncate">${esc(x.course)} · ${esc(x.batch)} · 👤 ${esc(x.lecturerId ? nm(x.lecturerId) : 'no lecturer')} · 👥 ${enrolledCount(x)}</div>${barHtml(p, need && done >= need ? '#065f46' : '#0d47a1')}</div>`; }).join('') || '<p class="text-[11px] text-gray-400 italic p-3">No modules for this filter. Choose a faculty / course, or add modules in 📥 Data & Excel.</p>';
+        let right = '<div class="iq-card text-center p-10 text-gray-400"><div class="text-4xl">🧩</div><b>Choose a module on the left</b><p class="text-[11px]">Green cells show every place the module fits without any clash (lecturer, venue, course group and individually registered students). Blue = free but outside the faculty session. Purple = no suitable venue free. Red = clash.</p></div>';
+        if (o) {
+            const can = canEditFacTT(o.fac); const dur = Math.max(1, Math.min(6, parseInt(TT.ui.dur) || 2)); const ignore = TT.ui.moveId || '';
+            const mine = allClasses().filter(e => e.key === o.key || sameGroup(e, o) || (o.lecturerId && e.lecturerId === o.lecturerId));
+            const sug = []; days().forEach(d => slots().forEach((s, i) => { const st = cellStatus(o, d, i, dur, ignore); if (st.s === 'free' && sug.length < 8) sug.push({ d, i, room: st.room }); }));
+            right = `<div class="iq-card mb-2"><div class="flex flex-wrap justify-between gap-2 items-start"><div><div class="text-[10px] font-black uppercase text-[#004d40]">${TT.ui.moveId ? '↔ Moving an existing class' : 'Scheduling'}</div><b class="text-[14px] text-[#0d47a1]">${esc(o.code)} · ${esc(o.name)}</b><div class="text-[10.5px] font-bold text-gray-600">${esc(o.course)} · ${esc(o.batch)} · ${esc(o.fac)} · 👤 ${esc(o.lecturerId ? nm(o.lecturerId) : 'no lecturer')} · 👥 ${enrolledCount(o)} students · ${esc(o.mode)} ${o.session ? '· ' + esc(o.session) + ' session' : ''}</div><div class="text-[10.5px] font-black mt-1" style="color:#0d47a1">Scheduled ${Math.round(scheduledHrsTT(o.key) * 10) / 10} of ${o.wch || '?'} h per week</div></div>
+                <div class="flex flex-wrap gap-2 items-center"><label class="text-[10px] font-black">Length <select class="iq-in !w-auto !py-1 !text-[11px]" onchange="window.ttSet('dur', this.value)">${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${dur === n ? 'selected' : ''}>${n} period${n > 1 ? 's' : ''}</option>`).join('')}</select></label>${TT.ui.moveId ? '<button class="iq-btn-soft" onclick="window.__tt.ui.moveId=\'\'; window.ttTab(\'build\')">Cancel move</button>' : ''}${can ? `<button class="iq-btn-soft" onclick="window.ttAuto()">✨ Auto-arrange this filter</button>` : ''}</div></div>
+                ${sug.length ? `<div class="mt-2 text-[10.5px]"><b class="text-green-800">Best free slots:</b> ${sug.map(x => `<button class="iq-chip !text-[10px] !py-1 mr-1 mb-1" style="background:#dcfce7;color:#065f46" onclick="window.ttPlace('${x.d}',${x.i})">${x.d.slice(0, 3)} ${hm(slots()[x.i].start)} · ${esc(x.room.name)}</button>`).join('')}</div>` : '<div class="mt-2 text-[10.5px] font-bold text-red-700">No clash-free slot with a suitable venue for this length – try a shorter length, add venues or check sessions.</div>'}
+                ${!can ? '<div class="mt-2 text-[10.5px] font-bold text-purple-800">View only – only this faculty or the Super Admin can place it.</div>' : ''}</div>
+                ${weekHtml(mine, { trim: false, click: true, maxH: '60vh', cell: (d, i) => { if (!can) return ''; const st = cellStatus(o, d, i, dur, ignore); if (st.s === 'na') return ''; const tip = st.s === 'clash' ? st.h.map(x => x.msg).join('\n') : st.s === 'noroom' ? 'No suitable free venue' : st.s === 'out' ? 'Free, but outside the faculty session' : 'Free – ' + st.room.name; return `<div class="tt-cell tt-${st.s}" title="${esc(tip)}" ${st.s === 'clash' ? `onclick="window.ttWhy('${d}',${i})"` : `onclick="window.ttPlace('${d}',${i})"`}>${st.s === 'free' ? '＋' : st.s === 'out' ? '＋·' : st.s === 'noroom' ? 'no venue' : '✕'}</div>`; } })}`;
+        }
+        return `<div class="grid gap-3" style="grid-template-columns:minmax(230px,300px) 1fr"><div class="overflow-y-auto pr-1" style="max-height:78vh"><div class="text-[10px] font-black uppercase text-gray-500 mb-1">${offs.length} module(s) · hours scheduled / needed</div>${listHtml}</div><div>${right}</div></div>`;
+    };
+    window.ttWhy = (d, i) => { const o = offerings()[TT.ui.sel]; const st = cellStatus(o, d, i, parseInt(TT.ui.dur) || 2, TT.ui.moveId); if (st.h) showClash(st.h, { ...o, day: d, start: slots()[i].start, end: slots()[Math.min(slots().length - 1, i + (parseInt(TT.ui.dur) || 2) - 1)].end }, null); };
+    window.ttPlace = (d, i) => {
+        const o = offerings()[TT.ui.sel]; if (!o) return;
+        const dur = parseInt(TT.ui.dur) || 2; const ss = slots(); const start = ss[i].start, end = ss[Math.min(ss.length - 1, i + dur - 1)].end;
+        const recs = recommendRooms(o, d, start, end, TT.ui.moveId);
+        const out = !inSession(o.fac, start, end, o.session);
+        dlg(`📍 ${esc(o.code)} · ${d} ${hm(start)}–${hm(end)}`, `${out ? '<div class="rounded-lg bg-sky-50 border border-sky-200 p-2 text-[11px] font-bold text-sky-900 mb-2">ℹ️ This time is outside the faculty session. You can still save it.</div>' : ''}
+            <label class="block"><span class="iq-lbl">Venue – recommended for ${enrolledCount(o)} students (${esc(o.mode)})</span><select id="tt-pl-room" class="iq-in">${recs.slice(0, 40).map((x, k) => `<option value="${esc(x.r.id)}" ${k === 0 ? 'selected' : ''}>${x.ok ? (k < 3 ? '⭐' : '✔') : '⚠ too small'} ${esc(x.r.name)} · ${esc(x.r.type)} · ${x.r.capacity || '?'} seats${x.r.building ? ' · ' + esc(x.r.building) : ''}</option>`).join('')}<option value="">No venue yet (TBA)</option></select></label>
+            <label class="block mt-2"><span class="iq-lbl">Delivery mode</span><select id="tt-pl-mode" class="iq-in">${['Face to Face', 'Online', 'Blended'].map(m => `<option ${String(o.mode).toLowerCase().startsWith(m.toLowerCase().slice(0, 4)) ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+            <div class="flex justify-end gap-2 mt-4"><button class="iq-btn-soft" onclick="window.ttDlgClose()">Cancel</button><button class="iq-btn" onclick="window.ttSaveClass('${d}', ${i}, ${dur})">💾 Save to timetable</button></div>`);
+    };
+    window.ttSaveClass = async (d, i, dur, force) => {
+        const o = offerings()[TT.ui.sel]; if (!o) return;
+        const ss = slots(); const roomId = (document.getElementById('tt-pl-room') || {}).value || ''; const mode = (document.getElementById('tt-pl-mode') || {}).value || o.mode;
+        const editId = TT.ui.moveId || '';
+        const e = { id: editId || newId('c'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || meFac() || 'GEN', lecturerId: o.lecturerId || '', day: d, start: ss[i].start, end: ss[Math.min(ss.length - 1, i + dur - 1)].end, roomId, mode, by: meEmail(), at: Date.now() };
+        const h = hard(classClashes(e, editId));
+        if (h.length && !force) return showClash(h, e, () => { TT.__forceArgs = [d, i, dur, roomId, mode]; saveForce(e); });
+        const obj = { [`classes.${e.id}`]: e }; markAmended(obj, e);
+        await planUpdate(e.fac, obj, { a: editId ? 'Class moved' : 'Class scheduled', d: `${e.code} ${e.course} ${e.batch} → ${d} ${e.start}-${e.end} · ${roomName(roomId)}` });
+        TT.ui.moveId = ''; window.ttDlgClose(); window.showToast(`${e.code} placed on ${d} ${hm(e.start)} ✔`, 'success');
+    };
+    const saveForce = async (e) => { const obj = { [`classes.${e.id}`]: { ...e, forced: true } }; markAmended(obj, e); await planUpdate(e.fac, obj, { a: 'Class scheduled (override)', d: `${e.code} ${e.batch} ${e.day} ${e.start}` }); TT.ui.moveId = ''; };
+    // greedy auto-arrange: fills missing weekly hours for every module in the current filter, never creating a clash
+    window.ttAuto = async () => {
+        const offs = offsForBuild().filter(o => canEditFacTT(o.fac) && (o.wch || 0) > scheduledHrsTT(o.key));
+        if (!offs.length) return alert('Every module in this filter already has its weekly hours (or has no weekly hours set).');
+        if (!confirm(`Auto-arrange ${offs.length} module(s)?\n\nThe studio will look for clash-free slots inside the faculty sessions, with suitable venues, spreading classes across the week. You can move or remove anything afterwards.`)) return;
+        const ss = slots(); const byFac = {}; let placed = 0, missing = [];
+        offs.sort((a, b) => enrolledCount(b) - enrolledCount(a)).forEach(o => {
+            let need = (o.wch || 0) - scheduledHrsTT(o.key); let guard = 0;
+            while (need > 0.2 && guard++ < 12) {
+                const perH = ss.length ? durH(ss[0]) || 1 : 1; const dur = Math.max(1, Math.min(2, Math.round(need / perH)));
+                const dayLoad = (d) => allClasses().filter(e => e.day === d && (sameGroup(e, o) || e.key === o.key)).length + (allClasses().some(e => e.day === d && e.key === o.key) ? 10 : 0);
+                let best = null;
+                days().slice().sort((a, b) => dayLoad(a) - dayLoad(b)).some(d => ss.some((s, i) => { const st = cellStatus(o, d, i, dur, ''); if (st.s === 'free') { best = { d, i, room: st.room }; return true; } return false; }));
+                if (!best) { missing.push(o.code + ' ' + o.batch); break; }
+                const e = { id: newId('c'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || 'GEN', lecturerId: o.lecturerId || '', day: best.d, start: ss[best.i].start, end: ss[best.i + dur - 1].end, roomId: best.room.id, mode: o.mode, by: meEmail(), at: Date.now(), auto: true };
+                const p = planOf(e.fac); p.classes[e.id] = e; TT.ver++;
+                const obj = (byFac[e.fac] = byFac[e.fac] || {}); obj[`classes.${e.id}`] = e; markAmended(obj, e);
+                placed++; need -= durH(e);
+            }
+        });
+        for (const [f, obj] of Object.entries(byFac)) await planUpdate(f, obj, { a: 'Timetable auto-arranged', d: `${Object.keys(obj).filter(k => k.startsWith('classes.')).length} session(s)` });
+        alert(`✨ ${placed} class session(s) placed.${missing.length ? `\n\nCould not fully place (no clash-free slot / venue): ${[...new Set(missing)].join(', ')}` : ''}`);
+        ttRender();
+    };
+
+    // ------------------------------------------------------------------ EXAMS: dashboard, halls, builder
+    const examDates = () => { const t = term(); const out = []; if (t.examFrom && t.examTo) { const d = new Date(t.examFrom + 'T00:00:00'), e = new Date(t.examTo + 'T00:00:00'); for (let i = 0; d <= e && i < 60; i++) { const dn = ALL_DAYS[(d.getDay() + 1) % 7]; if (days().includes(dn) || (TT.cfg.examDays || []).includes(dn)) out.push(ymdL(d)); d.setDate(d.getDate() + 1); } } allExams().forEach(x => { if (!out.includes(x.date)) out.push(x.date); }); return out.sort(); };
+    const sittingColors = (date, start) => { const groups = [...new Set(allExams().filter(e => e.date === date && e.start === start).map(e => grpKey(e.course, e.batch)))].sort((a, b) => hashN(a) - hashN(b)); const used = new Set(); const map = {}; groups.forEach(g => { let k = hashN(g) % EXAM_COLORS.length; while (used.has(k) && used.size < EXAM_COLORS.length) k = (k + 1) % EXAM_COLORS.length; used.add(k); map[g] = EXAM_COLORS[k]; }); return map; };
+    const exColor = (e) => (sittingColors(e.date, e.start)[grpKey(e.course, e.batch)] || EXAM_COLORS[0]);
+    const examChip = (e, o = {}) => { const [c, cn] = exColor(e); return `<div class="tt-e" style="background:${c};border-left:6px solid rgba(255,255,255,.55)" ${o.click !== false ? `onclick="window.ttEntry('${e.id}')"` : ''}><b>${esc(e.code)}</b> <span class="tt-b">${esc(cn)}</span><i>${esc(e.name)}</i><i>${esc(e.course)} · ${esc(e.batch)}</i><i>📍 ${(e.rooms || []).map(r => esc(roomName(r))).join(', ') || 'TBA'} · 👥 ${e.students || ''}</i></div>`; };
+    const examBoardHtml = (list) => {
+        const xs = exSlots(); const ds = [...new Set([...examDates(), ...list.map(e => e.date)])].sort().filter(d => !TT.ui.fac && !TT.ui.course && !TT.ui.batch && !TT.ui.lect && !TT.ui.room && !TT.ui.q ? true : list.some(e => e.date === d));
+        if (!ds.length) return `<div class="iq-card text-center p-8 text-gray-400"><div class="text-4xl">🎓</div><b>No exam dates yet</b><p class="text-[11px]">Set the exam period in ⚙️ Times, sessions & venues, then use 🧩 Build exam table.</p></div>`;
+        return `<div class="overflow-auto rounded-xl border-2 border-[#0d47a1]" style="max-height:74vh"><table class="tt-grid"><thead><tr><th class="tt-day">Date</th>${xs.map(s => `<th>${esc(s.name || '')}<br>${hm(s.start)} – ${hm(s.end)}</th>`).join('')}</tr></thead><tbody>${ds.map(d => `<tr><td class="tt-dayc">${fmtDay(d).split(',')[0]}<div class="text-[8px] font-bold text-gray-500">${fmtDay(d).split(',').slice(1).join(',')}</div></td>${xs.map(s => `<td><div class="flex flex-col gap-1">${list.filter(e => e.date === d && overlap(e, s)).map(e => examChip(e)).join('')}</div></td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="text-[10px] text-gray-500 font-bold mt-1">Each course / batch in the same sitting gets its own colour – print the colour on the hall entry list so students find their seats quickly.</p>`;
+    };
+    const examHallsHtml = () => {
+        const ds = examDates(); const d = TT.ui.date && ds.includes(TT.ui.date) ? TT.ui.date : ds[0]; TT.ui.date = d;
+        if (!d) return examBoardHtml([]);
+        const xs = exSlots(); const list = filt(allExams()).filter(e => e.date === d);
+        const hallRooms = rooms().filter(r => r.type !== 'Online');
+        return `<div class="flex flex-wrap gap-1.5 mb-2">${ds.map(x => `<button class="iq-chip !text-[10.5px] !px-3 !py-1.5" style="${x === d ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.ttSet('date','${x}')">${fmtDay(x)}</button>`).join('')}</div>
+            <div class="overflow-auto rounded-xl border-2 border-[#0d47a1]"><table class="tt-grid"><thead><tr><th class="tt-day">Hall / venue</th>${xs.map(s => `<th>${esc(s.name || '')}<br>${hm(s.start)}–${hm(s.end)}</th>`).join('')}</tr></thead><tbody>${hallRooms.map(r => `<tr><td class="tt-dayc" style="text-align:left">${esc(r.name)}<div class="text-[8px] text-gray-500 font-bold">${r.capacity || '?'} seats · ${esc(r.type)}</div></td>${xs.map(s => { const es = list.filter(e => overlap(e, s) && (e.rooms || []).includes(r.id)); const used = es.reduce((a, e) => a + (e.seats && e.seats[r.id] !== undefined ? n1(e.seats[r.id]) : Math.ceil(n1(e.students) / Math.max(1, (e.rooms || []).length))), 0); return `<td>${es.map(e => examChip(e)).join('')}${es.length ? `<div class="text-[9px] font-black mt-0.5" style="color:${n1(r.capacity) && used > n1(r.capacity) ? '#b91c1c' : '#065f46'}">${used}/${r.capacity || '?'} seats</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
+    };
+    const exCellStatus = (o, date, xi, ignoreId) => { const s = exSlots()[xi]; const c = { ...o, date, start: s.start, end: s.end, rooms: [], students: enrolledCount(o) }; const h = hard(examClashes(c, ignoreId)); if (h.length) return { s: 'clash', h }; const need = enrolledCount(o); const free = rooms().filter(r => r.type !== 'Online').map(r => { const used = allExams().filter(e => e.id !== ignoreId && e.date === date && overlap(e, s) && (e.rooms || []).includes(r.id)).reduce((a, e) => a + (e.seats && e.seats[r.id] !== undefined ? n1(e.seats[r.id]) : Math.ceil(n1(e.students) / Math.max(1, (e.rooms || []).length))), 0); return { r, left: Math.max(0, n1(r.capacity) - used) }; }).filter(x => x.left > 0); const tot = free.reduce((a, x) => a + x.left, 0); if (need && tot < need) return { s: 'noroom' }; return { s: 'free', free }; };
+    const buildExamHtml = () => {
+        const offs = offsForBuild(); const o = offerings()[TT.ui.sel]; const ds = examDates(); const xs = exSlots();
+        const listHtml = offs.map(x => { const has = allExams().filter(e => e.key === x.key); return `<div class="tt-off ${TT.ui.sel === x.key ? 'on' : ''}" style="--c:${offColor(x)}" onclick="window.ttSet('sel','${js(x.key)}')"><div class="flex justify-between"><b class="text-[11px] text-[#0d47a1]">${esc(x.code)}</b><span class="text-[9px] font-black" style="color:${has.length ? '#065f46' : '#b91c1c'}">${has.length ? '✔ ' + fmtDay(has[0].date).split(',')[0] : 'not set'}</span></div><div class="text-[10px] font-bold truncate">${esc(x.name)}</div><div class="text-[9px] text-gray-500 font-bold">${esc(x.course)} · ${esc(x.batch)} · 👥 ${enrolledCount(x)}</div></div>`; }).join('') || '<p class="text-[11px] text-gray-400 italic p-3">No modules for this filter.</p>';
+        let right = `<div class="iq-card text-center p-10 text-gray-400"><div class="text-4xl">🎓</div><b>Choose a module on the left</b><p class="text-[11px]">${ds.length ? 'Green = every student is free and there are enough seats. Red = clash. Purple = not enough free seats.' : 'First set the exam period (from / to) in ⚙️ Times, sessions & venues.'}</p></div>`;
+        if (o && ds.length) {
+            const can = canEditExam(o.fac); const ig = TT.ui.moveId || '';
+            right = `<div class="iq-card mb-2"><b class="text-[14px] text-[#0d47a1]">${esc(o.code)} · ${esc(o.name)}</b><div class="text-[10.5px] font-bold text-gray-600">${esc(o.course)} · ${esc(o.batch)} · 👥 ${enrolledCount(o)} candidates ${TT.ui.moveId ? '· ↔ moving' : ''}</div></div>
+                <div class="overflow-auto rounded-xl border-2 border-[#0d47a1]" style="max-height:66vh"><table class="tt-grid"><thead><tr><th class="tt-day">Date</th>${xs.map(s => `<th>${esc(s.name || '')}<br>${hm(s.start)}–${hm(s.end)}</th>`).join('')}</tr></thead><tbody>${ds.map(d => `<tr><td class="tt-dayc">${fmtDay(d)}</td>${xs.map((s, xi) => { const here = allExams().filter(e => e.date === d && overlap(e, s) && (e.key === o.key || sameGroup(e, o))); const st = can ? exCellStatus(o, d, xi, ig) : { s: '' }; return `<td>${here.map(e => examChip(e)).join('')}${!here.length && can ? `<div class="tt-cell tt-${st.s === 'free' ? 'free' : st.s}" title="${esc(st.h ? st.h.map(x => x.msg).join('\n') : st.s === 'noroom' ? 'Not enough free seats' : 'Free')}" onclick="${st.s === 'clash' ? `window.ttExWhy('${d}',${xi})` : `window.ttExPlace('${d}',${xi})`}">${st.s === 'free' ? '＋' : st.s === 'noroom' ? 'no seats' : '✕'}</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
+        }
+        return `<div class="grid gap-3" style="grid-template-columns:minmax(230px,300px) 1fr"><div class="overflow-y-auto pr-1" style="max-height:78vh">${listHtml}</div><div>${right}</div></div>`;
+    };
+    window.ttExWhy = (d, xi) => { const o = offerings()[TT.ui.sel]; const st = exCellStatus(o, d, xi, TT.ui.moveId); if (st.h) showClash(st.h, { ...o, date: d, start: exSlots()[xi].start, end: exSlots()[xi].end }, null); };
+    window.ttExPlace = (d, xi) => {
+        const o = offerings()[TT.ui.sel]; if (!o) return; const st = exCellStatus(o, d, xi, TT.ui.moveId); const need = enrolledCount(o);
+        let left = need || 1; const pre = {}; (st.free || []).sort((a, b) => (b.r.type === 'Exam Hall') - (a.r.type === 'Exam Hall') || b.left - a.left).forEach(x => { if (left > 0) { const t = Math.min(x.left, left); pre[x.r.id] = t; left -= t; } });
+        dlg(`🎓 ${esc(o.code)} · ${fmtDay(d)} · ${esc(exSlots()[xi].name || '')}`, `<p class="text-[11px] font-bold mb-2">${need} candidate(s). Tick the halls and the seats to use in each (suggested below).</p>
+            <div class="space-y-1 max-h-[45vh] overflow-y-auto">${(st.free || []).map(x => `<label class="flex items-center gap-2 text-[11px] border rounded-lg p-1.5 bg-white"><input type="checkbox" class="tt-ex-r" value="${esc(x.r.id)}" ${pre[x.r.id] ? 'checked' : ''}><b class="flex-1">${esc(x.r.name)}</b><span class="text-gray-500">${x.left} free of ${x.r.capacity}</span><input type="number" min="0" max="${x.left}" value="${pre[x.r.id] || ''}" data-r="${esc(x.r.id)}" class="tt-ex-s iq-in !w-20 !py-1 text-center" placeholder="seats"></label>`).join('') || '<p class="text-[11px] text-red-700 font-bold">No hall has free seats in this sitting.</p>'}</div>
+            <div class="flex justify-end gap-2 mt-3"><button class="iq-btn-soft" onclick="window.ttDlgClose()">Cancel</button><button class="iq-btn" onclick="window.ttSaveExam('${d}', ${xi})">💾 Save exam</button></div>`);
+    };
+    window.ttSaveExam = async (d, xi) => {
+        const o = offerings()[TT.ui.sel]; if (!o) return; const s = exSlots()[xi];
+        const rs = [...document.querySelectorAll('.tt-ex-r:checked')].map(x => x.value); const seats = {}; document.querySelectorAll('.tt-ex-s').forEach(x => { if (rs.includes(x.dataset.r) && x.value) seats[x.dataset.r] = n1(x.value); });
+        const editId = TT.ui.moveId || '';
+        const e = { id: editId || newId('x'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || meFac() || 'GEN', lecturerId: o.lecturerId || '', date: d, slotName: s.name || '', start: s.start, end: s.end, rooms: rs, seats, students: enrolledCount(o), by: meEmail(), at: Date.now() };
+        const h = hard(examClashes(e, editId)); if (h.length) return showClash(h, e, activeRole === 'ALL' ? async () => { const obj = { [`exams.${e.id}`]: { ...e, forced: true } }; markAmended(obj, e); await planUpdate(e.fac, obj, { a: 'Exam scheduled (override)', d: `${e.code} ${e.date}` }); } : null);
+        const obj = { [`exams.${e.id}`]: e }; markAmended(obj, e);
+        await planUpdate(e.fac, obj, { a: editId ? 'Exam moved' : 'Exam scheduled', d: `${e.code} ${e.course} ${e.batch} → ${e.date} ${e.start} · ${rs.map(roomName).join(', ')}` });
+        TT.ui.moveId = ''; window.ttDlgClose(); window.showToast(`${e.code} exam set on ${fmtDay(d)} ✔`, 'success');
+    };
+
+    // ------------------------------------------------------------------ MY TIMETABLE (lecturer / coordinator)
+    const myClasses = (team) => { const ids = team ? teamIds() : new Set([currentLecturerId]); return allClasses().filter(e => ids.has(e.lecturerId) || (team === 'coord' && window.rowsForLecturer(currentLecturerId, 'coord').some(r => offKey(r.code, r.batch) === e.key))); };
+    const myExams = () => { const keys = new Set(offList().filter(o => o.lecturerId === currentLecturerId).map(o => o.key)); return allExams().filter(e => keys.has(e.key) || e.lecturerId === currentLecturerId); };
+    const lastAmendFor = (lid) => Math.max(0, ...Object.values(TT.plans).map(p => n1((p.amended || {})['l_' + sk(lid)])));
+    function mineHtml() {
+        if (!currentLecturerId) return '<p class="text-gray-400 italic p-6 text-center">Verify your identity first.</p>';
+        const u = TT.ui; const view = u.mineView || 'me';
+        const list = view === 'me' ? myClasses() : myClasses(view === 'coord' ? 'coord' : '1');
+        const ex = myExams(); const la = lastAmendFor(currentLecturerId);
+        return `<div class="flex flex-wrap gap-2 items-center mb-2">${[['me', '👤 My classes'], ['team', '👨‍💼 Me + my team'], ['coord', '🧭 Modules I coordinate']].map(([k, l]) => `<button class="iq-chip !text-[11px] !px-3 !py-1.5" style="${view === k ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.__tt.ui.mineView='${k}'; window.ttTab('mine')">${l}</button>`).join('')}
+            <span class="ml-auto text-[10.5px] font-bold text-gray-600">${la ? '🔔 Last amended ' + fmtDT(la) : ''} · ${Math.round(list.filter(e => e.lecturerId === currentLecturerId).reduce((a, e) => a + durH(e), 0) * 10) / 10} teaching h / week</span>
+            <button class="iq-btn-soft" onclick="window.ttQuickPdf('mine')">🖨️ PDF</button></div>
+            ${weekHtml(list, { click: true, noLect: view === 'me' })}
+            <div class="tt-sec">🎓 My exams</div>${ex.length ? examListTable(ex) : '<p class="text-[11px] text-gray-400 italic">No exams scheduled yet.</p>'}`;
+    }
+    const examListTable = (ex) => `<div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Colour</th><th>Date</th><th>Time</th><th>Module</th><th>Course · Batch</th><th>Candidates</th><th>Hall(s)</th></tr></thead><tbody>${ex.slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start)).map(e => { const [c, cn] = exColor(e); return `<tr><td><span class="iq-chip" style="background:${c};color:white">${cn}</span></td><td><b>${fmtDay(e.date)}</b></td><td>${hm(e.start)}–${hm(e.end)}</td><td><b>${esc(e.code)}</b> ${esc(e.name)}</td><td>${esc(e.course)} · ${esc(e.batch)}</td><td>${e.students || ''}</td><td>${(e.rooms || []).map(r => esc(roomName(r)) + (e.seats && e.seats[r] ? ` (${e.seats[r]})` : '')).join(', ')}</td></tr>`; }).join('')}</tbody></table></div>`;
+
+    // ------------------------------------------------------------------ PUBLISH: royal cards → PDF / HTML / Excel / print
+    const FAC_FULL = (f) => f ? `Faculty of ${f}` : '';
+    const groupsFor = (kind) => {
+        const list = filt(kind === 'exam' ? allExams() : allClasses()); const by = TT.ui.pubGroup; const g = {};
+        const put = (k, meta, e) => { (g[k] = g[k] || { meta, list: [] }).list.push(e); };
+        list.forEach(e => {
+            if (by === 'lecturer') put('L' + e.lecturerId, { type: 'Lecturer', lid: e.lecturerId, title: e.lecturerId ? nm(e.lecturerId) : 'Lecturer not assigned', fac: lFac(window.getLecturerById(e.lecturerId)) || e.fac }, e);
+            else if (by === 'room') { (kind === 'exam' ? (e.rooms || []) : [e.roomId]).forEach(r => put('R' + r, { type: 'Venue', room: r, title: roomName(r), fac: '' }, e)); }
+            else if (by === 'faculty') put('F' + e.fac, { type: 'Faculty', title: FAC_FULL(e.fac), fac: e.fac }, e);
+            else put('G' + grpKey(e.course, e.batch), { type: 'Course', course: e.course, batch: e.batch, title: e.course, fac: e.fac }, e);
+        });
+        return Object.values(g).sort((a, b) => String(a.meta.title + (a.meta.batch || '')).localeCompare(String(b.meta.title + (b.meta.batch || ''))));
+    };
+    const groupAmended = (meta, list) => { let t = Math.max(0, ...list.map(e => n1(e.at))); Object.values(TT.plans).forEach(p => { const a = p.amended || {}; if (meta.course) t = Math.max(t, n1(a[grpKey(meta.course, meta.batch)])); if (meta.lid) t = Math.max(t, n1(a['l_' + sk(meta.lid)])); }); return t; };
+    const groupEffective = (kind, meta, list) => { const fs = meta.fac ? [meta.fac] : [...new Set(list.map(e => e.fac))]; const ds = fs.map(f => ((TT.plans[f] || {}).effective || {})[kind]).filter(Boolean).sort(); return ds.pop() || ''; };
+    const groupPublished = (kind, meta, list) => { const fs = meta.fac ? [meta.fac] : [...new Set(list.map(e => e.fac))]; return fs.length && fs.every(f => ((TT.plans[f] || {}).published || {})[kind]); };
+    const cardHeader = (kind, meta, list) => {
+        const t = term(); const amended = groupAmended(meta, list); const eff = groupEffective(kind, meta, list); const pub = groupPublished(kind, meta, list);
+        const facName = meta.fac ? FAC_FULL(meta.fac) : ''; const courseInfo = meta.course ? Object.values(TT.plans).map(p => (p.courses || {})[grpKey(meta.course, meta.batch)]).find(Boolean) : null;
+        const cell = (k, v) => v ? `<div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,.25)"><div style="font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;color:#bae6fd;font-weight:800">${k}</div><div style="font-size:11.5px;font-weight:900">${esc(v)}</div></div>` : '';
+        return `<div style="text-align:center;padding:6px 0 8px;border-bottom:4px double #0d47a1">
+                <div style="font-size:9.5px;letter-spacing:5px;font-weight:800;color:#00695c;text-transform:uppercase">${esc(IQ.inst)}</div>
+                <div style="font-family:Cinzel,'Times New Roman',serif;font-weight:900;font-size:25px;letter-spacing:.14em;color:#004d40;line-height:1.15">${kind === 'exam' ? 'EXAMINATION TIMETABLE' : 'CLASS TIMETABLE'}</div>
+                <div style="font-size:9px;font-weight:800;color:#0d47a1;letter-spacing:.08em">${esc(IQ.short)} ${esc(IQ.arabic)} · ${esc(IQ.long)}</div></div>
+            <div style="margin-top:8px;border-radius:12px;background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;display:flex;flex-wrap:wrap;align-items:stretch;overflow:hidden">
+                <div style="padding:8px 14px;border-right:2px solid #7dd3fc;min-width:200px"><div style="font-size:8px;letter-spacing:2px;color:#bae6fd;font-weight:800;text-transform:uppercase">${esc(meta.type)}</div><div style="font-family:Cinzel,serif;font-size:17px;font-weight:900">${esc(meta.title)}</div>${meta.batch ? `<div style="font-size:12px;font-weight:800;color:#e0f2fe">Batch: ${esc(meta.batch)}</div>` : ''}</div>
+                ${cell('Faculty', facName)}${cell('Semester', t.semester)}${cell('Academic year', t.year)}${courseInfo && courseInfo.level ? cell('Level', courseInfo.level) : ''}${courseInfo && courseInfo.mode ? cell('Study mode', courseInfo.mode) : ''}${kind === 'exam' && t.examFrom ? cell('Exam period', fmtDay(t.examFrom) + ' – ' + fmtDay(t.examTo)) : ''}
+                ${cell('Effective from', eff ? fmtDay(eff) : '')}${cell('Last amended', amended ? new Date(amended).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '')}
+                <div style="padding:4px 10px;margin-left:auto;display:flex;align-items:center"><span style="padding:3px 9px;border-radius:999px;font-size:9px;font-weight:900;background:${pub ? '#dcfce7' : '#fee2e2'};color:${pub ? '#065f46' : '#b91c1c'}">${pub ? 'OFFICIAL' : 'DRAFT'}</span></div></div>`;
+    };
+    const classCardGrid = (meta, list) => weekHtml(list, { click: false, noLect: meta.type === 'Lecturer', noGroup: meta.type === 'Course', maxH: 'none' }).replace(/max-height:none/, '');
+    const classCardHtml = (meta, list, forExport) => {
+        const hrs = Math.round(list.reduce((a, e) => a + durH(e), 0) * 10) / 10;
+        const mods = {}; list.forEach(e => { const k = e.key; (mods[k] = mods[k] || { e, h: 0, days: new Set() }); mods[k].h += durH(e); mods[k].days.add(e.day.slice(0, 3)); });
+        return `<div class="tt-card" style="background:white;padding:16px 18px;border:3px solid #004d40;border-radius:14px;font-family:Inter,Arial,sans-serif;color:#0f172a;${forExport ? 'width:1100px;' : 'margin-bottom:18px;'}">${cardHeader('class', meta, list)}<div style="margin-top:10px">${classCardGrid(meta, list)}</div>
+            <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:9.5px"><thead><tr>${['Module', 'Title', meta.type === 'Course' ? 'Lecturer' : 'Course · Batch', 'Days', 'Hrs/week', 'Venue(s)'].map(h => `<th style="background:#0d47a1;color:white;padding:4px 6px;text-align:left">${h}</th>`).join('')}</tr></thead><tbody>${Object.values(mods).map(m => `<tr><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0;font-weight:900;color:#0d47a1">${esc(m.e.code)}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${esc(m.e.name)}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${esc(meta.type === 'Course' ? nm(m.e.lecturerId) : m.e.course + ' · ' + m.e.batch)}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${[...m.days].join(', ')}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0;font-weight:900">${Math.round(m.h * 10) / 10}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${[...new Set(list.filter(x => x.key === m.e.key).map(x => roomName(x.roomId)))].map(esc).join(', ')}</td></tr>`).join('')}<tr><td colspan="4" style="padding:4px 6px;font-weight:900;text-align:right">TOTAL</td><td style="padding:4px 6px;font-weight:900;color:#004d40">${hrs} h</td><td></td></tr></tbody></table>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-top:8px"><span>Generated ${new Date().toLocaleString()} · ${esc(IQ.short)} ${esc(IQ.arabic)}</span><span>Changes after publication are shown live in the portal.</span></div></div>`;
+    };
+    const examCardHtml = (meta, list, forExport) => {
+        const legend = {}; list.forEach(e => { const [c, cn] = exColor(e); legend[grpKey(e.course, e.batch) + e.date + e.start] = { c, cn, e }; });
+        return `<div class="tt-card" style="background:white;padding:16px 18px;border:3px solid #0d47a1;border-radius:14px;font-family:Inter,Arial,sans-serif;color:#0f172a;${forExport ? 'width:1100px;' : 'margin-bottom:18px;'}">${cardHeader('exam', meta, list)}
+            <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:10px"><thead><tr>${['Hall colour', 'Date', 'Day', 'Session / time', 'Module', 'Course · Batch', 'Candidates', 'Hall(s) & seats'].map(h => `<th style="background:linear-gradient(90deg,#004d40,#0d47a1);color:white;padding:6px;text-align:left;font-size:8.5px;text-transform:uppercase">${h}</th>`).join('')}</tr></thead><tbody>
+            ${list.slice().sort((a, b) => (a.date + a.start + a.code).localeCompare(b.date + b.start + b.code)).map(e => { const [c, cn] = exColor(e); return `<tr style="border-bottom:1px solid #e2e8f0"><td style="padding:0;width:90px"><div style="background:${c};color:white;font-weight:900;padding:9px 6px;text-align:center;font-size:10px;letter-spacing:.5px">${cn.toUpperCase()}</div></td><td style="padding:6px;font-weight:900">${new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td style="padding:6px">${new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' })}</td><td style="padding:6px">${esc(e.slotName || '')}<br><b>${hm(e.start)} – ${hm(e.end)}</b></td><td style="padding:6px"><b style="color:#0d47a1">${esc(e.code)}</b><br>${esc(e.name)}</td><td style="padding:6px">${esc(e.course)}<br><b>${esc(e.batch)}</b></td><td style="padding:6px;text-align:center;font-weight:900">${e.students || ''}</td><td style="padding:6px">${(e.rooms || []).map(r => `<span style="display:inline-block;border:2px solid ${c};border-radius:6px;padding:1px 6px;margin:1px;font-weight:800">${esc(roomName(r))}${e.seats && e.seats[r] ? ' · ' + e.seats[r] : ''}</span>`).join('') || 'TBA'}</td></tr>`; }).join('')}</tbody></table>
+            <div style="margin-top:10px;padding:8px;border:1px dashed #94a3b8;border-radius:10px;font-size:9.5px"><b style="color:#004d40">HALL ENTRY GUIDE:</b> students find the colour of their course & batch on the hall door and sit in the matching colour zone. ${Object.values(legend).slice(0, 30).map(x => `<span style="display:inline-block;margin:2px;padding:2px 8px;border-radius:999px;background:${x.c};color:white;font-weight:800">${esc(x.cn)} = ${esc(x.e.course)} · ${esc(x.e.batch)} (${fmtDay(x.e.date).split(',')[0]} ${hm(x.e.start)})</span>`).join('')}</div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-top:8px"><span>Generated ${new Date().toLocaleString()} · ${esc(IQ.short)} ${esc(IQ.arabic)}</span><span>Bring your student ID card. Arrive 20 minutes early.</span></div></div>`;
+    };
+    function publishHtml() {
+        const kind = TT.ui.mode; const gs = groupsFor(kind); const f = TT.ui.fac || facManaged();
+        const canPub = f && (kind === 'exam' ? canEditExam(f) : canEditFacTT(f)); const p = f ? (TT.plans[f] || {}) : {};
+        return `<div class="iq-card mb-3 flex flex-wrap items-center gap-2"><b class="text-[11px]">One card per:</b>${[['group', '🎓 Course & batch'], ['lecturer', '👤 Lecturer'], ['room', '📍 Venue'], ['faculty', '🏛️ Faculty']].map(([k, l]) => `<button class="iq-chip !text-[11px] !px-3 !py-1.5" style="${TT.ui.pubGroup === k ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.ttSet('pubGroup','${k}')">${l}</button>`).join('')}
+            <span class="text-[10.5px] font-bold text-gray-500">${gs.length} card(s) – use the filters above (faculty, course, batch, lecturer…)</span>
+            <div class="ml-auto flex flex-wrap gap-2"><button class="iq-btn" onclick="window.ttExport('pdf')">📄 PDF</button><button class="iq-btn" onclick="window.ttExport('html')">🌐 HTML (website)</button><button class="iq-btn" onclick="window.ttExport('xlsx')">📗 Excel</button><button class="iq-btn-soft" onclick="window.ttExport('print')">🖨️ Print</button></div></div>
+            ${canPub ? `<div class="iq-card mb-3 flex flex-wrap items-center gap-2" style="border-left:5px solid #0d47a1"><b class="text-[11px]">📢 Publish ${kind === 'exam' ? 'exam' : 'class'} timetable of ${esc(FAC_FULL(f))}</b><label class="text-[10.5px] font-bold">Changes apply from <input type="date" id="tt-eff" class="iq-in !w-auto !py-1" value="${esc((p.effective || {})[kind] || ymdL())}"></label><button class="iq-btn" onclick="window.ttPublish('${js(f)}')">Publish as OFFICIAL</button><span class="text-[10px] font-bold ${((p.published || {})[kind]) ? 'text-green-700' : 'text-red-700'}">${(p.published || {})[kind] ? 'Published ' + fmtDT((p.published || {})[kind]) : 'Not published yet (cards show DRAFT)'}</span></div>` : ''}
+            <div id="tt-pub-cards" style="display:flex;flex-direction:column;align-items:center">${gs.slice(0, 12).map(g => kind === 'exam' ? examCardHtml(g.meta, g.list) : classCardHtml(g.meta, g.list)).join('') || '<p class="text-gray-400 italic p-8">Nothing scheduled for this filter yet.</p>'}${gs.length > 12 ? `<p class="text-[11px] font-bold text-gray-500">Preview shows 12 of ${gs.length} cards – downloads include all of them.</p>` : ''}</div>`;
+    }
+    window.ttPublish = async (f) => {
+        const kind = TT.ui.mode; const eff = document.getElementById('tt-eff').value || ymdL();
+        await planUpdate(f, { [`effective.${kind}`]: eff, [`published.${kind}`]: Date.now() }, { a: `${kind === 'exam' ? 'Exam' : 'Class'} timetable published`, d: `${f} · effective ${eff}` });
+        window.showToast('Published – lecturers and coordinators see it live ✔', 'success');
+    };
+    const htmlDoc = (cards, title) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet"><style>body{font-family:Inter,Arial,sans-serif;background:#eef2f7;margin:0;padding:20px;display:flex;flex-direction:column;align-items:center;gap:22px}${ttStyle.textContent}.tt-card{max-width:1180px;width:100%;box-sizing:border-box}.overflow-auto{overflow:auto}.flex{display:flex}.flex-wrap{flex-wrap:wrap}.gap-1\\.5{gap:6px}.mt-2{margin-top:8px}.iq-chip{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:900}.rounded-xl{border-radius:12px}.border-2{border-width:2px;border-style:solid}.text-\\[8px\\]{font-size:8px}.font-bold{font-weight:700}.text-gray-500{color:#64748b}@media print{body{background:white;padding:0}.tt-card{page-break-after:always;border-radius:0}}</style></head><body>${cards}<div style="font-size:10px;color:#64748b">${esc(IQ.short)} ${esc(IQ.arabic)} · ${esc(IQ.inst)} · generated ${new Date().toLocaleString()}</div></body></html>`;
+    const dl = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000); };
+    window.ttExport = async (fmt, groupsOverride, nameOverride) => {
+        const kind = TT.ui.mode; const gs = groupsOverride || groupsFor(kind); if (!gs.length) return alert('Nothing to export for this filter.');
+        const t = term(); const base = nameOverride || `${kind === 'exam' ? 'Exam' : 'Class'}_Timetable_${(t.label || '').replace(/[^a-z0-9]+/gi, '_')}_${TT.ui.pubGroup}`;
+        const cardsFor = (x) => gs.map(g => kind === 'exam' ? examCardHtml(g.meta, g.list, x) : classCardHtml(g.meta, g.list, x));
+        log('TIMETABLE', 'Timetable exported', `${fmt} · ${kind} · ${gs.length} card(s)`);
+        if (fmt === 'html') return dl(new Blob([htmlDoc(cardsFor(false).join(''), base)], { type: 'text/html' }), base + '.html');
+        if (fmt === 'print') { const w = window.open('', '_blank'); if (!w) return alert('Allow pop-ups to print.'); w.document.write(htmlDoc(cardsFor(false).join(''), base)); w.document.close(); setTimeout(() => w.print(), 900); return; }
+        if (fmt === 'xlsx') {
+            if (!window.XLSX) return alert('Excel library not loaded.');
+            const wb = XLSX.utils.book_new(); const used = new Set();
+            gs.forEach(g => {
+                const head = [[IQ.inst], [`${kind === 'exam' ? 'EXAMINATION' : 'CLASS'} TIMETABLE – ${IQ.short}`], [`${g.meta.type}: ${g.meta.title}${g.meta.batch ? ' · Batch ' + g.meta.batch : ''}`], [`Faculty: ${g.meta.fac || ''}`, `Semester: ${t.semester || ''}`, `Year: ${t.year || ''}`], [`Effective from: ${groupEffective(kind, g.meta, g.list) || ''}`, `Last amended: ${groupAmended(g.meta, g.list) ? new Date(groupAmended(g.meta, g.list)).toLocaleString() : ''}`, groupPublished(kind, g.meta, g.list) ? 'OFFICIAL' : 'DRAFT'], []];
+                const rows = kind === 'exam' ? [['Hall colour', 'Date', 'Day', 'Session', 'Start', 'End', 'Module code', 'Module', 'Course', 'Batch', 'Candidates', 'Halls (seats)'], ...g.list.slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start)).map(e => [exColor(e)[1], e.date, new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' }), e.slotName || '', e.start, e.end, e.code, e.name, e.course, e.batch, e.students || '', (e.rooms || []).map(r => roomName(r) + (e.seats && e.seats[r] ? ` (${e.seats[r]})` : '')).join(', ')])]
+                    : [['Day', 'Start', 'End', 'Hours', 'Module code', 'Module', 'Course', 'Batch', 'Lecturer', 'Venue', 'Mode'], ...g.list.slice().sort((a, b) => (ALL_DAYS.indexOf(a.day) - ALL_DAYS.indexOf(b.day)) || toMin(a.start) - toMin(b.start)).map(e => [e.day, e.start, e.end, durH(e), e.code, e.name, e.course, e.batch, nm(e.lecturerId), roomName(e.roomId), e.mode || ''])];
+                const ws = XLSX.utils.aoa_to_sheet([...head, ...rows]); ws['!cols'] = rows[0].map((_, i) => ({ wch: i === 5 || i === 7 ? 34 : 16 }));
+                let nmS = String(g.meta.title + (g.meta.batch ? ' ' + g.meta.batch : '')).replace(/[\\/?*[\]:]/g, ' ').slice(0, 28) || 'Sheet'; let k = 2; while (used.has(nmS)) nmS = nmS.slice(0, 25) + ' ' + k++; used.add(nmS);
+                XLSX.utils.book_append_sheet(wb, ws, nmS);
+            });
+            return XLSX.writeFile(wb, base + '.xlsx');
+        }
+        // PDF – one royal A4 landscape page per card
+        if (!window.jspdf || !window.html2canvas) return alert('PDF library not loaded.');
+        const ld = document.getElementById('loader'); ld.style.display = 'flex';
+        const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-12000px;top:0;background:white'; document.body.appendChild(host);
+        try {
+            const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+            const cards = cardsFor(true);
+            for (let i = 0; i < cards.length; i++) {
+                document.getElementById('loader-text').innerText = `Designing page ${i + 1} of ${cards.length}…`;
+                host.innerHTML = cards[i]; await new Promise(r => setTimeout(r, 60));
+                host.querySelectorAll('[style*="max-height"]').forEach(x => x.style.maxHeight = 'none');
+                const canvas = await html2canvas(host.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+                const r = Math.min((pw - 10) / canvas.width, (ph - 10) / canvas.height);
+                if (i) pdf.addPage();
+                pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', (pw - canvas.width * r) / 2, 5, canvas.width * r, canvas.height * r);
+            }
+            pdf.save(base + '.pdf'); window.showToast('PDF downloaded 👑', 'success');
+        } catch (e) { console.error(e); alert('PDF failed: ' + e.message); }
+        finally { host.remove(); ld.style.display = 'none'; }
+    };
+    window.ttQuickPdf = (what) => {
+        if (what === 'mine') { const list = myClasses(TT.ui.mineView === 'me' || !TT.ui.mineView ? '' : TT.ui.mineView === 'coord' ? 'coord' : '1'); const prev = TT.ui.mode; TT.ui.mode = 'class'; window.ttExport('pdf', [{ meta: { type: 'Lecturer', lid: currentLecturerId, title: nm(currentLecturerId), fac: meFac() }, list }], `My_Timetable_${nm(currentLecturerId).replace(/[^a-z0-9]+/gi, '_')}`); TT.ui.mode = prev; }
+    };
+
+    // ------------------------------------------------------------------ SETUP: semesters, days, periods, exam sittings, faculty sessions, venues
+    window.ttNewTerm = async () => {
+        const sem = prompt('Semester name (e.g. Semester 1, Semester 2, Short semester):', 'Semester 1'); if (!sem) return;
+        const yr = prompt('Academic year (e.g. 2026 or 2026/2027):', String(new Date().getFullYear())); if (!yr) return;
+        const id = 'T' + sk(yr) + '_' + sk(sem);
+        await cfgUpdate({ [`terms.${id}`]: { id, semester: sem, year: yr, label: `${sem} · ${yr}`, examFrom: '', examTo: '', createdAt: Date.now() }, activeTerm: id, ...(TT.cfg.slots && TT.cfg.slots.length ? {} : { slots: slots().map(s => ({ start: s.start, end: s.end })) }), days: TT.cfg.days, examSlots: exSlots() });
+        TT.planTerm = ''; subscribePlans(); ttRender();
+    };
+    function setupHtml() {
+        const t = term(); const f = TT.ui.fac || facManaged() || ''; const can = canCfg(); const dis = can ? '' : 'disabled';
+        const ss = slots(); const xs = exSlots();
+        return `<div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+            <div class="iq-card"><div class="tt-sec">📅 Semester</div>
+                <div class="grid grid-cols-2 gap-2"><label><span class="iq-lbl">Semester</span><input class="iq-in" ${dis} value="${esc(t.semester || '')}" onchange="window.ttTermSet('semester', this.value)"></label><label><span class="iq-lbl">Academic year</span><input class="iq-in" ${dis} value="${esc(t.year || '')}" onchange="window.ttTermSet('year', this.value)"></label>
+                <label><span class="iq-lbl">Teaching starts</span><input type="date" class="iq-in" ${dis} value="${esc(t.teachFrom || '')}" onchange="window.ttTermSet('teachFrom', this.value)"></label><label><span class="iq-lbl">Teaching ends</span><input type="date" class="iq-in" ${dis} value="${esc(t.teachTo || '')}" onchange="window.ttTermSet('teachTo', this.value)"></label>
+                <label><span class="iq-lbl">Exams from</span><input type="date" class="iq-in" ${dis} value="${esc(t.examFrom || '')}" onchange="window.ttTermSet('examFrom', this.value)"></label><label><span class="iq-lbl">Exams to</span><input type="date" class="iq-in" ${dis} value="${esc(t.examTo || '')}" onchange="window.ttTermSet('examTo', this.value)"></label></div>
+                ${can ? '<button class="iq-btn-soft mt-2" onclick="window.ttNewTerm()">➕ New semester</button>' : ''}
+                <div class="tt-sec">🗓️ Teaching days</div><div class="flex flex-wrap gap-2">${ALL_DAYS.map(d => `<label class="text-[11px] font-bold flex items-center gap-1 border rounded-lg px-2 py-1 bg-white"><input type="checkbox" ${dis} ${days().includes(d) ? 'checked' : ''} onchange="window.ttDay('${d}', this.checked)"> ${d}</label>`).join('')}</div></div>
+            <div class="iq-card"><div class="tt-sec">⏰ Teaching periods (time grid)</div><div class="space-y-1">${ss.map((s, i) => `<div class="flex items-center gap-2 text-[11px]"><b class="w-6 text-gray-400">${i + 1}</b><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.start)}" onchange="window.ttSlot(${i}, 'start', this.value)"><span>to</span><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.end)}" onchange="window.ttSlot(${i}, 'end', this.value)">${can ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttSlotDel(${i})">✖</button>` : ''}</div>`).join('')}</div>${can ? '<button class="iq-btn-soft mt-2" onclick="window.ttSlotAdd()">➕ Add period</button>' : ''}
+                <div class="tt-sec">🎓 Exam sittings</div><div class="space-y-1">${xs.map((s, i) => `<div class="flex items-center gap-2 text-[11px]"><input class="iq-in !w-28 !py-1" ${dis} value="${esc(s.name || '')}" onchange="window.ttXSlot(${i}, 'name', this.value)"><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.start)}" onchange="window.ttXSlot(${i}, 'start', this.value)"><span>to</span><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.end)}" onchange="window.ttXSlot(${i}, 'end', this.value)">${can ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttXSlotDel(${i})">✖</button>` : ''}</div>`).join('')}</div>${can ? '<button class="iq-btn-soft mt-2" onclick="window.ttXSlotAdd()">➕ Add sitting</button>' : ''}</div>
+            <div class="iq-card"><div class="tt-sec">🌗 Faculty sessions</div><p class="text-[10.5px] text-gray-600 font-bold mb-2">Each faculty decides its sessions (e.g. Morning 08:10–12:00, Afternoon 13:00–18:00, Night 18:00–23:00). Classes are suggested inside these sessions.</p>
+                <select class="iq-in !py-1.5 mb-2" onchange="window.ttSet('fac', this.value)">${(activeRole === 'ALL' || isOversight() ? FACULTIES : [f]).map(x => `<option ${x === f ? 'selected' : ''}>${x}</option>`).join('')}</select>
+                ${f ? `<div class="space-y-1">${sessionsOf(f).map((s, i) => `<div class="flex items-center gap-2 text-[11px]"><input class="iq-in !w-28 !py-1" ${canEditFacTT(f) ? '' : 'disabled'} value="${esc(s.name)}" onchange="window.ttSess('${f}', ${i}, 'name', this.value)"><input type="time" class="iq-in !w-auto !py-1" ${canEditFacTT(f) ? '' : 'disabled'} value="${esc(s.start)}" onchange="window.ttSess('${f}', ${i}, 'start', this.value)"><span>to</span><input type="time" class="iq-in !w-auto !py-1" ${canEditFacTT(f) ? '' : 'disabled'} value="${esc(s.end)}" onchange="window.ttSess('${f}', ${i}, 'end', this.value)">${canEditFacTT(f) ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttSessDel('${f}', ${i})">✖</button>` : ''}</div>`).join('')}</div>${canEditFacTT(f) ? `<button class="iq-btn-soft mt-2" onclick="window.ttSessAdd('${f}')">➕ Add session</button>` : ''}` : ''}</div>
+            </div>
+            <div class="iq-card mt-3"><div class="flex flex-wrap justify-between items-center gap-2"><div class="tt-sec !m-0">🏫 Classrooms, labs, halls & online rooms (${rooms().length})</div>${can ? '<button class="iq-btn" onclick="window.ttRoomAdd()">➕ Add venue</button>' : ''}</div>
+                <p class="text-[10.5px] text-gray-600 font-bold my-1">Capacity is used to recommend a room that fits the class. Mark rooms <b>Online</b> (Zoom / Teams account) or <b>Hybrid</b> (camera & mic) so online and blended classes are sent there.</p>
+                <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Name</th><th>Type</th><th>Capacity</th><th>Building / campus</th><th>Faculty (optional)</th><th>Features / link</th><th>Use this week</th><th></th></tr></thead><tbody>${rooms().map(r => { const use = allClasses().filter(e => e.roomId === r.id).reduce((a, e) => a + durH(e), 0); return `<tr><td><input class="iq-in !py-1" ${dis} value="${esc(r.name)}" onchange="window.ttRoom('${r.id}','name',this.value)"></td><td><select class="iq-in !py-1" ${dis} onchange="window.ttRoom('${r.id}','type',this.value)">${ROOM_TYPES.map(x => `<option ${r.type === x ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><input type="number" class="iq-in !py-1 !w-20" ${dis} value="${esc(r.capacity || '')}" onchange="window.ttRoom('${r.id}','capacity',this.value)"></td><td><input class="iq-in !py-1" ${dis} value="${esc(r.building || '')}" onchange="window.ttRoom('${r.id}','building',this.value)"></td><td><select class="iq-in !py-1" ${dis} onchange="window.ttRoom('${r.id}','fac',this.value)"><option value="">Shared</option>${FACULTIES.map(x => `<option ${r.fac === x ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><input class="iq-in !py-1" ${dis} value="${esc(r.features || '')}" onchange="window.ttRoom('${r.id}','features',this.value)"></td><td class="font-bold">${Math.round(use * 10) / 10} h</td><td>${can ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttRoomDel('${r.id}')">🗑️</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="8" class="text-center text-gray-400 italic p-4">No venues yet – add them here or import the “Rooms” sheet from the Excel template.</td></tr>'}</tbody></table></div></div>`;
+    }
+    window.ttTermSet = (k, v) => cfgUpdate({ [`terms.${TT.cfg.activeTerm}.${k}`]: v, [`terms.${TT.cfg.activeTerm}.label`]: k === 'semester' || k === 'year' ? `${k === 'semester' ? v : term().semester} · ${k === 'year' ? v : term().year}` : term().label });
+    window.ttDay = (d, on) => cfgUpdate({ days: ALL_DAYS.filter(x => x === d ? on : days().includes(x)) });
+    window.ttSlot = (i, k, v) => { const s = slots().map(x => ({ ...x })); s[i][k] = v; cfgUpdate({ slots: s.sort((a, b) => toMin(a.start) - toMin(b.start)) }); };
+    window.ttSlotAdd = () => { const s = slots().map(x => ({ ...x })); const last = s[s.length - 1] || { end: '08:00' }; const st = last.end; const en = `${pad2(Math.min(23, Math.floor(toMin(st) / 60) + 1))}:${pad2(toMin(st) % 60)}`; s.push({ start: st, end: en }); cfgUpdate({ slots: s }); };
+    window.ttSlotDel = (i) => { if (!confirm('Remove this period? Classes already placed keep their times.')) return; const s = slots().slice(); s.splice(i, 1); cfgUpdate({ slots: s }); };
+    window.ttXSlot = (i, k, v) => { const s = exSlots().map(x => ({ ...x })); s[i][k] = v; cfgUpdate({ examSlots: s }); };
+    window.ttXSlotAdd = () => { const s = exSlots().map(x => ({ ...x })); s.push({ name: 'Sitting ' + (s.length + 1), start: '15:00', end: '17:00' }); cfgUpdate({ examSlots: s }); };
+    window.ttXSlotDel = (i) => { const s = exSlots().slice(); s.splice(i, 1); cfgUpdate({ examSlots: s }); };
+    window.ttSess = (f, i, k, v) => { const s = sessionsOf(f).map(x => ({ ...x })); s[i][k] = v; cfgUpdate({ [`sessions.${f}`]: s }); };
+    window.ttSessAdd = (f) => { const s = sessionsOf(f).map(x => ({ ...x })); s.push({ name: 'New session', start: '08:00', end: '12:00' }); cfgUpdate({ [`sessions.${f}`]: s }); };
+    window.ttSessDel = (f, i) => { const s = sessionsOf(f).slice(); s.splice(i, 1); cfgUpdate({ [`sessions.${f}`]: s }); };
+    window.ttRoomAdd = () => { const id = 'r_' + Date.now().toString(36); cfgUpdate({ [`rooms.${id}`]: { id, name: 'New room ' + (rooms().length + 1), type: 'Classroom', capacity: 30, building: '', fac: '', features: '' } }); };
+    window.ttRoom = (id, k, v) => cfgUpdate({ [`rooms.${id}.${k}`]: k === 'capacity' ? n1(v) : v });
+    window.ttRoomDel = (id) => { const n = allClasses().filter(e => e.roomId === id).length; if (!confirm(`Delete venue ${roomName(id)}?${n ? `\n${n} class(es) use it – they will show “TBA”.` : ''}`)) return; cfgUpdate({ [`rooms.${id}`]: DEL }); };
+
+    // ------------------------------------------------------------------ DATA: Excel template, import, offerings, students & irregular registrations
+    const TPL = {
+        Courses: [['Faculty', 'CourseCode', 'CourseName', 'Level', 'StudyMode', 'Batch', 'IntakeYear', 'Semester', 'Students'], ['KIRK', 'ACIC', 'Advanced Certificate in Islamic Counselling', 'Level 5', 'Face to Face', 'B2', '2025', 'Semester 2', 32]],
+        Modules: [['Faculty', 'CourseName', 'Batch', 'ModuleCode', 'ModuleName', 'Credit', 'WeeklyHours', 'DeliveryMode', 'Session', 'LecturerID', 'LecturerName', 'CoordinatorID', 'Students'], ['KIRK', 'Advanced Certificate in Islamic Counselling', 'B2', 'HSS0403', 'Counselling Skills', 10, 3, 'Face to Face', 'Morning', 'IUM-FATHIMATH-SAIFA', 'Fathimath Saifa', 'IUM-ALI-IBRAHIM-DIDI', 32]],
+        Lecturers: [['Faculty', 'LecturerID', 'LecturerName', 'Email', 'Mobile', 'Type', 'Category', 'Position'], ['KIRK', 'IUM-FATHIMATH-SAIFA', 'Fathimath Saifa', 'fathimath.saifa@ium.edu.mv', '9988363', 'Part-time', 'Teaching Focused', 'Lecturer']],
+        Students: [['StudentID', 'FullName', 'Faculty', 'CourseName', 'Batch', 'StudyMode', 'Semester', 'Email', 'Mobile'], ['S12345', 'Aishath Example', 'KIRK', 'Advanced Certificate in Islamic Counselling', 'B2', 'Face to Face', 'Semester 2', 'ium12345@ium.edu.mv', '7000000']],
+        Registrations: [['StudentID', 'ModuleCode', 'AttendBatch', 'Action', 'Reason'], ['S12345', 'HSS0301', 'B1', 'Add', 'Repeat – failed previously'], ['S12345', 'HSS0405', '', 'Drop', 'Exempted']],
+        Rooms: [['RoomName', 'Type', 'Capacity', 'Building', 'Faculty', 'Features'], ['CR-101', 'Classroom', 40, 'Main building', '', 'Projector'], ['Main Hall', 'Exam Hall', 250, 'Main building', '', ''], ['Zoom-1', 'Online', 300, '', '', 'zoom account 1'], ['Hybrid-201', 'Hybrid', 35, 'Block B', 'KIRK', 'Camera + mic']],
+        Sessions: [['Faculty', 'SessionName', 'Start', 'End'], ['KIRK', 'Morning', '08:10', '12:00'], ['KIRK', 'Afternoon', '13:00', '18:00'], ['KIRK', 'Night', '18:00', '23:00']],
+        Periods: [['Start', 'End'], ['08:10', '09:00'], ['09:00', '10:00'], ['10:10', '11:00']],
+        ExamSittings: [['SittingName', 'Start', 'End'], ['Morning', '09:00', '12:00'], ['Afternoon', '13:30', '16:30']]
+    };
+    window.ttTemplate = () => {
+        if (!window.XLSX) return alert('Excel library not loaded.');
+        const wb = XLSX.utils.book_new();
+        const info = [[`${IQ.short} ${IQ.arabic} – ${IQ.long}`], ['Timetable data template – fill every sheet you need, keep the column names, then use “Import Excel” in the Timetable Studio.'], [], ['Sheet', 'What to put in it'], ['Courses', 'Every course and batch running this semester (course name must match the Modules and Students sheets).'], ['Modules', 'Every module to be taught, one row per course/batch, with weekly hours, delivery mode, preferred session and lecturer ID.'], ['Lecturers', 'Every lecturer (full-time and part-time). The LecturerID links modules to lecturers.'], ['Students', 'Every student with course and batch. Students automatically take all modules of their course & batch.'], ['Registrations', 'ONLY students who differ from the normal plan: Action = Add (repeat / carry-over / from another batch – give AttendBatch) or Drop (not taking it).'], ['Rooms', 'Classrooms, labs, halls, exam halls, Online accounts and Hybrid rooms with capacity.'], ['Sessions', 'Each faculty’s teaching sessions (Morning / Afternoon / Night).'], ['Periods', 'The time grid used by the timetable (start – end of each period).'], ['ExamSittings', 'Exam sittings per day.'], [], ['Delete the example rows before importing. Times in 24-hour format (13:00). Dates as YYYY-MM-DD.']];
+        const wsI = XLSX.utils.aoa_to_sheet(info); wsI['!cols'] = [{ wch: 16 }, { wch: 120 }]; XLSX.utils.book_append_sheet(wb, wsI, 'Instructions');
+        Object.entries(TPL).forEach(([n, rows]) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = rows[0].map(h => ({ wch: Math.max(14, String(h).length + 4, /Name|Course/.test(h) ? 34 : 0) })); XLSX.utils.book_append_sheet(wb, ws, n); });
+        XLSX.writeFile(wb, `${IQ.short.replace(/\s+/g, '_')}_Timetable_Data_Template.xlsx`);
+        log('TIMETABLE', 'Excel template downloaded', '');
+    };
+    const normRows = (ws) => XLSX.utils.sheet_to_json(ws, { defval: '', raw: false }).map(r => { const o = {}; Object.entries(r).forEach(([k, v]) => o[String(k).toLowerCase().replace(/[^a-z0-9]/g, '')] = String(v).trim()); return o; });
+    const g = (r, ...ks) => { for (const k of ks) if (r[k] !== undefined && r[k] !== '') return r[k]; return ''; };
+    const tm = (v) => { v = String(v || '').trim(); if (/^\d+(\.\d+)?$/.test(v) && n1(v) < 1) { const m = Math.round(n1(v) * 1440); return `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`; } const m = v.match(/^(\d{1,2})[:.](\d{2})/); return m ? `${pad2(m[1])}:${m[2]}` : v; };
+    window.ttImport = async (ev) => {
+        const file = ev.target.files[0]; ev.target.value = ''; if (!file) return;
+        if (!window.XLSX) return alert('Excel library not loaded.');
+        const own = facManaged(); const admin = activeRole === 'ALL';
+        if (!admin && !own) return alert('Only the Super Admin or a faculty can import timetable data.');
+        await ensureTerm(); await loadStudents();
+        const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+        const sheet = (n) => { const k = wb.SheetNames.find(s => s.toLowerCase().replace(/[^a-z]/g, '') === n.toLowerCase()); return k ? normRows(wb.Sheets[k]) : []; };
+        const okFac = (f) => admin || !f || f === own; const facOr = (f) => (String(f || '').toUpperCase().trim() || own || '');
+        const rep = []; const planObj = {}; const P = (f) => (planObj[f] = planObj[f] || {});
+        // lecturers
+        let nL = 0; sheet('Lecturers').forEach(r => { const id = g(r, 'lecturerid', 'id'); if (!id) return; const fac = facOr(g(r, 'faculty', 'kulliyyah')); if (!okFac(fac)) return; const ex = window.getLecturerById(window.makeSafeId(id)); const rec = { Kulliyyah: fac, LecturerID: id, LecturerName: g(r, 'lecturername', 'name', 'fullname'), Email: g(r, 'email').toLowerCase(), MobileNumber: g(r, 'mobile', 'phone'), LecturerType: g(r, 'type', 'lecturertype'), LecturerCategory: g(r, 'category'), ...(g(r, 'position') ? { Position: g(r, 'position') } : {}) }; if (ex) Object.entries(rec).forEach(([k, v]) => { if (v) ex[k] = v; }); else localDB.lecturers.push(rec); nL++; });
+        window.invalidateLecturerCache(); if (nL) rep.push(`${nL} lecturer(s)`);
+        // courses
+        let nC = 0; sheet('Courses').forEach(r => { const course = g(r, 'coursename', 'course'); if (!course) return; const fac = facOr(g(r, 'faculty')); if (!okFac(fac)) return; const batch = g(r, 'batch'); P(fac)[`courses.${grpKey(course, batch)}`] = { course, code: g(r, 'coursecode'), level: g(r, 'level'), mode: g(r, 'studymode', 'mode'), batch, intake: g(r, 'intakeyear', 'intake'), semester: g(r, 'semester'), students: n1(g(r, 'students')) }; nC++; }); if (nC) rep.push(`${nC} course/batch(es)`);
+        // modules
+        let nM = 0; sheet('Modules').forEach(r => { const code = g(r, 'modulecode', 'code'); if (!code) return; const fac = facOr(g(r, 'faculty')); if (!okFac(fac)) return; const course = g(r, 'coursename', 'course', 'programname'), batch = g(r, 'batch', 'offeredbatch'); const lid = g(r, 'lecturerid') ? window.makeSafeId(g(r, 'lecturerid')) : ''; const k = offKey(code, batch);
+            const o = { key: k, code, name: g(r, 'modulename', 'name'), course, batch, fac, lecturerId: lid, coordinatorId: g(r, 'coordinatorid') ? window.makeSafeId(g(r, 'coordinatorid')) : '', students: n1(g(r, 'students')), wch: n1(g(r, 'weeklyhours', 'wch')), mode: g(r, 'deliverymode', 'mode', 'modality'), session: g(r, 'session'), credit: g(r, 'credit') };
+            P(fac)[`offers.${k}`] = o;
+            const ex = localDB.modules.find(m => window.makeSafeId(window.getSafeVal(m, ['ModuleCode'])) === window.makeSafeId(code) && String(window.getSafeVal(m, ['OfferedBatch'])).trim() === batch);
+            const rec = { ModuleCode: code, ModuleName: o.name, ParentKulliyya: fac, ProgramName: course, OfferedBatch: batch, WCH: String(o.wch || ''), CreditHours: o.credit, Modality: o.mode, NoofStudents: String(o.students || ''), Session: o.session };
+            if (ex) Object.entries(rec).forEach(([kk, v]) => { if (v) ex[kk] = v; }); else localDB.modules.push(rec);
+            if (lid) { const sc = window.makeSafeId(code); if (!localDB.assignments[sc] || !localDB.assignments[sc].id) localDB.assignments[sc] = { id: lid, mode: 'Individual' }; }
+            nM++; }); if (nM) rep.push(`${nM} module(s)`);
+        // students + registrations
+        let nS = 0; const touched = new Set();
+        sheet('Students').forEach(r => { const id = g(r, 'studentid', 'id'); if (!id) return; const fac = facOr(g(r, 'faculty')); if (!okFac(fac)) return; let s = TT.students.find(x => x.id === id); if (!s) { s = { id, extra: [], dropped: [] }; TT.students.push(s); } Object.assign(s, { name: g(r, 'fullname', 'name'), fac, course: g(r, 'coursename', 'course', 'enrolledprogram'), batch: g(r, 'batch'), mode: g(r, 'studymode', 'mode'), semester: g(r, 'semester'), email: g(r, 'email'), mobile: g(r, 'mobile') }); touched.add(fac); nS++; });
+        let nR = 0; sheet('Registrations').forEach(r => { const s = TT.students.find(x => x.id === g(r, 'studentid', 'id')); const code = g(r, 'modulecode', 'code'); if (!s || !code || !okFac(s.fac)) return; const act = g(r, 'action', 'type').toLowerCase(); s.extra = s.extra || []; s.dropped = s.dropped || []; if (act.startsWith('drop')) { if (!s.dropped.includes(code)) s.dropped.push(code); } else { s.extra = s.extra.filter(x => (typeof x === 'string' ? x.split('|')[0] : x.code) !== code); s.extra.push({ code, batch: g(r, 'attendbatch', 'batch'), reason: g(r, 'reason', 'note') }); } touched.add(s.fac); nR++; });
+        if (nS) rep.push(`${nS} student(s)`); if (nR) rep.push(`${nR} irregular registration(s)`);
+        // rooms / sessions / periods / exam sittings
+        const cfgObj = {};
+        let nRm = 0; sheet('Rooms').forEach(r => { const name = g(r, 'roomname', 'name', 'room'); if (!name) return; const ex = rooms().find(x => x.name.toLowerCase() === name.toLowerCase()); const id = ex ? ex.id : 'r_' + sk(name).toLowerCase(); cfgObj[`rooms.${id}`] = { id, name, type: ROOM_TYPES.find(t => t.toLowerCase() === g(r, 'type').toLowerCase()) || 'Classroom', capacity: n1(g(r, 'capacity')), building: g(r, 'building', 'campus'), fac: g(r, 'faculty').toUpperCase(), features: g(r, 'features', 'link') }; nRm++; }); if (nRm) rep.push(`${nRm} venue(s)`);
+        const sess = {}; sheet('Sessions').forEach(r => { const fac = facOr(g(r, 'faculty')); if (!okFac(fac) || !g(r, 'start')) return; (sess[fac] = sess[fac] || []).push({ name: g(r, 'sessionname', 'session', 'name') || 'Session', start: tm(g(r, 'start')), end: tm(g(r, 'end')) }); }); Object.entries(sess).forEach(([f, l]) => cfgObj[`sessions.${f}`] = l); if (Object.keys(sess).length) rep.push(`sessions for ${Object.keys(sess).join(', ')}`);
+        const per = sheet('Periods').filter(r => g(r, 'start')).map(r => ({ start: tm(g(r, 'start')), end: tm(g(r, 'end')) })); if (per.length && admin) { cfgObj.slots = per.sort((a, b) => toMin(a.start) - toMin(b.start)); rep.push(`${per.length} period(s)`); }
+        const xs = sheet('ExamSittings').filter(r => g(r, 'start')).map(r => ({ name: g(r, 'sittingname', 'name'), start: tm(g(r, 'start')), end: tm(g(r, 'end')) })); if (xs.length && (admin || activeRole === 'EXAM')) { cfgObj.examSlots = xs; rep.push(`${xs.length} exam sitting(s)`); }
+        if (!rep.length) return alert('Nothing recognised. Use the sheet and column names of the template.');
+        const ld = document.getElementById('loader'); ld.style.display = 'flex'; document.getElementById('loader-text').innerText = 'Saving imported data…';
+        try {
+            if (nL || nM) window.saveLocal(true);
+            if (Object.keys(cfgObj).length) await cfgUpdate(cfgObj);
+            for (const [f, obj] of Object.entries(planObj)) await planUpdate(f, obj);
+            if (dbCloud) for (const f of touched) await saveStudentsFac(f);
+            TT.ver++; log('TIMETABLE', 'Timetable data imported from Excel', rep.join(', '));
+            alert('✅ Imported:\n• ' + rep.join('\n• '));
+        } catch (e) { alert('❌ Import failed: ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+        finally { ld.style.display = 'none'; ttRender(); }
+    };
+    window.ttExportData = () => {
+        const wb = XLSX.utils.book_new(); const add = (n, rows) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), n);
+        add('Modules', [TPL.Modules[0], ...offList().map(o => [o.fac, o.course, o.batch, o.code, o.name, o.credit || '', o.wch || '', o.mode, o.session || '', o.lecturerId, nm(o.lecturerId), o.coordinatorId || '', enrolledCount(o)])]);
+        add('Students', [TPL.Students[0], ...TT.students.map(s => [s.id, s.name, s.fac, s.course, s.batch, s.mode, s.semester, s.email, s.mobile])]);
+        add('Registrations', [TPL.Registrations[0], ...TT.students.flatMap(s => [...(s.extra || []).map(x => [s.id, typeof x === 'string' ? x.split('|')[0] : x.code, typeof x === 'string' ? (x.split('|')[1] || '') : x.batch, 'Add', x.reason || '']), ...(s.dropped || []).map(c => [s.id, c, '', 'Drop', ''])])]);
+        add('Rooms', [TPL.Rooms[0], ...rooms().map(r => [r.name, r.type, r.capacity, r.building, r.fac, r.features])]);
+        add('Sessions', [TPL.Sessions[0], ...Object.entries(TT.cfg.sessions || {}).flatMap(([f, l]) => l.map(s => [f, s.name, s.start, s.end]))]);
+        add('Periods', [TPL.Periods[0], ...slots().map(s => [s.start, s.end])]);
+        add('ExamSittings', [TPL.ExamSittings[0], ...exSlots().map(s => [s.name, s.start, s.end])]);
+        XLSX.writeFile(wb, 'Timetable_Data_Export.xlsx');
+    };
+    window.ttMigrateOld = async () => {
+        const old = localDB.timetable || []; if (!old.length) return alert('No entries in the old timetable.');
+        if (!confirm(`Copy ${old.length} entries from the old Timetable Manager into this semester?`)) return;
+        const offs = offList(); const byFac = {}; let n = 0;
+        old.forEach(t => { const ts = localDB.settings.timeslots[t.tsIndex]; if (!ts) return; const o = offs.find(x => sk(x.code) === sk(t.modCode) && (!t.program || x.course === t.program)) || offs.find(x => sk(x.code) === sk(t.modCode)); if (!o || !canEditFacTT(o.fac)) return; const rm = rooms().find(r => r.name === t.room); const e = { id: newId('c'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || 'GEN', lecturerId: t.lectId || o.lecturerId || '', day: t.day, start: ts.start, end: ts.end, roomId: rm ? rm.id : '', mode: t.mode || o.mode, by: meEmail(), at: Date.now() }; (byFac[e.fac] = byFac[e.fac] || {})[`classes.${e.id}`] = e; n++; });
+        for (const [f, obj] of Object.entries(byFac)) await planUpdate(f, obj, { a: 'Old timetable migrated', d: `${Object.keys(obj).length} entries` });
+        alert(`${n} entries copied.`);
+    };
+    function dataHtml() {
+        const f = TT.ui.fac || facManaged(); const offs = offList().filter(o => !f || o.fac === f);
+        const noLect = offs.filter(o => !o.lecturerId).length, noHrs = offs.filter(o => !o.wch).length;
+        const q = TT.ui.stuQ.toLowerCase(); const sts = TT.students.filter(s => (!f || s.fac === f) && (!q || [s.id, s.name, s.course, s.batch].join(' ').toLowerCase().includes(q)));
+        const irregular = TT.students.filter(s => (!f || s.fac === f) && ((s.extra || []).length || (s.dropped || []).length));
+        const sel = TT.ui.stuSel ? stuById(TT.ui.stuSel) : null;
+        return `<div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
+            <div class="iq-card"><div class="tt-sec">📥 Excel data</div><p class="text-[10.5px] text-gray-600 font-bold mb-2">Download the template, fill Courses, Modules, Lecturers, Students, Registrations, Rooms, Sessions and Periods, then import – everything is set up in one go.</p>
+                <div class="flex flex-wrap gap-2"><button class="iq-btn" onclick="window.ttTemplate()">⬇ Download Excel template</button>${!isReadOnly() && (activeRole === 'ALL' || facManaged()) ? '<label class="iq-btn cursor-pointer">⬆ Import Excel<input type="file" accept=".xlsx,.xls" class="hidden" onchange="window.ttImport(event)"></label>' : ''}<button class="iq-btn-soft" onclick="window.ttExportData()">📗 Export current data</button>${(localDB.timetable || []).length && activeRole === 'ALL' ? `<button class="iq-btn-soft" onclick="window.ttMigrateOld()">↪ Copy old timetable (${localDB.timetable.length})</button>` : ''}</div>
+                <div class="iq-kpis mt-3">${kpi('Modules to schedule', offs.length, '#0d47a1', f ? FAC_FULL(f) : 'all faculties')}${kpi('No lecturer', noLect, noLect ? '#b91c1c' : '#065f46')}${kpi('No weekly hours', noHrs, noHrs ? '#7e22ce' : '#065f46')}${kpi('Students', TT.students.filter(s => !f || s.fac === f).length, '#004d40', irregular.length + ' irregular')}${kpi('Venues', rooms().length, '#00838f')}</div></div>
+            <div class="iq-card"><div class="tt-sec">🎓 Students & irregular registrations</div><p class="text-[10.5px] text-gray-600 font-bold mb-2">Students follow their course & batch automatically. Add a module (repeat / carry-over / other batch) or drop one – the clash check then covers that student personally.</p>
+                <div class="flex gap-1 mb-2"><input class="iq-in !py-1.5 !text-[11px]" placeholder="🔍 student ID or name" value="${esc(TT.ui.stuQ)}" onchange="window.ttSet('stuQ', this.value)">${!isReadOnly() ? '<button class="iq-btn-soft" onclick="window.ttStuNew()">➕ Student</button>' : ''}</div>
+                <div class="border rounded-lg max-h-[210px] overflow-y-auto bg-white">${sts.slice(0, 80).map(s => `<div class="px-2 py-1 border-b text-[11px] cursor-pointer hover:bg-sky-50 ${TT.ui.stuSel === s.id ? 'bg-sky-100' : ''}" onclick="window.ttSet('stuSel','${js(s.id)}')"><b>${esc(s.name || s.id)}</b> <span class="text-gray-500">${esc(s.id)} · ${esc(s.course)} · ${esc(s.batch)}</span>${(s.extra || []).length || (s.dropped || []).length ? ' <span class="iq-chip" style="background:#ede9fe;color:#5b21b6">irregular</span>' : ''}</div>`).join('') || `<p class="text-[11px] text-gray-400 italic p-3">${TT.stuLoaded ? 'No students – import the Students sheet.' : 'Loading…'}</p>`}</div>
+                ${sel ? studentPanel(sel) : ''}</div></div>
+            <div class="iq-card mt-3"><div class="flex flex-wrap justify-between items-center gap-2"><div class="tt-sec !m-0">📚 Modules to schedule ${f ? '· ' + esc(FAC_FULL(f)) : ''}</div><span class="text-[10px] font-bold text-gray-500">Edit a row – it overrides the imported data for timetabling</span></div>
+                <div class="overflow-x-auto max-h-[50vh]"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course · Batch</th><th>Lecturer</th><th>Students</th><th>Hrs/week</th><th>Mode</th><th>Session</th><th>Scheduled</th></tr></thead><tbody>${offs.slice(0, 400).map(o => { const ed = canEditFacTT(o.fac); return `<tr><td><b>${esc(o.code)}</b> ${esc(o.name)}</td><td>${esc(o.course)} · ${esc(o.batch)}</td><td>${ed ? `<button class="iq-btn-soft !py-0.5 !px-2 !text-[10.5px]" onclick="window.ttLectPick(this, '${js(o.key)}')">${esc(o.lecturerId ? nm(o.lecturerId) : '— choose —')} ✎</button>` : esc(nm(o.lecturerId))}</td><td>${ed ? `<input type="number" class="iq-in !py-1 !w-16" value="${esc(o.students || '')}" onchange="window.ttOffer('${js(o.key)}','students',this.value)">` : o.students}<div class="text-[8px] text-gray-400">${enrolledCount(o)} enrolled</div></td><td>${ed ? `<input type="number" step="0.5" class="iq-in !py-1 !w-16" value="${esc(o.wch || '')}" onchange="window.ttOffer('${js(o.key)}','wch',this.value)">` : o.wch}</td><td>${ed ? `<select class="iq-in !py-1 !text-[10.5px]" onchange="window.ttOffer('${js(o.key)}','mode',this.value)">${['Face to Face', 'Online', 'Blended'].map(m => `<option ${String(o.mode).toLowerCase().startsWith(m.toLowerCase().slice(0, 4)) ? 'selected' : ''}>${m}</option>`).join('')}</select>` : esc(o.mode)}</td><td>${ed ? `<select class="iq-in !py-1 !text-[10.5px]" onchange="window.ttOffer('${js(o.key)}','session',this.value)"><option value="">Any</option>${sessionsOf(o.fac).map(s => `<option ${o.session === s.name ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : esc(o.session || 'Any')}</td><td class="font-bold">${Math.round(scheduledHrsTT(o.key) * 10) / 10} h</td></tr>`; }).join('')}</tbody></table></div></div>`;
+    }
+    window.ttLectPick = (btn, key) => {
+        const o = offerings()[key]; if (!o) return;
+        const same = localDB.lecturers.filter(l => !o.fac || lFac(l) === o.fac), other = localDB.lecturers.filter(l => o.fac && lFac(l) !== o.fac);
+        const opt = (l, suf) => `<option value="${esc(window.lecIdOf(l))}" ${window.lecIdOf(l) === o.lecturerId ? 'selected' : ''}>${esc(window.getLecturerName(l))}${suf ? ' (' + esc(lFac(l)) + ')' : ''}</option>`;
+        btn.outerHTML = `<select class="iq-in !py-1 !text-[10.5px]" onchange="window.ttOffer('${js(key)}','lecturerId',this.value)"><option value="">— none —</option>${same.map(l => opt(l)).join('')}${other.length ? '<option disabled>── other faculties ──</option>' + other.map(l => opt(l, 1)).join('') : ''}</select>`;
+    };
+    window.ttOffer = (key, k, v) => { const o = offerings()[key]; if (!o) return; const val = ['students', 'wch'].includes(k) ? n1(v) : v; planUpdate(o.fac || 'GEN', { [`offers.${key}`]: { ...(((TT.plans[o.fac] || {}).offers || {})[key] || { key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac }), [k]: val } }, { a: 'Timetable module details changed', d: `${o.code} ${o.batch}: ${k} = ${val}` }); };
+    const studentPanel = (s) => {
+        const offs = offerings(); const my = Object.entries(enrolment()).filter(([, set]) => set.has(s.id)).map(([k]) => offs[k]).filter(Boolean);
+        const cls = allClasses().filter(e => my.some(o => o.key === e.key)); const clashes = [];
+        cls.forEach((a, i) => cls.slice(i + 1).forEach(b => { if (a.day === b.day && overlap(a, b) && a.key !== b.key) clashes.push([a, b]); }));
+        const ro = isReadOnly();
+        return `<div class="mt-3 border-t pt-2"><div class="flex justify-between"><b class="text-[12px] text-[#0d47a1]">${esc(s.name)} · ${esc(s.id)}</b><span class="text-[10px] font-bold text-gray-500">${esc(s.course)} · ${esc(s.batch)}</span></div>
+            <div class="text-[10.5px] mt-1"><b>Modules (${my.length}):</b> ${my.map(o => `<span class="iq-chip mr-1" style="background:${(s.extra || []).some(x => (x.code || String(x).split('|')[0]) === o.code) ? '#ede9fe;color:#5b21b6' : '#e0f2fe;color:#0d47a1'}">${esc(o.code)} ${esc(o.batch)}</span>`).join('')}</div>
+            ${(s.dropped || []).length ? `<div class="text-[10.5px] mt-1"><b>Dropped:</b> ${s.dropped.map(c => `<span class="iq-chip" style="background:#fee2e2;color:#b91c1c">${esc(c)}${ro ? '' : ` <button onclick="window.ttStuReg('${js(s.id)}','undrop','${js(c)}')">✖</button>`}</span>`).join(' ')}</div>` : ''}
+            ${(s.extra || []).length ? `<div class="text-[10.5px] mt-1"><b>Added:</b> ${s.extra.map(x => { const c = x.code || String(x).split('|')[0]; return `<span class="iq-chip" style="background:#ede9fe;color:#5b21b6">${esc(c)} ${esc(x.batch || '')}${ro ? '' : ` <button onclick="window.ttStuReg('${js(s.id)}','unadd','${js(c)}')">✖</button>`}</span>`; }).join(' ')}</div>` : ''}
+            <div class="mt-2 rounded-lg p-2 ${clashes.length ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'} text-[10.5px] font-bold">${clashes.length ? clashes.map(([a, b]) => `⛔ ${esc(a.code)} (${a.day} ${hm(a.start)}) clashes with ${esc(b.code)} (${hm(b.start)}–${hm(b.end)})`).join('<br>') : '✔ This student’s personal timetable has no clash.'}</div>
+            ${ro ? '' : `<div class="flex gap-1 mt-2"><button class="iq-btn-soft" onclick="window.ttStuReg('${js(s.id)}','add')">➕ Add module</button><button class="iq-btn-soft" onclick="window.ttStuReg('${js(s.id)}','drop')">➖ Drop module</button><button class="iq-btn-soft" onclick="window.ttStuTT('${js(s.id)}')">🗓️ Timetable</button></div>`}</div>`;
+    };
+    window.ttStuReg = async (id, act, code) => {
+        const s = stuById(id); if (!s) return; s.extra = s.extra || []; s.dropped = s.dropped || [];
+        if (act === 'add') { const c = prompt('Module code the student will also take (repeat / carry-over):'); if (!c) return; const b = prompt('Which batch will the student attend for this module? (leave empty = own batch)', '') || ''; s.extra = s.extra.filter(x => (x.code || String(x).split('|')[0]) !== c.trim()); s.extra.push({ code: c.trim(), batch: b.trim(), reason: prompt('Reason (e.g. repeat – failed):', 'Repeat') || '' }); }
+        else if (act === 'drop') { const c = prompt('Module code the student is NOT taking this semester:'); if (!c) return; if (!s.dropped.includes(c.trim())) s.dropped.push(c.trim()); }
+        else if (act === 'undrop') s.dropped = s.dropped.filter(x => x !== code);
+        else if (act === 'unadd') s.extra = s.extra.filter(x => (x.code || String(x).split('|')[0]) !== code);
+        TT.ver++; ttRender();
+        try { await saveStudentsFac(s.fac || ''); log('TIMETABLE', 'Student registration changed', `${s.id}: ${act} ${code || ''}`); } catch (e) { alert('❌ ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+        const clash = (() => { const offs = offerings(); const my = Object.entries(enrolment()).filter(([, set]) => set.has(s.id)).map(([k]) => k); const cls = allClasses().filter(e => my.includes(e.key)); for (let i = 0; i < cls.length; i++) for (let j = i + 1; j < cls.length; j++) if (cls[i].day === cls[j].day && overlap(cls[i], cls[j]) && cls[i].key !== cls[j].key) return `${cls[i].code} and ${cls[j].code} on ${cls[i].day}`; return ''; })();
+        if (clash) alert(`⚠️ ${s.name} now has a clash: ${clash}.\nMove one of the classes (🧩 Build) or choose another batch for the added module.`);
+    };
+    window.ttStuNew = () => { const id = prompt('Student ID:'); if (!id) return; const name = prompt('Full name:') || ''; const fac = facManaged() || (prompt('Faculty code:', TT.ui.fac || '') || '').toUpperCase(); const course = prompt('Course name (as in Modules):', TT.ui.course || '') || ''; const batch = prompt('Batch:', TT.ui.batch || '') || ''; TT.students.push({ id: id.trim(), name, fac, course, batch, extra: [], dropped: [] }); TT.ui.stuSel = id.trim(); TT.ver++; saveStudentsFac(fac).catch(e => alert('❌ ' + e.message)); ttRender(); };
+    window.ttStuTT = (id) => { const s = stuById(id); if (!s) return; const offs = offerings(); const keys = new Set(Object.entries(enrolment()).filter(([, set]) => set.has(id)).map(([k]) => k)); const list = allClasses().filter(e => keys.has(e.key)); dlg(`🗓️ ${esc(s.name)} – personal timetable`, weekHtml(list, { click: false, maxH: '60vh' }) + `<div class="flex justify-end mt-2"><button class="iq-btn-soft" onclick="window.ttExport('pdf', [{ meta: { type: 'Student', title: '${js(s.name + ' (' + s.id + ')')}', fac: '${js(s.fac)}' }, list: window.__ttStuList }], 'Timetable_${js(s.id)}')">📄 PDF</button></div>`); window.__ttStuList = list; };
+
+    // ------------------------------------------------------------------ live amendment notices for lecturers & coordinators
+    let _ttSigInit = false;
+    function ttNotifyMine() {
+        if (!currentLecturerId || !TT.ready) return;
+        const mine = allClasses().filter(e => e.lecturerId === currentLecturerId || teamIds().has(e.lecturerId)).map(e => `${e.id}|${e.day}|${e.start}|${e.end}|${e.roomId}|${e.lecturerId}`).concat(myExams().map(e => `${e.id}|${e.date}|${e.start}|${(e.rooms || []).join(',')}`)).sort().join('#');
+        const key = 'iq_tt_sig_' + sk(TT.cfg.activeTerm) + '_' + sk(currentLecturerId);
+        let old = null; try { old = localStorage.getItem(key); } catch (e) {}
+        if (old !== null && old !== mine) { window.showToast('🗓️ Your timetable (or your team’s) was amended – open My timetable to see the latest.', 'info'); try { localStorage.setItem('iq_tt_changed_' + sk(currentLecturerId), String(Date.now())); } catch (e) {} }
+        try { localStorage.setItem(key, mine); } catch (e) {}
+        _ttSigInit = true; renderMyTT();
+    }
+    // lecturer dashboard card
+    function renderMyTT() {
+        const panel = document.getElementById('iq-lect-panel'); if (!panel || !currentLecturerId || !isWorkspaceRole()) return;
+        let el = document.getElementById('iq-my-tt'); if (!el) { el = document.createElement('div'); el.id = 'iq-my-tt'; el.className = 'mt-3'; panel.appendChild(el); }
+        const list = myClasses(); const ex = myExams(); let ch = 0; try { ch = n1(localStorage.getItem('iq_tt_changed_' + sk(currentLecturerId))); } catch (e) {}
+        el.innerHTML = `<div style="border:2px solid #7dd3fc;border-radius:16px;background:white;overflow:hidden">${royalHead('🗓️', 'My Timetable', `${TT.cfg.activeTerm ? esc(term().label || '') : 'No semester yet'} · ${list.length} class session(s) · ${Math.round(list.reduce((a, e) => a + durH(e), 0) * 10) / 10} h/week · ${ex.length} exam(s)`, `<div class="flex gap-2 flex-wrap">${ch && Date.now() - ch < 7 * 864e5 ? `<span class="iq-chip" style="background:#fee2e2;color:#b91c1c">🔔 amended ${fmtDT(ch)}</span>` : ''}<button class="iq-btn-soft" onclick="window.ttOpen('class','mine')">Open full view</button><button class="iq-btn-soft" onclick="window.ttQuickPdf('mine')">📄 PDF</button></div>`)}
+            <div class="p-2">${list.length ? weekHtml(list, { click: false, noLect: true, maxH: '420px' }) : '<p class="text-[11px] text-gray-400 italic p-4 text-center">No classes on the timetable yet – they appear here live as soon as the faculty schedules them.</p>'}</div></div>`;
+    }
+    window.__ttRenderMine = renderMyTT;
+
+    // ------------------------------------------------------------------ hooks: tabs, lecturer panel, 360 card, workload hours
+    (() => {
+        const b1 = document.getElementById('tbtn-timetable'), b2 = document.getElementById('tbtn-exam-tt');
+        if (b1) { b1.setAttribute('onclick', "window.ttOpen('class')"); b1.innerHTML = '🗓️ Timetable Studio'; }
+        if (b2) { b2.setAttribute('onclick', "window.ttOpen('exam')"); b2.innerHTML = '🎓 Exam Timetable Studio'; }
+    })();
+    const _rlr = renderLectRoyal;
+    renderLectRoyal = function () { _rlr(); startTT(); renderMyTT(); const hero = document.querySelector('#iq-lect-panel .iq-hero .flex.flex-wrap.gap-2.mt-3'); if (hero && !hero.querySelector('.tt-open-btn')) hero.insertAdjacentHTML('beforeend', `<button class="iq-btn-soft tt-open-btn" onclick="window.ttOpen('class','mine')">🗓️ My timetable</button>`); };
+    const _ptabs = personTabs;
+    personTabs = (p) => { const t = _ptabs(p); if (p.lid) t.splice(t.findIndex(x => x[0] === 'attendance') + 1, 0, ['timetable', '🗓️ Timetable']); return t; };
+    const _pb = personBody;
+    personBody = function () { if (S360.tab === 'timetable') { startTT(); const lid = S360.lid; const list = allClasses().filter(e => e.lecturerId === lid); const ex = allExams().filter(e => offList().some(o => o.key === e.key && o.lecturerId === lid)); return `<div class="flex justify-between items-center mb-2"><b class="text-[12px] text-[#004d40]">${list.length} class session(s) · ${Math.round(list.reduce((a, e) => a + durH(e), 0) * 10) / 10} h/week</b><button class="iq-btn-soft" onclick="window.ttExport('pdf', [{ meta: { type: 'Lecturer', lid: '${js(lid)}', title: '${js(nm(lid))}', fac: '${js(lFac(window.getLecturerById(lid)))}' }, list: window.__ttL }], 'Timetable_${js(sk(nm(lid)))}')">📄 PDF</button></div>${weekHtml(list, { click: true, noLect: true, maxH: '55vh' })}<div class="tt-sec">🎓 Exams</div>${ex.length ? examListTable(ex) : '<p class="text-[11px] text-gray-400 italic">No exams.</p>'}` + (window.__ttL = list, ''); } return _pb.apply(this, arguments); };
+    const _aru3 = applyRoleUI;
+    applyRoleUI = function () { const r = _aru3.apply(this, arguments); try { if (activeRole !== 'STUDENT') startTT(); } catch (e) {} return r; };
+
+    window.__iqra = { TT, offerings, classClashes, examClashes, recommendRooms, enrolment, TD, DW, S360, workloadOf, teachCardHtml, coordCardHtml, canEditHrs, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
     }
     // =================================== END OF ADD-ON 2 (IQRA) ===================================
 
