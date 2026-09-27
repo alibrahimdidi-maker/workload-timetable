@@ -6936,19 +6936,19 @@
 
 
     // =====================================================================================================
-    // ======  ADD-ON 2 : IQRA — Integrated Quality, Resources & Academic Administration System  =========
+    // ======  ADD-ON 2 : IQRAA — Integrated Quality, Resources & Academic Administration System  =========
     // ======  Staff 360 cards · Faculty 360 · Task Desk (with attachments) · Daily Works ·           =========
     // ======  DVC / View-only roles · role change on user cards · royal header · lecturer workload card ====
     // =====================================================================================================
-    if (!window.__iqraAddon) { window.__iqraAddon = true;
+    if (!window.__IQRAAAddon) { window.__IQRAAAddon = true;
 
     const IQ = {
-        short: 'IQRA',
+        short: 'IQRAA',
         arabic: 'اقْرَأْ',
         long: 'Integrated Quality, Resources & Academic Administration System',
         inst: 'ZAAD HOLDINGS PVT LTD'
     };
-    window.IQRA_APP = IQ;
+    window.IQRAA_APP = IQ;
 
     // ------------------------------------------------------------------ new roles
     Object.assign(ROLE_LABELS, {
@@ -6985,7 +6985,7 @@
 
     // ------------------------------------------------------------------ Firestore helpers (query, where, updateDoc...)
     let _FS = null;
-    const FSX = async () => { if (window.__iqraFS) return window.__iqraFS; if (!_FS) _FS = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'); return _FS; };
+    const FSX = async () => { if (window.__IQRAAFS) return window.__IQRAAFS; if (!_FS) _FS = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'); return _FS; };
 
     // ------------------------------------------------------------------ files: any format, stored in Firestore chunks
     const CHUNK = 450 * 1024, MAX_FILE = 15 * 1024 * 1024;
@@ -6996,9 +6996,9 @@
         const buf = file.arrayBuffer ? await file.arrayBuffer() : await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = () => no(fr.error); fr.readAsArrayBuffer(file); });
         const n = Math.max(1, Math.ceil(buf.byteLength / CHUNK));
         const meta = { name: file.name, type: file.type || 'application/octet-stream', size: file.size, chunks: n, by: meEmail(), byName: meName(), at: Date.now(), ctx: ctx || '' };
-        await setDoc(doc(dbCloud, 'iqra_files', id), meta);
+        await setDoc(doc(dbCloud, 'IQRAA_files', id), meta);
         for (let i = 0; i < n; i++) {
-            await setDoc(doc(dbCloud, 'iqra_files', id, 'chunks', String(i)), { d: toB64(buf.slice(i * CHUNK, (i + 1) * CHUNK)) });
+            await setDoc(doc(dbCloud, 'IQRAA_files', id, 'chunks', String(i)), { d: toB64(buf.slice(i * CHUNK, (i + 1) * CHUNK)) });
             if (onProg) onProg((i + 1) / n);
         }
         return { id, name: meta.name, type: meta.type, size: meta.size, by: meta.by, at: meta.at };
@@ -7013,18 +7013,18 @@
         return out;
     };
     const fetchFileBlob = async (id) => {
-        const m = await getDoc(doc(dbCloud, 'iqra_files', id));
+        const m = await getDoc(doc(dbCloud, 'IQRAA_files', id));
         if (!m.exists()) throw new Error('File not found (it may have been removed).');
         const meta = m.data(); const parts = [];
         for (let i = 0; i < meta.chunks; i++) {
-            const c = await getDoc(doc(dbCloud, 'iqra_files', id, 'chunks', String(i)));
+            const c = await getDoc(doc(dbCloud, 'IQRAA_files', id, 'chunks', String(i)));
             const bin = atob(c.data().d); const u = new Uint8Array(bin.length);
             for (let j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
             parts.push(u);
         }
         return { meta, blob: new Blob(parts, { type: meta.type }) };
     };
-    window.iqraFile = async (id, open) => {
+    window.IQRAAFile = async (id, open) => {
         const ld = document.getElementById('loader'); ld.style.display = 'flex'; document.getElementById('loader-text').innerText = 'Downloading attachment…';
         try {
             const { meta, blob } = await fetchFileBlob(id);
@@ -7038,7 +7038,7 @@
     };
     const fileIcon = (n, t) => { const x = String(n).split('.').pop().toLowerCase(); return /pdf/.test(x) ? '📕' : /docx?|odt|rtf/.test(x) ? '📘' : /xlsx?|csv|ods/.test(x) ? '📗' : /pptx?|odp|key/.test(x) ? '📙' : /png|jpe?g|gif|webp|svg|bmp|heic/.test(x) ? '🖼️' : /mp4|mov|avi|mkv|webm/.test(x) ? '🎞️' : /mp3|wav|m4a|ogg/.test(x) ? '🎧' : /zip|rar|7z|tar|gz/.test(x) ? '🗜️' : '📄'; };
     const canPreview = (t, n) => /^(image\/|application\/pdf|text\/)/.test(t || '') || /\.(pdf|png|jpe?g|gif|webp|txt)$/i.test(n || '');
-    const filesHtml = (files) => (files || []).length ? `<div class="flex flex-wrap gap-1.5 mt-1">${files.map(f => `<span class="iq-file"><span>${fileIcon(f.name, f.type)}</span><b title="${esc(f.name)}">${esc(f.name)}</b><i>${sizeTxt(f.size || 0)}</i>${canPreview(f.type, f.name) ? `<button title="Open" onclick="window.iqraFile('${f.id}', true)">👁</button>` : ''}<button title="Download" onclick="window.iqraFile('${f.id}')">⬇</button></span>`).join('')}</div>` : '';
+    const filesHtml = (files) => (files || []).length ? `<div class="flex flex-wrap gap-1.5 mt-1">${files.map(f => `<span class="iq-file"><span>${fileIcon(f.name, f.type)}</span><b title="${esc(f.name)}">${esc(f.name)}</b><i>${sizeTxt(f.size || 0)}</i>${canPreview(f.type, f.name) ? `<button title="Open" onclick="window.IQRAAFile('${f.id}', true)">👁</button>` : ''}<button title="Download" onclick="window.IQRAAFile('${f.id}')">⬇</button></span>`).join('')}</div>` : '';
 
     // attachment picker: any format, add as many as needed ("add more")
     const PICK = {};
@@ -7077,7 +7077,7 @@
     const emailOfLid = (lid) => { const l = window.getLecturerById(lid); return l ? window.getLecturerEmail(l) : ''; };
     const lidOfEmail = (e) => { const p = personByEmail(e); if (p && p.lecturerId) return p.lecturerId; const l = localDB.lecturers.find(x => window.getLecturerEmail(x) === String(e || '').toLowerCase()); return l ? window.lecIdOf(l) : ''; };
 
-    // ------------------------------------------------------------------ TASK DESK data (collection iqra_tasks, live)
+    // ------------------------------------------------------------------ TASK DESK data (collection IQRAA_tasks, live)
     const TASK_TYPES = ['Task', 'Outline amendment', 'Document request', 'Report request', 'Meeting / follow-up', 'Issue to coordinator', 'Other'];
     const TYPE_ICON = { 'Task': '📌', 'Outline amendment': '📝', 'Document request': '📂', 'Report request': '📊', 'Meeting / follow-up': '🤝', 'Issue to coordinator': '🚩', 'Other': '📨' };
     const ST_COLOR = { New: '#0d47a1', Seen: '#475569', 'In progress': '#7e22ce', Submitted: '#00695c', Completed: '#065f46', Returned: '#b91c1c', Open: '#0d47a1', Cancelled: '#64748b' };
@@ -7096,17 +7096,17 @@
     const listen = (queries, store, unsubs, onChange, label) => queries.forEach(q => unsubs.push(onSnapshot(q, (snap) => {
         snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete store[ch.doc.id]; else store[ch.doc.id] = { ...ch.doc.data(), id: ch.doc.id }; });
         onChange();
-    }, (err) => { console.warn('[IQRA ' + label + ']', err.code || err); if (String(err.code || '').includes('permission')) window.showToast(`${label}: publish the latest firestore.rules to enable this feature.`, 'warning'); })));
+    }, (err) => { console.warn('[IQRAA ' + label + ']', err.code || err); if (String(err.code || '').includes('permission')) window.showToast(`${label}: publish the latest firestore.rules to enable this feature.`, 'warning'); })));
 
     const startDesk = async () => {
         if (TD.started || !dbCloud || !auth || !auth.currentUser || activeRole === 'STUDENT') return;
         TD.started = true;
-        try { listen(await liveQueries('iqra_tasks', 'participants'), TD.list, TD.unsubs, onDeskChange, 'Task Desk'); } catch (e) { TD.started = false; console.warn(e); }
+        try { listen(await liveQueries('IQRAA_tasks', 'participants'), TD.list, TD.unsubs, onDeskChange, 'Task Desk'); } catch (e) { TD.started = false; console.warn(e); }
     };
     const startDaily = async () => {
         if (DW.started || !dbCloud || !auth || !auth.currentUser || activeRole === 'STUDENT') return;
         DW.started = true;
-        try { listen(await liveQueries('iqra_daily', 'email'), DW.list, DW.unsubs, onDailyChange, 'Daily Works'); } catch (e) { DW.started = false; console.warn(e); }
+        try { listen(await liveQueries('IQRAA_daily', 'email'), DW.list, DW.unsubs, onDailyChange, 'Daily Works'); } catch (e) { DW.started = false; console.warn(e); }
     };
 
     const myStatus = (t) => (t.statusBy || {})[ek(meEmail())] || '';
@@ -7156,7 +7156,7 @@
             faculty: meFac() || firstFac || '', assignees, assigneeNames: names, participants: [...new Set([meEmail(), ...assignees])], statusBy,
             files: data.files || [], thread: [{ by: meEmail(), byName: meName(), at: Date.now(), text: 'Task created', status: 'New', files: [] }]
         };
-        await setDoc(doc(dbCloud, 'iqra_tasks', id), t);
+        await setDoc(doc(dbCloud, 'IQRAA_tasks', id), t);
         TD.list[id] = { ...t, id }; onDeskChange();
         log('TASK', 'Task Desk – task sent', `${t.type}: ${t.title} → ${assignees.map(nameOfEmail).join(', ')}${t.files.length ? ` · ${t.files.length} attachment(s)` : ''}`);
         return id;
@@ -7169,15 +7169,15 @@
         const merged = { ...t, ...patch, statusBy: { ...(t.statusBy || {}) } };
         Object.keys(patch).forEach(k => { if (k.startsWith('statusBy.')) merged.statusBy[k.slice(9)] = patch[k]; });
         upd.status = overallStatus(merged);
-        await F.updateDoc(doc(dbCloud, 'iqra_tasks', id), upd);
+        await F.updateDoc(doc(dbCloud, 'IQRAA_tasks', id), upd);
     };
 
-    // ------------------------------------------------------------------ DAILY WORKS data (collection iqra_daily, live)
+    // ------------------------------------------------------------------ DAILY WORKS data (collection IQRAA_daily, live)
     const DW_CATS = ['Teaching', 'Coordination', 'Administration', 'Meeting', 'Research', 'Student support', 'Curriculum / Outline', 'Exam work', 'Community / Event', 'Other'];
     const saveDaily = async (data, id) => {
         const rec = { ...data, email: meEmail(), name: meName(), role: activeRole, faculty: meFac() || '', lecturerId: currentLecturerId || '', ts: Date.now(), at: new Date().toISOString() };
         const key = id || newId('d');
-        await setDoc(doc(dbCloud, 'iqra_daily', key), rec, { merge: !!id });
+        await setDoc(doc(dbCloud, 'IQRAA_daily', key), rec, { merge: !!id });
         DW.list[key] = { ...(DW.list[key] || {}), ...rec, id: key }; onDailyChange();
         log('DATA', id ? 'Daily work updated' : 'Daily work added', `${rec.date} · ${rec.category} · ${rec.title}${rec.hours ? ' · ' + rec.hours + 'h' : ''}`);
     };
@@ -7434,7 +7434,7 @@
             document.getElementById('iq-360-title').textContent = 'Faculty of ' + S360.fac;
             const ls = localDB.lecturers.filter(l => lFac(l) === S360.fac);
             document.getElementById('iq-360-sub').textContent = `${ls.length} staff · ${localDB.modules.filter(m => window.getFaculty(m) === S360.fac).length} modules · ${(localDB.checklist || []).filter(r => r.faculty === S360.fac).length} checklist rows`;
-            document.getElementById('iq-360-actions').innerHTML = `${!isReadOnly() && (activeRole === 'ALL' || facManaged() === S360.fac) ? `<button class="iq-btn-soft" onclick="window.iqHoursSetup('${js(S360.fac)}')">⏱ Weekly hours</button>` : ''}${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
+            document.getElementById('iq-360-actions').innerHTML = `${!isReadOnly() && (activeRole === 'ALL' || facManaged() === S360.fac) ? `<button class="iq-btn-soft" onclick="window.iqHoursSetup('${js(S360.fac)}')">⏱ Weekly hours</button>` : ''}${!isViewer() ? `<button class="iq-btn-soft" onclick="window.IQRAACompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
             tabsEl.innerHTML = facTabs.map(([k, l]) => `<button class="iq-tab ${S360.tab === k ? 'on' : ''}" onclick="window.iq360Tab('${k}')">${l}</button>`).join('');
         } else {
             const p = personInfo();
@@ -7445,7 +7445,7 @@
             document.getElementById('iq-360-actions').innerHTML = [
                 ph ? `<a class="iq-btn-soft" href="tel:+960${ph}">📞 Call</a><a class="iq-btn-soft" target="_blank" href="https://wa.me/960${ph}">💬 WhatsApp</a>` : '',
                 p.email ? `<a class="iq-btn-soft" href="mailto:${esc(p.email)}">✉ Email</a>` : '',
-                !isViewer() && p.email && p.email !== meEmail() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ to: ['${js(p.email)}'] })">📨 Assign task</button>` : '',
+                !isViewer() && p.email && p.email !== meEmail() ? `<button class="iq-btn-soft" onclick="window.IQRAACompose({ to: ['${js(p.email)}'] })">📨 Assign task</button>` : '',
                 p.lid ? `<button class="iq-btn-soft" onclick="window.iqWorkloadPdf('${js(p.lid)}')">👑 Workload card PDF</button><button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 Profile PDF</button>` : '',
                 `<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`
             ].join('');
@@ -7534,7 +7534,7 @@
             html += rows.map(x => { const r = x.r; const gp = groupProgress(r); const wk = window.weekKey(); const wkv = (r.weekly || {})[wk] || {};
                 const coordEmail = x.coordId ? emailOfLid(x.coordId) : '';
                 return `<div class="iq-card mb-3"><div class="flex flex-wrap justify-between gap-2 items-start"><div><b class="text-[#0d47a1] text-[13px]">${esc(r.code)}</b> <b class="text-[12px]">${esc(r.name)}</b><div class="text-[10px] text-gray-500 font-bold">${esc(r.course)} · ${esc(r.batch)} · Coordinator: ${x.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(x.coordId)}')">${esc(x.coord || nm(x.coordId))}</span>` : '—'} · Last update ${r.updatedAt ? fmtDT(r.updatedAt) + ' by ' + esc(String(r.updatedBy || '').split('@')[0]) : '—'}</div></div>
-                <div class="text-right"><b class="text-2xl" style="color:${pctColor(window.rowPct(r))}">${window.rowPct(r)}%</b>${self && coordEmail && coordEmail !== meEmail() && !isViewer() ? `<div><button class="iq-btn-soft mt-1" onclick="window.iqraCompose({ to: ['${js(coordEmail)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩 Flag to coordinator</button></div>` : ''}</div></div>
+                <div class="text-right"><b class="text-2xl" style="color:${pctColor(window.rowPct(r))}">${window.rowPct(r)}%</b>${self && coordEmail && coordEmail !== meEmail() && !isViewer() ? `<div><button class="iq-btn-soft mt-1" onclick="window.IQRAACompose({ to: ['${js(coordEmail)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩 Flag to coordinator</button></div>` : ''}</div></div>
                 <div class="grid gap-2 mt-2" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">${gp.map(g => `<div class="rounded-lg border p-2" style="border-color:${g.color}33"><div class="flex justify-between text-[10px] font-black" style="color:${g.color}"><span>${g.label}</span><span>${g.done}/${g.total}</span></div>${barHtml(g.pct, g.color)}${g.pending.length ? `<div class="text-[9px] text-gray-500 mt-1">Pending: ${g.pending.map(esc).join(', ')}</div>` : '<div class="text-[9px] text-green-700 font-bold mt-1">✔ all done</div>'}</div>`).join('')}</div>
                 <div class="flex flex-wrap gap-1 mt-2">${WEEKLY_FIELDS.map(f => `<span class="iq-chip" style="background:${wkv[f.k] ? '#dcfce7' : '#fee2e2'};color:${wkv[f.k] ? '#065f46' : '#b91c1c'}">${wkv[f.k] ? '✔' : '✘'} ${esc(f.l)}</span>`).join('')}<span class="text-[9px] text-gray-400 font-bold self-center">this week</span></div>
                 ${['contentDelivery', 'aboutLecturer', 'comments'].filter(k => r[k]).map(k => `<div class="text-[10px] mt-1.5 bg-slate-50 rounded p-1.5"><b>${esc((CL_FIELDS.find(f => f.k === k) || {}).l || k)}:</b> ${esc(r[k])}</div>`).join('')}
@@ -7638,7 +7638,7 @@
         if (view) TD.view = view;
         if (taskId) { TD.open = taskId; const t = TD.list[taskId]; if (t && !isAssignee(t) && !isCreator(t)) TD.view = isOversight() ? 'all' : (facManaged() ? 'faculty' : TD.view); }
         openPanel('desk', '📨 Task Desk');
-        document.getElementById('iq-panel-actions').innerHTML = isViewer() ? '' : `<button class="iq-btn-soft" onclick="window.iqraCompose({})">➕ New task / request</button>`;
+        document.getElementById('iq-panel-actions').innerHTML = isViewer() ? '' : `<button class="iq-btn-soft" onclick="window.IQRAACompose({})">➕ New task / request</button>`;
         renderDesk();
         log('TASK', 'Task Desk opened', taskId ? (TD.list[taskId] || {}).title || taskId : TD.view);
     };
@@ -7697,7 +7697,7 @@
             ${t.details ? `<div class="mt-3 text-[12px] whitespace-pre-wrap bg-slate-50 border rounded-lg p-3">${esc(t.details)}</div>` : ''}
             ${(t.files || []).length ? `<div class="mt-2"><span class="iq-lbl">Attachments</span>${filesHtml(t.files)}</div>` : ''}
             <div class="mt-3"><span class="iq-lbl">Assigned to</span><div class="flex flex-wrap gap-1.5">${(t.assignees || []).map(a => { const s = (t.statusBy || {})[ek(a)] || 'New'; const lid = lidOfEmail(a); return `<span class="iq-chip !text-[10px] !py-1" style="background:${ST_COLOR[s]}14;color:${ST_COLOR[s]};border:1px solid ${ST_COLOR[s]}44"><span class="cursor-pointer hover:underline" onclick="window.iqOpen360('${js(lid)}','${js(a)}')">${esc((t.assigneeNames || {})[ek(a)] || nameOfEmail(a))}</span> · ${s}</span>`; }).join('')}
-                ${(creator || activeRole === 'ALL') && !isViewer() ? `<button class="iq-btn-soft !py-0.5" onclick="window.iqraAddPeople('${t.id}')">➕ Add people</button>` : ''}</div></div>
+                ${(creator || activeRole === 'ALL') && !isViewer() ? `<button class="iq-btn-soft !py-0.5" onclick="window.IQRAAAddPeople('${t.id}')">➕ Add people</button>` : ''}</div></div>
             <div class="mt-4"><span class="iq-lbl">Conversation & history</span>${(t.thread || []).slice().sort((a, b) => a.at - b.at).map(m => `<div class="iq-msg" style="border-left-color:${m.status ? ST_COLOR[m.status] || '#93c5fd' : '#93c5fd'}"><div class="flex justify-between gap-2 text-[10px] font-bold text-gray-500"><span><b class="text-slate-800">${esc(m.byName || m.by)}</b>${m.status ? ` · <span style="color:${ST_COLOR[m.status] || '#334155'}">${esc(m.status)}</span>` : ''}</span><span>${fmtDT(m.at)}</span></div>${m.text ? `<div class="text-[11.5px] whitespace-pre-wrap mt-0.5">${esc(m.text)}</div>` : ''}${filesHtml(m.files)}</div>`).join('')}</div>
             ${canAct && st !== 'Cancelled' ? `<div class="mt-3 border-t pt-3"><span class="iq-lbl">Reply / update</span>
                 <textarea id="iq-reply" rows="3" class="iq-in" placeholder="${assignee ? 'Write a reply, e.g. “Amended outline attached”…' : 'Comment, feedback or instructions…'}"></textarea>
@@ -7705,11 +7705,11 @@
                 <div class="flex flex-wrap gap-2 mt-2 items-center">
                     ${assignee ? `<select id="iq-reply-status" class="iq-in !w-auto !py-1.5 !text-[11px]"><option value="">Keep my status (${esc(myStatus(t) || 'New')})</option><option>In progress</option><option>Submitted</option></select>` : ''}
                     ${creator || activeRole === 'ALL' || mgr ? `<select id="iq-reply-verdict" class="iq-in !w-auto !py-1.5 !text-[11px]"><option value="">Comment only</option><option value="Completed">✔ Accept – mark completed</option><option value="Returned">↩ Return for revision</option></select>` : ''}
-                    <button class="iq-btn" onclick="window.iqraReply('${t.id}')">Send</button>
-                    ${creator || activeRole === 'ALL' ? `<button class="iq-btn-soft ml-auto" onclick="window.iqraCancelTask('${t.id}')">⛔ Cancel task</button>` : ''}
+                    <button class="iq-btn" onclick="window.IQRAAReply('${t.id}')">Send</button>
+                    ${creator || activeRole === 'ALL' ? `<button class="iq-btn-soft ml-auto" onclick="window.IQRAACancelTask('${t.id}')">⛔ Cancel task</button>` : ''}
                 </div></div>` : ''}`;
     };
-    window.iqraReply = async (id) => {
+    window.IQRAAReply = async (id) => {
         const t = TD.list[id]; if (!t) return;
         const text = (document.getElementById('iq-reply').value || '').trim();
         const st = (document.getElementById('iq-reply-status') || {}).value || '';
@@ -7727,13 +7727,13 @@
             window.showToast('Sent ✔', 'success');
         } catch (e) { alert('❌ Could not send.\n\n' + (e.code ? window.fbErrorHelp(e) : e.message)); }
     };
-    window.iqraCancelTask = (id) => {
+    window.IQRAACancelTask = (id) => {
         const t = TD.list[id]; if (!t) return;
         window.requireVerification(`Cancel task: ${t.title}`, async () => {
             try { await updateTask(id, { cancelled: true }, { text: 'Task cancelled', status: 'Cancelled' }); } catch (e) { alert('❌ ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
         });
     };
-    window.iqraAddPeople = async (id) => {
+    window.IQRAAAddPeople = async (id) => {
         const t = TD.list[id]; if (!t) return;
         await loadPeople();
         const e = prompt('Add people to this task – type e-mail addresses separated by commas:\n(e.g. ahmed.saleem@ium.edu.mv, kirk@ium.edu.mv)');
@@ -7748,7 +7748,7 @@
     // ------------------------------------------------------------------ composer
     const CMP = { to: new Set(), fac: '', q: '' };
     window.iqCloseCompose = () => { document.getElementById('iq-compose').style.display = 'none'; };
-    window.iqraCompose = async (pre = {}) => {
+    window.IQRAACompose = async (pre = {}) => {
         if (isViewer()) return window.showToast('View-only access – you cannot send tasks.', 'warning');
         CMP.to = new Set((pre.to || []).map(x => String(x).toLowerCase())); CMP.fac = pre.facultyTo || meFac() || ''; CMP.q = ''; PICK.compose = [];
         document.getElementById('iq-compose').style.display = 'flex';
@@ -7768,7 +7768,7 @@
                 <label class="block"><span class="iq-lbl">Details / instructions</span><textarea id="iq-cmp-details" rows="6" class="iq-in" placeholder="Write the full details: what to do, how, and what to send back…">${esc(pre.details || '')}</textarea></label>
                 <div class="grid grid-cols-2 gap-2"><label><span class="iq-lbl">Due date</span><input id="iq-cmp-due" type="date" class="iq-in" value="${esc(pre.due || '')}"></label><label><span class="iq-lbl">Module / course (optional)</span><input id="iq-cmp-mod" class="iq-in" value="${esc(pre.module || '')}"></label></div>
                 ${pickerHtml('compose', 'Attach files')}
-                <div class="flex justify-end gap-2 pt-2"><button class="iq-btn-soft" onclick="window.iqCloseCompose()">Cancel</button><button class="iq-btn" id="iq-cmp-send" onclick="window.iqraSend()">📨 Send</button></div>
+                <div class="flex justify-end gap-2 pt-2"><button class="iq-btn-soft" onclick="window.iqCloseCompose()">Cancel</button><button class="iq-btn" id="iq-cmp-send" onclick="window.IQRAASend()">📨 Send</button></div>
             </div></div>`;
         renderCmp();
         await loadPeople(); renderCmp();
@@ -7792,7 +7792,7 @@
             .sort((a, b) => (ROLE_ORDER.indexOf(a.role) < 0 ? 99 : ROLE_ORDER.indexOf(a.role)) - (ROLE_ORDER.indexOf(b.role) < 0 ? 99 : ROLE_ORDER.indexOf(b.role)) || a.name.localeCompare(b.name)).slice(0, 300);
         document.getElementById('iq-cmp-list').innerHTML = list.map(p => `<label class="flex items-center gap-2 px-2 py-1.5 border-b border-gray-100 hover:bg-sky-50 cursor-pointer text-[11px]"><input type="checkbox" ${CMP.to.has(p.email) ? 'checked' : ''} onchange="CMP_toggle('${js(p.email)}')"><span class="iq-av" style="width:24px;height:24px;font-size:9px">${initials(p.name)}</span><span class="min-w-0 flex-1"><b class="block truncate">${esc(p.name)}</b><span class="text-[9px] text-gray-500">${esc(ROLE_LABELS[p.role] || (FACULTIES.includes(p.role) ? 'Faculty office' : p.role) || '')} ${p.faculty ? '· ' + esc(p.faculty) : ''} · ${esc(p.email)}</span></span></label>`).join('') || '<p class="text-center text-gray-400 italic text-[11px] p-4">Nobody found.</p>';
     };
-    window.iqraSend = async () => {
+    window.IQRAASend = async () => {
         const to = [...CMP.to];
         const title = document.getElementById('iq-cmp-title').value.trim();
         if (!to.length) return alert('Choose at least one person.');
@@ -7875,7 +7875,7 @@
     window.iqDailyDel = (id) => {
         const d = DW.list[id]; if (!d) return;
         window.requireVerification(`Delete daily work: ${d.title}`, async () => {
-            try { await deleteDoc(doc(dbCloud, 'iqra_daily', id)); delete DW.list[id]; onDailyChange(); log('DATA', 'Daily work deleted', `${d.date} · ${d.title}`); }
+            try { await deleteDoc(doc(dbCloud, 'IQRAA_daily', id)); delete DW.list[id]; onDailyChange(); log('DATA', 'Daily work deleted', `${d.date} · ${d.title}`); }
             catch (e) { alert('❌ ' + window.fbErrorHelp(e)); }
         });
     };
@@ -8056,7 +8056,7 @@
             else { let pin = ''; try { pin = localStorage.getItem('iq_pinned'); } catch (e) {} if (pin && window.innerWidth > 1100) { document.body.classList.add('iq-pinned'); window.iqSide(true); } }
             startDesk(); startDaily();
             if (isOversight() || facManaged()) loadPeople().then(() => { if (document.getElementById('iq-side').classList.contains('open')) window.iqRenderSide(); });
-        } catch (e) { console.error('[IQRA role UI]', e); }
+        } catch (e) { console.error('[IQRAA role UI]', e); }
         return res;
     };
 
@@ -8087,7 +8087,7 @@
                 <td class="text-center font-bold">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td>
                 <td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td>
                 <td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td>
-                ${self ? `<td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="What the coordinator ticked" onclick="window.iqOpen360('${js(lid)}','','coord')">🔎</button>` : ''} ${ce && !isViewer() ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td>` : ''}</tr>`; }).join('')}
+                ${self ? `<td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="What the coordinator ticked" onclick="window.iqOpen360('${js(lid)}','','coord')">🔎</button>` : ''} ${ce && !isViewer() ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.IQRAACompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td>` : ''}</tr>`; }).join('')}
             <tr style="background:#f0f9ff"><td colspan="3" class="font-black text-[#004d40]">TOTAL</td><td class="font-black text-[14px] text-[#0d47a1]">${W.wch || '–'} h</td><td class="text-center font-black">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'} h</td><td colspan="${self ? 3 : 2}" class="font-bold" style="color:${stc}">${st}${W.wch && W.target ? ` · ${W.wch >= W.target ? '+' : ''}${Math.round((W.wch - W.target) * 10) / 10} h vs target ${W.target}` : ''}</td></tr>
             </tbody></table></div></div>`;
     };
@@ -8176,7 +8176,7 @@
         await window.renderAreaToPdf(`Royal_Workload_Card_${name.replace(/[^a-z0-9]+/gi, '_')}.pdf`, 'Designing the royal workload card…');
     };
 
-    window.__iqra = { TD, DW, S360, workloadOf, teachCardHtml, coordCardHtml, canEditHrs, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
+    window.__IQRAA = { TD, DW, S360, workloadOf, teachCardHtml, coordCardHtml, canEditHrs, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
     }
-    // =================================== END OF ADD-ON 2 (IQRA) ===================================
+    // =================================== END OF ADD-ON 2 (IQRAA) ===================================
 
