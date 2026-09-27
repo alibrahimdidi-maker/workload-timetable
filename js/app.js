@@ -1,6 +1,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs, writeBatch, onSnapshot, updateDoc, deleteField, FieldPath } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDh-pcU3quxlFJxDg_SwkrRCoMPyD48dBc",
@@ -2068,7 +2068,7 @@
             <div style="font-family:Inter,sans-serif;color:#1e293b;">
                 <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:10px;">
                     <div style="font-size:26px;">👑</div>
-                    <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:${gold};text-transform:uppercase;">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
+                    <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:${gold};text-transform:uppercase;">Islamic University of Maldives</div>
                     <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#004d40;text-transform:uppercase;letter-spacing:1px;">Weekly Academic Delivery Card</div>
                     <div style="font-size:11px;font-weight:800;color:#0d47a1;">${window.weekLabel(wk)}</div>
                 </div>
@@ -2089,7 +2089,7 @@
                 <div style="display:flex;justify-content:space-between;margin-top:40px;font-size:9px;text-align:center;">
                     ${['Lecturer', 'Subject Coordinator', 'Dean / HOD'].map(s => `<div style="width:30%;"><div style="border-top:1px solid #1e293b;padding-top:4px;font-weight:800;">${s}</div></div>`).join('')}
                 </div>
-                <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:16px;">Generated ${new Date().toLocaleString()} · Presidential Executive Workload Portal</div>
+                <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:16px;">Generated ${new Date().toLocaleString()} · RASFAHI AIMS · Academic Institution Management System</div>
             </div>`;
         await window.renderAreaToPdf(`Weekly_Royal_Card_${name.replace(/[^a-z0-9]+/gi, '_')}_${wk}.pdf`, 'Designing your royal card...');
     };
@@ -2468,7 +2468,7 @@
         const fuHtml = fus.length ? sec('Recent follow-ups') + `<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr>${th('Date')}${th('Module')}${th('Action')}${th('Response')}${th('Note')}</tr></thead><tbody>${fus.map(f => `<tr><td style="${tdS}">${fmtD(f.date)}</td><td style="${tdS}">${esc(f.code)} ${esc(f.batch)}</td><td style="${tdS}">${esc(f.action)}</td><td style="${tdS}">${esc(f.response)}${f.promised ? ' (by ' + fmtD(f.promised) + ')' : ''}</td><td style="${tdS}">${esc(f.note || '')}</td></tr>`).join('')}</tbody></table>` : '';
         return `<div style="font-family:Inter,sans-serif;color:#1e293b;">
             <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:8px;">
-                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
+                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">Islamic University of Maldives</div>
                 <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#004d40;text-transform:uppercase;">Royal Profile Card</div>
                 <div style="font-size:10px;font-weight:800;color:#0d47a1;">${window.weekLabel(window.weekKey())}</div>
             </div>
@@ -2480,7 +2480,7 @@
             </div>
             ${coordHtml}${courseHtml}${teachHtml}${fuHtml}
             ${!p.coordRows.length && !p.teachRows.length && !(p.courseRoles || []).length ? '<p style="text-align:center;color:#94a3b8;margin:20px">No modules linked in the Coordinator Checklist.</p>' : ''}
-            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:14px;">Generated ${new Date().toLocaleString()} · Presidential Executive Workload Portal</div>
+            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:14px;">Generated ${new Date().toLocaleString()} · RASFAHI AIMS · Academic Institution Management System</div>
         </div>`;
     };
     window.openPersonCard = (id) => {
@@ -2853,7 +2853,7 @@
         const cph = c ? String(window.getSafeVal(c, ['MobileNumber', 'Mobile']) || '') : '';
         return `<div style="font-family:Inter,sans-serif;color:#1e293b;">
             <div style="text-align:center;border-bottom:4px double #d4af37;padding-bottom:8px;">
-                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
+                <div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#b8860b;text-transform:uppercase;">Islamic University of Maldives</div>
                 <div style="font-family:'Playfair Display',serif;font-size:21px;font-weight:900;color:#004d40;text-transform:uppercase;">Coordinator Team Card</div>
                 <div style="font-size:10px;font-weight:800;color:#0d47a1;">${window.weekLabel(window.weekKey())}</div></div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#004d40,#0d47a1,#4a148c);color:white;">
@@ -2863,7 +2863,7 @@
             </div>
             ${forPdf ? '' : '<p class="text-[9px] text-gray-500 font-bold my-2">Click a lecturer to see courses, batches, modules, weekly hours, credit and contact.</p>'}
             ${blocks || '<p style="text-align:center;color:#94a3b8;margin:16px">No lecturers linked yet.</p>'}
-            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:12px;">Generated ${new Date().toLocaleString()} · Presidential Executive Workload Portal</div></div>`;
+            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:12px;">Generated ${new Date().toLocaleString()} · RASFAHI AIMS · Academic Institution Management System</div></div>`;
     };
     window.openTeamCard = (cid) => {
         document.getElementById('pc-body').innerHTML = teamCardHtml(cid, false);
@@ -6782,7 +6782,7 @@
         const charts = (S.charts || []).filter(Boolean);
         box.innerHTML = `
             <div class="rounded-2xl p-5 mb-4 text-white" style="background:linear-gradient(135deg,#004d40,#0d47a1 60%,#4a148c)">
-                <div class="text-[10px] font-bold" style="color:#d4af37;letter-spacing:2px">${window.IQRA_APP ? window.IQRA_APP.inst : ''}</div>
+                <div class="text-[10px] font-bold" style="color:#d4af37;letter-spacing:2px">Islamic University of Maldives</div>
                 <div class="text-2xl md:text-3xl font-black mt-1" style="font-family:'Playfair Display',serif">${S.icon} ${esc(S.title)}</div>
                 <div class="flex flex-wrap gap-2 mt-3 text-[10px] font-bold">
                     <span class="px-3 py-1 rounded-full" style="background:rgba(255,255,255,.14)">📅 ${esc(S.P.label)}</span>
@@ -6813,7 +6813,7 @@
         clone.querySelectorAll('.rx-sec-b').forEach(e => { e.style.maxHeight = 'none'; e.style.overflow = 'visible'; });
         clone.querySelectorAll('.rx-tbl thead th').forEach(e => { e.style.position = 'static'; });
         clone.querySelectorAll('.rx-noprint').forEach(e => e.remove());
-        return `<div style="font-family:Inter,sans-serif">${clone.innerHTML}<div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:12px">Presidential Executive Workload Portal · ${esc(RX.spec.title)} · ${esc(RX.spec.P.label)}</div></div>`;
+        return `<div style="font-family:Inter,sans-serif">${clone.innerHTML}<div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:12px">RASFAHI AIMS · Academic Institution Management System · ${esc(RX.spec.title)} · ${esc(RX.spec.P.label)}</div></div>`;
     };
     window.rxPdf = async () => {
         if (!RX.spec) return;
@@ -6936,7 +6936,7 @@
 
 
     // =====================================================================================================
-    // ======  ADD-ON 2 : RASFAHI AIMS — Academic Institution Management Suite                   =========
+    // ======  ADD-ON 2 : IQRA — Integrated Quality, Resources & Academic Administration System  =========
     // ======  Staff 360 cards · Faculty 360 · Task Desk (with attachments) · Daily Works ·           =========
     // ======  DVC / View-only roles · role change on user cards · royal header · lecturer workload card ====
     // =====================================================================================================
@@ -6945,8 +6945,8 @@
     const IQ = {
         short: 'RASFAHI',
         arabic: 'AIMS',
-        long: 'Academic Institution Management Suite',
-        inst: 'Zaad Holdings Pvt Ltd'
+        long: 'Academic Institution Management System',
+        inst: 'Islamic University of Maldives'
     };
     window.IQRA_APP = IQ;
 
@@ -7194,7 +7194,7 @@
     .iq-brand { position:relative; z-index:5; margin: 8px auto 18px; max-width: 900px; }
     .iq-inst { font-family:'Cinzel',serif; font-size:10px; letter-spacing:6px; text-transform:uppercase; color:#bae6fd; font-weight:700; }
     .iq-title { font-family:'Cinzel',serif; font-weight:900; font-size:clamp(38px,6vw,68px); letter-spacing:.22em; line-height:1; margin:6px 0 4px; background:linear-gradient(180deg,#ffffff 0%,#e0f2fe 45%,#93c5fd 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 2px 18px rgba(147,197,253,.25); }
-    .iq-title small { font-family:'Cinzel',serif; font-size:.34em; letter-spacing:.25em; vertical-align:middle; margin-left:.45em; padding:2px 8px; border:1px solid rgba(186,230,253,.6); border-radius:8px; color:#e0f2fe; -webkit-text-fill-color:#e0f2fe; }
+    .iq-title small { font-family:'Amiri','Traditional Arabic',serif; font-size:.42em; letter-spacing:0; vertical-align:middle; margin-left:.3em; color:#e0f2fe; -webkit-text-fill-color:#e0f2fe; }
     .iq-long { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:700; font-size:clamp(14px,1.8vw,20px); color:#e0f2fe; letter-spacing:.04em; }
     .iq-rule { display:flex; align-items:center; gap:10px; justify-content:center; margin-top:8px; color:#7dd3fc; font-size:9px; }
     .iq-rule:before, .iq-rule:after { content:''; height:1px; width:120px; background:linear-gradient(90deg,transparent,#7dd3fc,transparent); }
@@ -7272,7 +7272,7 @@
     document.head.appendChild(iqCss);
 
     // ------------------------------------------------------------------ branding: title, login screen and royal header
-    document.title = `${IQ.short} · ${IQ.long} – ${IQ.inst}`;
+    document.title = `${IQ.short} ${IQ.arabic} · ${IQ.long} – ${IQ.inst}`;
     const brandHtml = (cls = '') => `<div class="iq-brand ${cls}"><div class="iq-inst">${IQ.inst}</div><h1 class="iq-title">${IQ.short}<small>${IQ.arabic}</small></h1><div class="iq-long">${IQ.long}</div><div class="iq-rule">◆</div></div>`;
     (() => {
         const hdr = document.querySelector('#app-screen > header');
@@ -7349,21 +7349,10 @@
         const m = ms.find(x => String(window.getSafeVal(x, ['OfferedBatch', 'Batch'])).trim() === String(batch || '').trim()) || ms[0];
         const f = m ? window.getFaculty(m) : ''; return f === 'UNKNOWN' ? '' : f;
     };
-    const SEMW = () => parseInt((localDB.settings || {}).semesterWeeks) || 15;
-    // weekly teaching hours of one module: set on the card ⏱ → Modules WCH → timetable → total hrs ÷ weeks
-    const rowHrs = (r, lid) => {
-        if (!r) return { h: 0, src: '' };
-        if (r.weeklyHrs !== undefined && r.weeklyHrs !== '' && r.weeklyHrs !== null) return { h: n1(r.weeklyHrs), src: 'set' };
-        const w = n1(modInfo(r.code, r.batch).wch); if (w) return { h: w, src: 'module' };
-        const tth = window.__ttHours ? Math.round(window.__ttHours(r.code, r.batch) * 10) / 10 : 0; if (tth) return { h: tth, src: 'timetable' };
-        const t = Math.round(scheduledHrs(lid || r.lecturerId, r.code) * 10) / 10; if (t) return { h: t, src: 'timetable' };
-        const tot = n1(r.totalHrs); if (tot) return { h: Math.round(tot / SEMW() * 10) / 10, src: 'total hrs' };
-        return { h: 0, src: '' };
-    };
-    window.iqRowHrs = rowHrs;
     const teachRows = (lid) => teachingList(lid).map(x => {
-        const hh = x.r ? rowHrs(x.r, lid) : (n1(x.wch) ? { h: n1(x.wch), src: 'module' } : { h: Math.round(scheduledHrs(lid, x.code) * 10) / 10, src: 'timetable' });
-        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN: hh.h, wchSrc: hh.h ? hh.src : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
+        const sched = scheduledHrs(lid, x.code);
+        const wchN = n1(x.wch) || Math.round(sched * 10) / 10 || (n1(x.totalHrs) ? Math.round(n1(x.totalHrs) / ((localDB.settings || {}).semesterWeeks ? parseInt(localDB.settings.semesterWeeks) : 15) * 10) / 10 : 0);
+        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN, wchSrc: n1(x.wch) ? 'module' : sched ? 'timetable' : wchN ? 'total hrs' : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
     });
     const workloadOf = (lid) => {
         const l = window.getLecturerById(lid); const home = lFac(l);
@@ -7416,7 +7405,7 @@
     };
     window.iq360Tab = (t) => { S360.tab = t; render360(); };
 
-    let personTabs = (p) => [
+    const personTabs = (p) => [
         ['overview', '👑 Overview'], ...(p.lid ? [['modules', '📚 Modules & Workload'], ['coord', '🧭 Coordinator Updates'], ['attendance', '🗓️ Hours & Attendance']] : []),
         ...(p.lead ? [['faculty', '🏛️ Faculty']] : []), ['tasks', '📌 Tasks'], ['daily', '🗒️ Daily Works'], ...(p.lid ? [['profile', '📜 Royal Profile']] : [])
     ];
@@ -7435,7 +7424,7 @@
             document.getElementById('iq-360-title').textContent = 'Faculty of ' + S360.fac;
             const ls = localDB.lecturers.filter(l => lFac(l) === S360.fac);
             document.getElementById('iq-360-sub').textContent = `${ls.length} staff · ${localDB.modules.filter(m => window.getFaculty(m) === S360.fac).length} modules · ${(localDB.checklist || []).filter(r => r.faculty === S360.fac).length} checklist rows`;
-            document.getElementById('iq-360-actions').innerHTML = `${!isReadOnly() && (activeRole === 'ALL' || facManaged() === S360.fac) ? `<button class="iq-btn-soft" onclick="window.iqHoursSetup('${js(S360.fac)}')">⏱ Weekly hours</button>` : ''}${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
+            document.getElementById('iq-360-actions').innerHTML = `${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
             tabsEl.innerHTML = facTabs.map(([k, l]) => `<button class="iq-tab ${S360.tab === k ? 'on' : ''}" onclick="window.iq360Tab('${k}')">${l}</button>`).join('');
         } else {
             const p = personInfo();
@@ -7447,7 +7436,7 @@
                 ph ? `<a class="iq-btn-soft" href="tel:+960${ph}">📞 Call</a><a class="iq-btn-soft" target="_blank" href="https://wa.me/960${ph}">💬 WhatsApp</a>` : '',
                 p.email ? `<a class="iq-btn-soft" href="mailto:${esc(p.email)}">✉ Email</a>` : '',
                 !isViewer() && p.email && p.email !== meEmail() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ to: ['${js(p.email)}'] })">📨 Assign task</button>` : '',
-                p.lid ? `<button class="iq-btn-soft" onclick="window.iqWorkloadPdf('${js(p.lid)}')">👑 Workload card PDF</button><button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 Profile PDF</button>` : '',
+                p.lid ? `<button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 PDF</button>` : '',
                 `<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`
             ].join('');
             const tabs = personTabs(p); if (!tabs.some(t => t[0] === S360.tab)) S360.tab = 'overview';
@@ -7506,7 +7495,7 @@
             </div></div>`;
             let html = hero + `<div class="iq-kpis mb-3">${[
                 W ? kpi('Modules taught', W.rows.length, '#0d47a1', `${Object.keys(W.byFac).length} faculty(ies)`) : '',
-                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'press ⏱ to set weekly hours') : '',
+                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'set WCH in Modules / Timetable') : '',
                 W ? kpi('Own faculty', W.ownPct + '%', '#00695c', `${W.own} ${W.unit} in ${esc(W.home || '—')}`) : '',
                 W ? kpi('Other faculties', W.otherPct + '%', '#4a148c', `${W.other} ${W.unit} elsewhere`) : '',
                 hrs ? kpi('Hours taken', `${Math.round(hrs.taken)}/${Math.round(hrs.planned)}`, '#1565c0', `${Math.round(hrs.remaining)} h remaining`) : '',
@@ -7514,7 +7503,6 @@
                 kpi('Open tasks', openPortal + openDesk, openPortal + openDesk ? '#b91c1c' : '#065f46', `${openPortal} faculty · ${openDesk} desk`),
                 kpi('Daily works (7 days)', daily.filter(d => d.ts >= wkAgo).length, '#00838f', `${daily.filter(d => d.ts >= wkAgo).reduce((a, d) => a + n1(d.hours), 0)} h logged`)
             ].join('')}</div>`;
-            if (p.lid) html += teachCardHtml(p.lid) + coordCardHtml(p.lid);
             if (W && W.rows.length) {
                 html += `<div class="iq-grid2 mb-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'Modules (no weekly hours recorded yet)' : 'Weekly contact hours by module'}</div><div style="height:230px"><canvas id="iq-c-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">Workload by faculty (${W.unit})</div><div style="height:230px"><canvas id="iq-c-fac"></canvas></div></div></div>
                 <div class="iq-card"><div class="iq-h">Checklist progress by module (updated by coordinators)</div><div style="height:${Math.max(160, W.rows.length * 26)}px"><canvas id="iq-c-cl"></canvas></div></div>`;
@@ -7525,7 +7513,7 @@
         }
         if (tab === 'modules') {
             if (!W.rows.length) return '<p class="text-gray-400 italic text-center p-6">No modules assigned yet.</p>';
-            return teachCardHtml(p.lid) + `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
+            return `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
             <div class="iq-card overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Credit</th><th>Students</th><th>Coordinator</th><th>Checklist</th><th>Exam paper</th><th>Source</th></tr></thead><tbody>${W.rows.map(r => `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} ${r.fac === W.home ? '· own' : '· other'}</span></td><td class="font-black text-center">${r.wchN || '–'}${r.wchSrc && r.wchSrc !== 'module' ? `<div class="text-[8px] text-gray-400 font-bold">from ${r.wchSrc}</div>` : ''}</td><td class="text-center">${esc(r.credit || '–')}</td><td class="text-center">${esc(r.students || '–')}</td><td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td><td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td>${esc(r.exam || '—')}</td><td class="text-gray-500">${r.src === 'checklist' ? 'Checklist' : 'Assignment matrix'}</td></tr>`).join('')}</tbody></table></div>`;
         }
         if (tab === 'coord') {
@@ -7893,7 +7881,6 @@
         if (currentLecturerId) html += item(`window.iqOpen360('${js(currentLecturerId)}')`, '<span class="iq-av">🧭</span>', 'My 360 card', 'My modules, workload & coordinator updates');
         html += item(`window.iqOpenDesk()`, '<span class="iq-av">📨</span>', 'Task Desk', 'Tasks, requests & attachments', '<span class="iq-desk-badge"></span>');
         html += item(`window.iqOpenDaily()`, '<span class="iq-av">🗒️</span>', 'Daily Works', 'Record & review daily work');
-        if (!isReadOnly() && (activeRole === 'ALL' || facManaged())) html += item(`window.iqHoursSetup()`, '<span class="iq-av">⏱</span>', 'Weekly teaching hours', 'Set hours / week for every module');
         if (!isWorkspaceRole()) html += item(`window.switchTab('reports'); window.iqSide(false)`, '<span class="iq-av">📊</span>', 'Reports Center', 'Weekly & semester reports');
         const facs = isOversight() || activeRole === 'EXAM' ? FACULTIES.filter(f => localDB.lecturers.some(l => lFac(l) === f) || (localDB.checklist || []).some(r => r.faculty === f) || localDB.modules.some(m => window.getFaculty(m) === f)) : (facManaged() ? [facManaged()] : []);
         const fl = facs.filter(f => hit(f));
@@ -7923,7 +7910,7 @@
     // =====================================================================================================
     // ================================ LECTURER DASHBOARD: ROYAL WORKLOAD CARD ============================
     // =====================================================================================================
-    let renderLectRoyal = () => {
+    const renderLectRoyal = () => {
         const dash = document.getElementById('lecturer-dashboard'); if (!dash) return;
         let el = document.getElementById('iq-lect-panel');
         if (!el) { el = document.createElement('div'); el.id = 'iq-lect-panel'; el.className = 'p-4'; const anchor = document.getElementById('lect-att-panel') || document.getElementById('lect-reminder-banner'); if (anchor) anchor.after(el); else dash.appendChild(el); }
@@ -7943,7 +7930,8 @@
                 <button class="iq-btn-soft" onclick="window.iqOpen360('${js(currentLecturerId)}', '', 'coord')">🔎 Coordinator updates</button>
                 ${issues.length ? `<button class="iq-btn-soft" onclick="window.iqDeskSet('type','Issue to coordinator'); window.iqOpenDesk(null,'inbox')">🚩 ${issues.length} issue(s) raised to me</button>` : ''}
             </div></div></div>
-            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>` : ''}${teachCardHtml(currentLecturerId)}${coordCardHtml(currentLecturerId)}`;
+            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>
+            <div class="iq-card mt-3 overflow-x-auto"><div class="iq-h">📚 Modules I teach (${W.rows.length})</div><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Coordinator</th><th>Coordinator's checklist</th><th>Last update</th><th></th></tr></thead><tbody>${W.rows.map(r => { const ce = r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : ''; return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')}</span></td><td class="font-black text-center">${r.wchN || '–'}</td><td>${esc(r.coord || '—')}</td><td style="min-width:110px">${r.pct === null ? '<span class="text-gray-400">not in checklist</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td class="text-gray-500">${r.r && r.r.updatedAt ? fmtDT(r.r.updatedAt) : '—'}</td><td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="See what the coordinator ticked" onclick="window.iqOpen360('${js(currentLecturerId)}','','coord')">🔎</button>` : ''} ${ce ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="text-center text-gray-400 italic p-4">No modules assigned to you yet – they will appear here as soon as a faculty assigns them.</p>'}`;
         refreshBadges();
         setTimeout(() => drawWorkloadCharts(W, 'iq-l-mod', 'iq-l-fac', null), 30);
     };
@@ -8009,7 +7997,7 @@
         bar.insertAdjacentHTML('afterbegin', `<div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdesk" onclick="window.iqOpenDesk()">📨 Task Desk <span class="iq-desk-badge"></span></div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdaily" onclick="window.iqOpenDaily()">🗒️ Daily Works</div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iq360" onclick="window.iqSide(true)">🧭 ${IQ.short} 360</div>`);
     })();
     // faculty dashboard: "Faculty 360" button
-    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<div class="flex flex-wrap gap-2 mt-1"><button id="iq-fd-btn" class="iq-btn" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button><button class="iq-btn iq-hide-ro" onclick="window.iqHoursSetup(facultyForDash_iq())">⏱ Weekly teaching hours</button></div>`); })();
+    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<button id="iq-fd-btn" class="iq-btn mt-1" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button>`); })();
     window.facultyForDash_iq = () => { try { return facultyForDash(); } catch (e) { return meFac(); } };
     // faculty cards on the Analytics page → Faculty 360
     const _rac = window.renderAnalyticsCards;
@@ -8060,998 +8048,2430 @@
         } catch (e) { console.error('[IQRA role UI]', e); }
         return res;
     };
-
-    // =====================================================================================================
-    // ===================== ROYAL WEEKLY TEACHING WORKLOAD CARD + COORDINATION TEAM CARD ==================
-    // =====================================================================================================
-    const canEditHrs = (r) => !!r && !isReadOnly() && (activeRole === 'ALL' || (!!facManaged() && facManaged() === r.faculty)
-        || (!!currentLecturerId && (r.coordinatorId === currentLecturerId || window.courseCoordOf(r) === currentLecturerId)));
-    const loadStatus = (h, t) => !h ? ['Hours not set', '#94a3b8'] : !t ? ['—', '#475569'] : h < t ? ['Under target', '#7e22ce'] : h === t ? ['Target met', '#065f46'] : ['Over target', '#b91c1c'];
-    const SRC_TXT = { set: 'set on card', module: 'from Modules', timetable: 'from timetable', 'total hrs': 'total hrs ÷ weeks' };
-    const royalHead = (icon, title, sub, right = '') => `<div style="background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;border-radius:14px 14px 0 0;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><div style="font-family:Cinzel,serif;font-weight:900;font-size:15px;letter-spacing:.06em">${icon} ${title}</div><div style="font-size:10px;font-weight:700;color:#bae6fd">${sub}</div></div>${right}</div>`;
-    const pill = (label, val, c = '#bae6fd') => `<div style="text-align:center;padding:4px 10px;border:1px solid rgba(186,230,253,.5);border-radius:10px;background:rgba(255,255,255,.08)"><div style="font-size:16px;font-weight:900;color:${c}">${val}</div><div style="font-size:8px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:#e0f2fe">${label}</div></div>`;
-    const teachCardHtml = (lid) => {
-        const W = workloadOf(lid); const self = lid === currentLecturerId;
-        if (!W.rows.length) return `<div class="iq-card mb-3 text-center text-gray-400 italic p-5">No modules assigned yet – they appear here automatically as soon as a faculty assigns them.</div>`;
-        const [st, stc] = loadStatus(W.wch, W.target);
-        const own = Math.round(W.rows.filter(r => r.fac === W.home).reduce((a, r) => a + r.wchN, 0) * 10) / 10;
-        const missing = W.rows.filter(r => !r.wchN).length;
-        const canAny = W.rows.some(r => canEditHrs(r.r));
-        return `<div class="mb-3" style="border:2px solid #7dd3fc;border-radius:16px;background:white;overflow:hidden">
-            ${royalHead('👑', 'Weekly Teaching Workload', `${W.rows.length} module(s) · ${Object.keys(W.byFac).length} faculty(ies) · semester of ${SEMW()} weeks`, `<div style="display:flex;gap:6px;flex-wrap:wrap">${pill('hrs / week', W.wch || '—')}${pill('target', W.target)}${pill('own faculty', own + ' h')}${pill('other fac.', Math.round((W.wch - own) * 10) / 10 + ' h')}${pill('status', st, stc === '#94a3b8' ? '#e2e8f0' : '#ffffff')}</div>`)}
-            ${missing ? `<div class="text-[10.5px] font-bold px-3 py-2" style="background:#eff6ff;color:#0d47a1">⏱ ${missing} module(s) have no weekly hours yet. ${canAny ? 'Type the hours in the “Hrs / week” boxes below – totals update at once.' : 'The faculty / coordinator can set them.'}</div>` : ''}
-            <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>Hrs / week</th><th>Semester hrs</th><th>Coordinator</th><th>Checklist</th>${self ? '<th></th>' : ''}</tr></thead><tbody>
-            ${W.rows.map(r => { const ed = canEditHrs(r.r); const ce = self && r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : '';
-                return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td>
-                <td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} · ${r.fac === W.home ? 'own' : 'other'}</span></td>
-                <td style="min-width:86px">${ed ? `<input type="number" min="0" max="40" step="0.5" value="${r.r.weeklyHrs !== undefined && r.r.weeklyHrs !== '' ? esc(r.r.weeklyHrs) : ''}" placeholder="${r.wchN || '?'}" onchange="window.iqSetHrs('${js(r.r.id)}', this.value)" class="iq-in !py-1 !px-2 !w-20 text-center font-black">` : `<b class="text-[13px]">${r.wchN || '–'}</b>`}${r.wchSrc && r.wchSrc !== 'set' ? `<div class="text-[8px] text-gray-400 font-bold">${SRC_TXT[r.wchSrc] || r.wchSrc}</div>` : ''}</td>
-                <td class="text-center font-bold">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td>
-                <td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td>
-                <td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td>
-                ${self ? `<td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="What the coordinator ticked" onclick="window.iqOpen360('${js(lid)}','','coord')">🔎</button>` : ''} ${ce && !isViewer() ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td>` : ''}</tr>`; }).join('')}
-            <tr style="background:#f0f9ff"><td colspan="3" class="font-black text-[#004d40]">TOTAL</td><td class="font-black text-[14px] text-[#0d47a1]">${W.wch || '–'} h</td><td class="text-center font-black">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'} h</td><td colspan="${self ? 3 : 2}" class="font-bold" style="color:${stc}">${st}${W.wch && W.target ? ` · ${W.wch >= W.target ? '+' : ''}${Math.round((W.wch - W.target) * 10) / 10} h vs target ${W.target}` : ''}</td></tr>
-            </tbody></table></div></div>`;
-    };
-    const coordCardHtml = (lid) => {
-        const rows = window.rowsForLecturer(lid, 'coord').sort(rowSort);
-        const team = window.teamOf(lid);
-        const courseRoles = Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.coordinatorId === lid);
-        if (!rows.length && !team.length && !courseRoles.length) return '';
-        const by = {}; rows.forEach(r => { const k = r.lecturerId || '__none'; (by[k] = by[k] || []).push(r); });
-        team.forEach(t => { if (!by[t]) by[t] = []; });
-        const people = Object.entries(by).sort((a, b) => (a[0] === '__none') - (b[0] === '__none') || nm(a[0]).localeCompare(nm(b[0])));
-        const totHrs = Math.round(rows.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10;
-        const avg = rows.length ? Math.round(rows.reduce((a, r) => a + window.rowPct(r), 0) / rows.length) : 0;
-        const nL = people.filter(([k]) => k !== '__none').length;
-        return `<div class="mb-3" style="border:2px solid #c4b5fd;border-radius:16px;background:white;overflow:hidden">
-            ${royalHead('👨‍💼', 'Coordination Team', 'Lecturers linked to this coordinator – modules, weekly hours and checklist progress', `<div style="display:flex;gap:6px;flex-wrap:wrap">${pill('lecturers', nL)}${pill('modules', rows.length)}${pill('hrs / week', totHrs || '—')}${pill('avg checklist', avg + '%')}</div>`)}
-            <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Lecturer</th><th>Modules coordinated</th><th>Hrs / week</th><th>Checklist</th><th>Contact</th></tr></thead><tbody>
-            ${people.map(([k, rs]) => { const l = k !== '__none' ? window.getLecturerById(k) : null; const h = Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10; const a = rs.length ? Math.round(rs.reduce((x, r) => x + window.rowPct(r), 0) / rs.length) : null; const ph = l ? String(window.getSafeVal(l, ['MobileNumber', 'Mobile', 'Phone']) || '').replace(/\.0$/, '') : ((rs[0] || {}).phone || '');
-                return `<tr><td>${k === '__none' ? '<i class="text-red-700 font-bold">Not allocated yet</i>' : `<b class="clickable-name text-[#0d47a1]" onclick="window.iqOpen360('${js(k)}')">${esc(l ? window.getLecturerName(l) : (rs[0] || {}).lecturerName || k)}</b>${k === lid ? ' <span class="text-[9px] text-gray-400">(self)</span>' : ''}<div class="text-[9px] text-gray-500 font-bold">${l ? (window.isFullTime(l) ? 'Full-time' : 'Part-time') + ' · ' + esc(lFac(l)) : esc((rs[0] || {}).ftpt || '')}</div>`}</td>
-                <td>${rs.map(r => `<span class="iq-chip mr-1 mb-1" style="background:#f5f3ff;color:#4a148c">${esc(r.code)} · ${esc(r.batch)}</span>`).join('') || '<span class="text-gray-400 text-[10px]">linked (no checklist module yet)</span>'}</td>
-                <td class="font-black text-center">${h || '–'}</td><td style="min-width:90px">${a === null ? '–' : `<b style="color:${pctColor(a)}">${a}%</b>${barHtml(a)}`}</td><td class="whitespace-nowrap">${ph ? `<a class="text-royal-blue font-bold" href="tel:+960${esc(String(ph).replace(/\D/g, ''))}">📞 ${esc(ph)}</a>` : '—'}</td></tr>`; }).join('')}
-            </tbody></table></div>
-            ${courseRoles.length ? `<div class="px-3 py-2 text-[10.5px] font-bold" style="background:#f5f3ff;color:#4a148c">🎓 Course / batch coordinator of: ${courseRoles.map(c => esc(c.course + ' · ' + c.batch)).join(' | ')}</div>` : ''}</div>`;
-    };
-    let _hrsT = null;
-    window.iqSetHrs = (rowId, v) => {
-        const r = (localDB.checklist || []).find(x => x.id === rowId); if (!r) return;
-        if (!canEditHrs(r)) return window.showToast('Only the faculty, the Super Admin or the module coordinator can set weekly hours.', 'warning');
-        const val = String(v).trim() === '' ? '' : Math.max(0, Math.min(40, n1(v)));
-        const old = r.weeklyHrs;
-        r.weeklyHrs = val; r.updatedAt = nowIso(); r.updatedBy = meEmail();
-        window.saveLocal(true);
-        log('CHECKLIST', 'Weekly teaching hours set', `${r.code} ${r.batch} · ${r.lecturerName || ''}: ${old === undefined || old === '' ? '—' : old} → ${val === '' ? '—' : val} h/week`);
-        clearTimeout(_hrsT); _hrsT = setTimeout(() => { if (S360.open) render360(); if (document.getElementById('iq-panel').dataset.view === 'hours') renderHoursSetup(); if (isWorkspaceRole()) renderLectRoyal(); }, 250);
-    };
-
-    // ------------------------------------------------------------------ ⏱ weekly hours set-up for a whole faculty
-    const HS = { fac: '', q: '', onlyEmpty: false };
-    window.iqHoursSetup = (fac) => { HS.fac = fac || facManaged() || HS.fac || ''; openPanel('hours', '⏱ Weekly Teaching Hours'); document.getElementById('iq-panel-actions').innerHTML = ''; renderHoursSetup(); };
-    window.iqHsSet = (k, v) => { HS[k] = v; renderHoursSetup(); };
-    window.iqHsApply = (key, v) => {
-        const h = n1(v); if (!h) return alert('Type the hours per week first.');
-        const rows = (localDB.checklist || []).filter(r => (r.faculty + '|' + r.course + '|' + r.batch) === key && canEditHrs(r) && !(r.weeklyHrs !== undefined && r.weeklyHrs !== ''));
-        rows.forEach(r => { r.weeklyHrs = h; r.updatedAt = nowIso(); r.updatedBy = meEmail(); });
-        window.saveLocal(true); log('CHECKLIST', 'Weekly teaching hours set (group)', `${key.replace(/\|/g, ' · ')}: ${rows.length} module(s) → ${h} h/week`);
-        window.showToast(`${rows.length} module(s) set to ${h} h/week`, 'success'); renderHoursSetup();
-    };
-    function renderHoursSetup() {
-        const body = document.getElementById('iq-panel-body'); if (!body) return;
-        const q = HS.q.toLowerCase();
-        const all = (localDB.checklist || []).filter(r => (!HS.fac || r.faculty === HS.fac) && canEditHrs(r));
-        const rows = all.filter(r => (!q || [r.code, r.name, r.lecturerName, r.course, r.batch].join(' ').toLowerCase().includes(q)) && (!HS.onlyEmpty || !rowHrs(r).h));
-        const groups = {}; rows.sort(rowSort).forEach(r => { const k = r.faculty + '|' + r.course + '|' + r.batch; (groups[k] = groups[k] || []).push(r); });
-        const set = all.filter(r => rowHrs(r).h).length;
-        body.innerHTML = `<div class="flex flex-wrap gap-2 items-center mb-3">
-            ${activeRole === 'ALL' || isOversight() ? `<select class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.iqHsSet('fac', this.value)"><option value="">All faculties</option>${FACULTIES.map(f => `<option ${HS.fac === f ? 'selected' : ''}>${f}</option>`).join('')}</select>` : `<b class="text-[#004d40]">Faculty of ${esc(HS.fac)}</b>`}
-            <input class="iq-in !w-56 !py-1.5 !text-[11px]" placeholder="🔍 module, lecturer, course…" value="${esc(HS.q)}" onchange="window.iqHsSet('q', this.value)">
-            <label class="text-[11px] font-bold flex items-center gap-1"><input type="checkbox" ${HS.onlyEmpty ? 'checked' : ''} onchange="window.iqHsSet('onlyEmpty', this.checked)"> Only modules without hours</label>
-            <span class="ml-auto text-[11px] font-black" style="color:${set === all.length ? '#065f46' : '#0d47a1'}">${set} / ${all.length} modules have weekly hours</span></div>
-            <p class="text-[10.5px] text-gray-600 font-bold mb-3">Type the teaching hours per week for each module (saved immediately). Use “Apply to empty” to give every module of a course/batch the same hours in one go. Lecturers see their total on their Royal Workload Card at once.</p>
-            ${Object.entries(groups).map(([k, rs]) => { const [f, c, b] = k.split('|'); const kid = js(k); const tot = Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10; return `<div class="iq-card mb-3"><div class="flex flex-wrap justify-between items-center gap-2 mb-2"><div><b class="text-[#004d40] text-[12px]">${esc(c)}</b> <span class="iq-chip" style="background:#e0f2fe;color:#0d47a1">${esc(b)}</span> <span class="text-[10px] text-gray-500 font-bold">${esc(f)} · ${rs.length} modules · ${tot} h/week</span></div>
-                <div class="flex gap-1 items-center"><input id="iq-hs-${esc(k.replace(/[^a-z0-9]/gi, '_'))}" type="number" min="0" max="40" step="0.5" class="iq-in !py-1 !w-20 text-center" placeholder="h/week"><button class="iq-btn-soft !py-1" onclick="window.iqHsApply('${kid}', document.getElementById('iq-hs-${esc(k.replace(/[^a-z0-9]/gi, '_'))}').value)">Apply to empty</button></div></div>
-                <table class="iq-tbl"><thead><tr><th>Module</th><th>Lecturer</th><th>Hrs / week</th><th>Semester hrs</th></tr></thead><tbody>${rs.map(r => { const hh = rowHrs(r); return `<tr><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td>${r.lecturerId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.lecturerId)}')">${esc(r.lecturerName || nm(r.lecturerId))}</span>` : '<i class="text-gray-400">not allocated</i>'}</td><td><input type="number" min="0" max="40" step="0.5" value="${r.weeklyHrs !== undefined && r.weeklyHrs !== '' ? esc(r.weeklyHrs) : ''}" placeholder="${hh.h || '?'}" onchange="window.iqSetHrs('${js(r.id)}', this.value)" class="iq-in !py-1 !w-20 text-center font-black">${hh.h && hh.src !== 'set' ? `<span class="text-[8px] text-gray-400 font-bold ml-1">${SRC_TXT[hh.src]}</span>` : ''}</td><td class="font-bold">${hh.h ? Math.round(hh.h * SEMW() * 10) / 10 : '–'}</td></tr>`; }).join('')}</tbody></table></div>`; }).join('') || '<p class="text-center text-gray-400 italic p-6">No modules you can edit here.</p>'}`;
+    window.__iqra = { TD, DW, S360, workloadOf, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
     }
-
-    // ------------------------------------------------------------------ 👑 Royal Workload Card → PDF
-    window.iqWorkloadPdf = async (lid) => {
-        const W = workloadOf(lid); const l = W.l; const name = l ? window.getLecturerName(l) : lid;
-        const th = (t) => `<th style="padding:6px;background:#004d40;color:#ffffff;font-size:8.5px;text-transform:uppercase;text-align:left;border:1px solid #cbd5e1">${t}</th>`;
-        const td = 'padding:5px;border:1px solid #e2e8f0;font-size:9.5px;vertical-align:top;';
-        const coordRows = window.rowsForLecturer(lid, 'coord').sort(rowSort);
-        const byL = {}; coordRows.forEach(r => (byL[r.lecturerId || '—'] = byL[r.lecturerId || '—'] || []).push(r));
-        const [st] = loadStatus(W.wch, W.target);
-        document.getElementById('report-content-area').innerHTML = `<div style="font-family:Inter,sans-serif;color:#0f172a">
-            <div style="text-align:center;border-bottom:4px double #0d47a1;padding-bottom:8px"><div style="font-size:10px;letter-spacing:4px;font-weight:800;color:#00695c;text-transform:uppercase">${IQ.inst}</div><div style="font-family:Cinzel,'Playfair Display',serif;font-size:24px;font-weight:900;color:#004d40;letter-spacing:.12em">ROYAL WORKLOAD CARD</div><div style="font-size:10px;font-weight:800;color:#0d47a1">${IQ.short} · ${IQ.long}</div></div>
-            <div style="margin-top:10px;padding:14px;border-radius:12px;background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;display:flex;justify-content:space-between;align-items:center">
-                <div><div style="font-size:19px;font-weight:900">${esc(name)}</div><div style="font-size:10px;color:#bae6fd">${esc(l ? (window.getPositions(l).map(x => POSITION_LABELS[x]).join(' · ') || 'Lecturer') : '')} · Faculty of ${esc(W.home || '—')} · ${esc(l ? window.getSafeVal(l, ['LecturerType']) : '')}</div></div>
-                <div style="display:flex;gap:10px;text-align:center">${[[W.wch || '—', 'HRS / WEEK'], [W.target, 'TARGET'], [W.ownPct + '%', 'OWN FACULTY'], [st, 'STATUS']].map(([v, t]) => `<div style="border:1px solid #7dd3fc;border-radius:10px;padding:5px 9px"><div style="font-size:15px;font-weight:900">${v}</div><div style="font-size:7px;letter-spacing:1px">${t}</div></div>`).join('')}</div></div>
-            <h3 style="font-family:Cinzel,serif;color:#004d40;font-size:13px;margin:14px 0 6px;border-bottom:2px solid #0d47a1;padding-bottom:3px">Modules taught – weekly workload</h3>
-            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Module')}${th('Course / Batch')}${th('Faculty')}${th('Hrs / week')}${th('Semester hrs')}${th('Coordinator')}${th('Checklist')}</tr></thead><tbody>${W.rows.map(r => `<tr><td style="${td}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}</td><td style="${td}">${esc(r.course)}<br>${esc(r.batch)}</td><td style="${td}">${esc(r.fac)} (${r.fac === W.home ? 'own' : 'other'})</td><td style="${td}text-align:center;font-weight:900">${r.wchN || '–'}</td><td style="${td}text-align:center">${r.wchN ? Math.round(r.wchN * SEMW() * 10) / 10 : '–'}</td><td style="${td}">${esc(r.coord || '—')}</td><td style="${td}font-weight:900;color:${pctColor(r.pct)}">${r.pct === null ? '–' : r.pct + '%'}</td></tr>`).join('')}
-            <tr><td style="${td}font-weight:900" colspan="3">TOTAL</td><td style="${td}text-align:center;font-weight:900;color:#0d47a1">${W.wch || '–'}</td><td style="${td}text-align:center;font-weight:900">${W.wch ? Math.round(W.wch * SEMW() * 10) / 10 : '–'}</td><td style="${td}" colspan="2">${st}</td></tr></tbody></table>
-            ${coordRows.length ? `<h3 style="font-family:Cinzel,serif;color:#4a148c;font-size:13px;margin:14px 0 6px;border-bottom:2px solid #4a148c;padding-bottom:3px">Coordination team – ${Object.keys(byL).length} lecturer(s) · ${coordRows.length} module(s)</h3>
-            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Lecturer')}${th('Modules')}${th('Hrs / week')}${th('Checklist')}</tr></thead><tbody>${Object.entries(byL).map(([k, rs]) => `<tr><td style="${td}font-weight:800">${esc(k === '—' ? 'Not allocated' : nm(k))}</td><td style="${td}">${rs.map(r => esc(r.code + ' ' + r.batch)).join(', ')}</td><td style="${td}text-align:center">${Math.round(rs.reduce((a, r) => a + rowHrs(r).h, 0) * 10) / 10 || '–'}</td><td style="${td}font-weight:900">${Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length)}%</td></tr>`).join('')}</tbody></table>` : ''}
-            <div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:14px">Generated ${new Date().toLocaleString()} · ${IQ.short} – ${IQ.inst}</div></div>`;
-        log('REPORT', 'Royal workload card PDF', name);
-        await window.renderAreaToPdf(`Royal_Workload_Card_${name.replace(/[^a-z0-9]+/gi, '_')}.pdf`, 'Designing the royal workload card…');
-    };
-
+    // =================================== END OF ADD-ON 2 (IQRA) ===================================
 
     // =====================================================================================================
-    // ===============================  TIMETABLE STUDIO (classes & exams)  ===============================
+    // ======  ADD-ON 3 : RASFAHI AIMS — TIMETABLE STUDIO  (lecture timetable + examination timetable)  ====
+    // ======  Sessions (faculty) · Venues (capacity / online / hybrid) · offerings from the software data ==
+    // ======  Clash engine (lecturer · venue · batch · individual students) · suggestions & auto-schedule ==
+    // ======  Week / day dashboards · exam colour codes · PDF / HTML / Excel · Excel data template ·     ==
+    // ======  publish + amendments (version, last amended, effective date) · live lecturer / student view ==
     // =====================================================================================================
-    const ALL_DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-    const DEF_SESSIONS = [{ name: 'Morning', start: '08:10', end: '12:00' }, { name: 'Afternoon', start: '13:00', end: '18:00' }, { name: 'Night', start: '18:00', end: '23:00' }];
-    const DEF_EXAM_SLOTS = [{ name: 'Morning', start: '09:00', end: '12:00' }, { name: 'Afternoon', start: '13:30', end: '16:30' }, { name: 'Evening', start: '19:00', end: '22:00' }];
-    const ROOM_TYPES = ['Classroom', 'Lecture Hall', 'Lab', 'Exam Hall', 'Online', 'Hybrid'];
-    // exam colours for hall seating – strong, easy to tell apart, no yellow
-    const EXAM_COLORS = [['#004d40', 'Emerald'], ['#0d47a1', 'Royal Blue'], ['#4a148c', 'Royal Purple'], ['#b71c1c', 'Crimson'], ['#1b5e20', 'Forest'], ['#01579b', 'Ocean'], ['#ad1457', 'Rose'], ['#00838f', 'Teal'], ['#283593', 'Indigo'], ['#5d4037', 'Walnut'], ['#37474f', 'Slate'], ['#6a1b9a', 'Violet'], ['#006064', 'Deep Cyan'], ['#c2185b', 'Magenta'], ['#2e7d32', 'Green'], ['#311b92', 'Night Blue']];
-    const TT = {
-        cfg: { days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'], slots: [], examSlots: DEF_EXAM_SLOTS, sessions: {}, rooms: {}, terms: {}, activeTerm: '' },
-        plans: {}, students: [], stuLoaded: false, stuLoading: null,
-        unsubCfg: null, unsubPlans: null, planTerm: '', started: false, ready: false, ver: 0,
-        ui: { mode: 'class', tab: 'week', fac: '', course: '', batch: '', lect: '', room: '', team: false, day: 'Sunday', sel: '', dur: 2, date: '', q: '', pubGroup: 'group', stuQ: '', stuSel: '' }
-    };
-    window.__tt = TT;
-    const toMin = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
-    const hm = (t) => { const m = toMin(t); const h = Math.floor(m / 60), mm = m % 60; return `${((h + 11) % 12) + 1}:${pad2(mm)} ${h >= 12 ? 'PM' : 'AM'}`; };
-    const durH = (e) => Math.max(0, (toMin(e.end) - toMin(e.start)) / 60);
-    const overlap = (a, b) => toMin(a.start) < toMin(b.end) && toMin(b.start) < toMin(a.end);
-    const sk = (s) => String(s || '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'X';
-    const offKey = (code, batch) => sk(code) + '__' + sk(batch);
-    const grpKey = (course, batch) => 'g_' + sk(course) + '__' + sk(batch);
-    const slots = () => (TT.cfg.slots && TT.cfg.slots.length ? TT.cfg.slots : (localDB.settings.timeslots || [])).slice().sort((a, b) => toMin(a.start) - toMin(b.start));
-    const exSlots = () => (TT.cfg.examSlots && TT.cfg.examSlots.length ? TT.cfg.examSlots : DEF_EXAM_SLOTS);
-    const days = () => ALL_DAYS.filter(d => (TT.cfg.days || []).includes(d));
-    const term = () => (TT.cfg.terms || {})[TT.cfg.activeTerm] || {};
-    const sessionsOf = (fac) => ((TT.cfg.sessions || {})[fac] && TT.cfg.sessions[fac].length ? TT.cfg.sessions[fac] : DEF_SESSIONS);
-    const rooms = () => Object.values(TT.cfg.rooms || {}).sort((a, b) => String(a.name).localeCompare(String(b.name), undefined, { numeric: true }));
-    const roomById = (id) => (TT.cfg.rooms || {})[id] || null;
-    const roomName = (id) => { const r = roomById(id); return r ? r.name : (id ? id : 'TBA'); };
-    const isVirtual = (r) => r && ['Online'].includes(r.type);
-    const canEditFacTT = (f) => !isReadOnly() && (activeRole === 'ALL' || (!!f && facManaged() === f));
-    const canEditExam = (f) => !isReadOnly() && (activeRole === 'ALL' || activeRole === 'EXAM' || (!!f && facManaged() === f));
-    const canCfg = () => !isReadOnly() && (activeRole === 'ALL' || activeRole === 'EXAM' || !!facManaged());
-    const allClasses = () => Object.values(TT.plans).flatMap(p => Object.values(p.classes || {}));
-    const allExams = () => Object.values(TT.plans).flatMap(p => Object.values(p.exams || {}));
-    const planOf = (f) => TT.plans[f] || (TT.plans[f] = { fac: f, termId: TT.cfg.activeTerm, classes: {}, exams: {}, offers: {}, courses: {}, amended: {}, effective: {}, published: {} });
-    const setPath = (obj, path, val) => { const ps = path.split('.'); let o = obj; for (let i = 0; i < ps.length - 1; i++) { o[ps[i]] = o[ps[i]] && typeof o[ps[i]] === 'object' ? o[ps[i]] : {}; o = o[ps[i]]; } if (val && val.__del) delete o[ps[ps.length - 1]]; else o[ps[ps.length - 1]] = val; };
-    const DEL = { __del: true };
+    if (!window.__aimsTT) { window.__aimsTT = true;
 
-    // ------------------------------------------------------------------ cloud read/write
-    const cfgRef = () => doc(dbCloud, 'iqra_tt', 'config');
-    const planRef = (f) => doc(dbCloud, 'iqra_tt_plans', `${sk(TT.cfg.activeTerm)}__${sk(f)}`);
-    const toFs = async (obj) => { const F = await FSX(); const o = {}; Object.entries(obj).forEach(([k, v]) => o[k] = v && v.__del ? F.deleteField() : v); return o; };
-    const cfgUpdate = async (obj) => {
-        Object.entries(obj).forEach(([k, v]) => setPath(TT.cfg, k, v)); TT.ver++; ttRefresh();
-        if (!dbCloud) return;
-        try { const F = await FSX(); await setDoc(cfgRef(), { updatedAt: Date.now() }, { merge: true }); await F.updateDoc(cfgRef(), await toFs(obj)); }
-        catch (e) { window.showToast('Timetable settings not saved to cloud: ' + (e.code || e.message), 'warning'); }
-    };
-    const planUpdate = async (f, obj, note) => {
-        const p = planOf(f);
-        const now = Date.now();
-        const full = { ...obj, amendedAt: now, amendedBy: meEmail() };
-        Object.entries(full).forEach(([k, v]) => setPath(p, k, v)); TT.ver++; ttRefresh();
-        if (!dbCloud) return;
-        try { const F = await FSX(); await setDoc(planRef(f), { termId: TT.cfg.activeTerm, fac: f }, { merge: true }); await F.updateDoc(planRef(f), await toFs(full)); if (note) log('TIMETABLE', note.a, note.d); }
-        catch (e) { alert('❌ Timetable change not saved to the cloud.\n\n' + (e.code ? window.fbErrorHelp(e) : e.message)); }
-    };
-    const markAmended = (obj, e) => { const t = Date.now(); obj[`amended.${grpKey(e.course, e.batch)}`] = t; if (e.lecturerId) obj[`amended.l_${sk(e.lecturerId)}`] = t; };
+    const AX = { col: 'aims_timetable', app: 'RASFAHI AIMS', long: 'Academic Institution Management System', inst: 'Islamic University of Maldives', err: '' };
+    const DAYS_ALL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const DSH = { Sunday: 'Sun', Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat' };
+    const DV_DAYS = { Sunday: 'އާދިއްތަ', Monday: 'ހޯމަ', Tuesday: 'އަންގާރަ', Wednesday: 'ބުދަ', Thursday: 'ބުރާސްފަތި', Friday: 'ހުކުރު', Saturday: 'ހޮނިހިރު' };
+    const PALETTE = [['Royal Blue', '#1d4ed8'], ['Emerald', '#059669'], ['Crimson', '#dc2626'], ['Amber', '#d97706'], ['Purple', '#7c3aed'], ['Teal', '#0d9488'], ['Pink', '#db2777'], ['Orange', '#ea580c'], ['Olive', '#65a30d'], ['Navy', '#1e3a8a'], ['Maroon', '#9f1239'], ['Brown', '#92400e'], ['Cyan', '#0891b2'], ['Indigo', '#4338ca'], ['Gold', '#ca8a04'], ['Slate', '#475569'], ['Lime', '#4d7c0f'], ['Magenta', '#a21caf'], ['Sky', '#0284c7'], ['Rose', '#e11d48']];
+    const colorName = (hex) => { const p = PALETTE.find(x => x[1].toLowerCase() === String(hex || '').toLowerCase()); return p ? p[0] : String(hex || ''); };
 
-    const subscribePlans = async () => {
-        if (!dbCloud || !TT.cfg.activeTerm || TT.planTerm === TT.cfg.activeTerm) return;
-        if (TT.unsubPlans) { try { TT.unsubPlans(); } catch (e) {} }
-        TT.planTerm = TT.cfg.activeTerm; TT.plans = {};
+    // ------------------------------------------------------------------ small helpers
+    const E = esc;
+    const P2 = (n) => String(n).padStart(2, '0');
+    const K = (...parts) => parts.map(p => String(p ?? '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '')).join('__');
+    const uid = (p) => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const toMin = (t) => { const m = String(t ?? '').match(/(\d{1,2})\s*[:.]\s*(\d{2})/); return m ? (+m[1]) * 60 + (+m[2]) : NaN; };
+    const toHM = (n) => `${P2(Math.floor(n / 60) % 24)}:${P2(n % 60)}`;
+    const t12 = (t) => { const n = toMin(t); if (isNaN(n)) return t || ''; let h = Math.floor(n / 60); const m = n % 60, ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${P2(m)} ${ap}`; };
+    const ovl = (a1, a2, b1, b2) => a1 < b2 && b1 < a2;
+    const nrm = (s) => String(s ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const num = (v, d = 0) => { const x = parseFloat(v); return isNaN(x) ? d : x; };
+    const clone = (o) => JSON.parse(JSON.stringify(o ?? null));
+    const meE = () => String(myEmail() || '').toLowerCase();
+    const ymd = (d = new Date()) => `${d.getFullYear()}-${P2(d.getMonth() + 1)}-${P2(d.getDate())}`;
+    const dayOfDate = (s) => { const d = new Date(String(s) + 'T00:00:00'); return isNaN(d) ? '' : DAYS_ALL[d.getDay()]; };
+    const fmtD = (s) => { if (!s) return ''; const d = new Date(String(s).length <= 10 ? s + 'T00:00:00' : s); return isNaN(d) ? String(s) : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
+    const fmtDW = (s) => { if (!s) return ''; const d = new Date(s + 'T00:00:00'); return isNaN(d) ? s : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); };
+    const fmtDT = (v) => { if (!v) return ''; const d = new Date(v); return isNaN(d) ? '' : d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+    const lname = (id) => { const l = id ? window.getLecturerById(id) : null; return l ? window.getLecturerName(l) : (id || ''); };
+    const lnames = (ids) => (ids || []).map(lname).filter(Boolean).join(', ');
+    const hueOf = (s) => { let h = 0; String(s || '').split('').forEach(c => { h = (h * 31 + c.charCodeAt(0)) % 360; }); return h; };
+    const modBg = (code) => `hsl(${hueOf(code)},75%,93%)`;
+    const modFg = (code) => `hsl(${hueOf(code)},65%,28%)`;
+    const log = (a, d) => { try { window.logActivity && window.logActivity('TIMETABLE', a, d); } catch (e) {} };
+    const toast = (m, t = 'info') => window.showToast(m, t);
+    const loader = (on, txt) => { const l = document.getElementById('loader'); if (!l) return; l.style.display = on ? 'flex' : 'none'; if (txt) document.getElementById('loader-text').innerText = txt; };
+
+    // ------------------------------------------------------------------ who may do what
+    const RO_ROLES = ['VIEWER', 'DVC_ACAD', 'DVC_ADMIN', 'REGISTRAR', 'VC', 'FINANCE'];
+    const OVS_ROLES = ['ALL', 'VC', 'REGISTRAR', 'DVC_ACAD', 'DVC_ADMIN', 'VIEWER', 'FINANCE', 'EXAM'];
+    const RO = () => RO_ROLES.includes(activeRole) || activeRole === 'STUDENT' || isWorkspaceRole();
+    const myFac = () => window.scopeFaculty() || '';
+    const canFac = (fac) => !RO() && (activeRole === 'ALL' || (!!myFac() && myFac() === fac));
+    const canTT = (tt) => !!tt && !RO() && (canFac(tt.faculty) || (tt.kind === 'EXAM' && activeRole === 'EXAM'));
+    const canVenues = () => !RO() && (activeRole === 'ALL' || !!myFac() || activeRole === 'EXAM');
+    const facChoices = () => OVS_ROLES.includes(activeRole) ? FACULTIES.slice() : [myFac() || userFaculty].filter(Boolean);
+
+    // ------------------------------------------------------------------ live data (Firestore collection aims_timetable)
+    //   cfg_venues             { faculty:'SHARED', venues:{id:{...}} }
+    //   cfg_sessions_<FAC>     { faculty, days:[..], sessions:{id:{name,start,end,slot,brk,color}}, examSlots:{id:{name,start,end}} }
+    //   cfg_data_<FAC>         { faculty, courses:{key:{..}}, offerings:{key:{..}}, regs:{id:{stu,code,batch,type,reason}} }
+    //   tt_<id>                { kind:'CLASS'|'EXAM', faculty, title, year, semester, ..., entries:{id:{..}}, published:{entries,version,...}, history:[..] }
+    const TT = {};
+    let DV = 0, LV = 0, ttUnsub = null, ttFirst = true, ttReady = false;
+    const cacheSave = () => { try { localStorage.setItem('aims_tt_cache', JSON.stringify(TT)); } catch (e) {} };
+    const cacheLoad = () => { try { const x = JSON.parse(localStorage.getItem('aims_tt_cache') || 'null'); if (x && typeof x === 'object') Object.assign(TT, x); } catch (e) {} };
+    const ttRef = (id) => doc(dbCloud, AX.col, id);
+    const cloudOn = () => !!(dbCloud && auth && auth.currentUser);
+
+    const axErr = (e, what) => {
+        console.error('[AIMS]', e);
+        const perm = String(e && (e.code || e.message) || '').includes('permission');
+        alert(`❌ ${what || 'Could not save'}\n\n${perm ? 'Firestore rules blocked this change.\n• Make sure you are signed in with a Faculty / Dean / HOD / Secretary / Academic Affairs account (or the Examination unit for exam timetables).\n• The admin must publish the NEW firestore.rules (it adds the "aims_timetable" collection).' : (window.fbErrorHelp ? window.fbErrorHelp(e) : (e.message || e))}`);
+    };
+    const deepMerge = (a, b) => { Object.keys(b).forEach(k => { const v = b[k]; if (v && typeof v === 'object' && !Array.isArray(v) && a[k] && typeof a[k] === 'object' && !Array.isArray(a[k])) deepMerge(a[k], v); else a[k] = clone(v); }); return a; };
+    const localChanged = () => { DV++; cacheSave(); scheduleRender(); };
+
+    // merge-write a document (creates it when missing)
+    const axSet = async (id, data) => {
+        const d = { ...data, updatedAt: Date.now(), updatedBy: meE() };
+        if (!cloudOn()) { TT[id] = deepMerge(TT[id] || { id }, d); localChanged(); return true; }
+        try { await setDoc(ttRef(id), d, { merge: true }); return true; } catch (e) { axErr(e); return false; }
+    };
+    // replace / delete nested values:  changes = [ [ ['entries', id], value | null ], ... ]
+    const axPaths = async (id, changes, extra = {}) => {
+        if (!changes.length && !Object.keys(extra).length) return true;
+        if (!cloudOn()) {
+            const d = TT[id] || (TT[id] = { id });
+            changes.forEach(([path, val]) => { let o = d; for (let i = 0; i < path.length - 1; i++) o = o[path[i]] = (o[path[i]] && typeof o[path[i]] === 'object') ? o[path[i]] : {}; if (val === null) delete o[path[path.length - 1]]; else o[path[path.length - 1]] = clone(val); });
+            Object.assign(d, clone(extra), { updatedAt: Date.now(), updatedBy: meE() });
+            localChanged(); return true;
+        }
         try {
-            const F = await FSX();
-            TT.unsubPlans = onSnapshot(F.query(collection(dbCloud, 'iqra_tt_plans'), F.where('termId', '==', TT.cfg.activeTerm)), (snap) => {
-                snap.docChanges().forEach(ch => { const d = ch.doc.data(); if (ch.type === 'removed') delete TT.plans[d.fac]; else TT.plans[d.fac] = { classes: {}, exams: {}, offers: {}, courses: {}, amended: {}, effective: {}, published: {}, ...d }; });
-                TT.ver++; TT.ready = true; ttRefresh(); ttNotifyMine();
-            }, (err) => { console.warn('[timetable plans]', err.code || err); if (String(err.code || '').includes('permission')) window.showToast('Timetable: publish the latest firestore.rules.', 'warning'); });
-        } catch (e) { console.warn(e); }
+            const args = [];
+            changes.forEach(([path, val]) => { args.push(new FieldPath(...path), val === null ? deleteField() : val); });
+            Object.entries({ ...extra, updatedAt: Date.now(), updatedBy: meE() }).forEach(([k, v]) => args.push(k, v));
+            for (let i = 0; i < args.length; i += 400) await updateDoc(ttRef(id), ...args.slice(i, i + 400));
+            return true;
+        } catch (e) { axErr(e); return false; }
     };
+    const axDeleteDoc = async (id) => {
+        if (!cloudOn()) { delete TT[id]; localChanged(); return true; }
+        try { await deleteDoc(ttRef(id)); return true; } catch (e) { axErr(e, 'Could not delete'); return false; }
+    };
+
     const startTT = () => {
-        if (TT.started || !dbCloud || !auth || !auth.currentUser) return;
-        TT.started = true;
-        TT.unsubCfg = onSnapshot(cfgRef(), (snap) => {
-            const d = snap.exists() ? snap.data() : {};
-            TT.cfg = { ...TT.cfg, ...d, days: d.days || TT.cfg.days, rooms: d.rooms || {}, terms: d.terms || {}, sessions: d.sessions || {} };
-            if (!TT.cfg.slots || !TT.cfg.slots.length) TT.cfg.slots = (localDB.settings.timeslots || []).map(s => ({ start: s.start, end: s.end }));
-            if (!TT.cfg.activeTerm && Object.keys(TT.cfg.terms).length) TT.cfg.activeTerm = Object.keys(TT.cfg.terms).sort().pop();
-            TT.ver++; subscribePlans(); ttRefresh();
-        }, (err) => console.warn('[timetable config]', err.code || err));
+        if (ttUnsub) return;
+        cacheLoad(); ttReady = true;
+        if (!cloudOn()) { scheduleRender(); return; }
+        ttFirst = true;
+        ttUnsub = onSnapshot(collection(dbCloud, AX.col), (snap) => {
+            if (ttFirst) { Object.keys(TT).forEach(k => delete TT[k]); ttFirst = false; }
+            snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete TT[ch.doc.id]; else TT[ch.doc.id] = { ...ch.doc.data(), id: ch.doc.id }; });
+            AX.err = ''; DV++; cacheSave();
+            checkAmendNotices();
+            scheduleRender();
+        }, (err) => {
+            console.warn('[AIMS timetable]', err);
+            AX.err = err.code || String(err);
+            if (String(AX.err).includes('permission')) toast('Timetable Studio: publish the latest firestore.rules (aims_timetable) to enable live timetables.', 'warning');
+            scheduleRender();
+        });
     };
-    const ensureTerm = async () => {
-        if (TT.cfg.activeTerm && TT.cfg.terms[TT.cfg.activeTerm]) return true;
-        if (!canCfg()) return false;
-        const y = new Date().getFullYear();
-        const id = 'T' + y + '_1';
-        await cfgUpdate({ [`terms.${id}`]: { id, semester: 'Semester 1', year: String(y), label: `Semester 1 · ${y}`, examFrom: '', examTo: '', createdAt: Date.now() }, activeTerm: id, days: TT.cfg.days, slots: slots().map(s => ({ start: s.start, end: s.end })), examSlots: exSlots() });
-        subscribePlans();
+    const stopTT = () => { if (ttUnsub) { try { ttUnsub(); } catch (e) {} ttUnsub = null; } };
+
+    // ------------------------------------------------------------------ configuration getters
+    const ONLINE_V = { id: 'ONLINE', name: 'Online (virtual class)', type: 'Online', online: true, hybrid: false, capacity: 99999, examCap: 0, multi: true, campus: '' };
+    const venuesMap = () => (TT.cfg_venues && TT.cfg_venues.venues) || {};
+    const venuesArr = () => Object.values(venuesMap()).filter(v => v && v.id && !v.deleted)
+        .sort((a, b) => String(a.campus || '').localeCompare(String(b.campus || '')) || String(a.name).localeCompare(String(b.name), undefined, { numeric: true }));
+    const venueById = (id) => id === 'ONLINE' ? ONLINE_V : venuesMap()[id];
+    const vname = (id) => { const v = venueById(id); return v ? v.name : (id ? id : 'TBA'); };
+    const isVirtual = (v) => !!v && (v.online || v.type === 'Online');
+
+    const DEF_SESS = {
+        days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+        sessions: {
+            S1: { id: 'S1', name: 'Morning', start: '08:10', end: '12:00', slot: 50, brk: 10, color: '#0284c7' },
+            S2: { id: 'S2', name: 'Afternoon', start: '13:00', end: '18:00', slot: 50, brk: 10, color: '#d97706' },
+            S3: { id: 'S3', name: 'Night', start: '18:00', end: '23:00', slot: 50, brk: 10, color: '#4338ca' }
+        },
+        examSlots: {
+            E1: { id: 'E1', name: 'Morning', start: '09:00', end: '12:00' },
+            E2: { id: 'E2', name: 'Afternoon', start: '13:30', end: '16:30' },
+            E3: { id: 'E3', name: 'Evening', start: '19:00', end: '22:00' }
+        }
+    };
+    const sessCfg = (fac) => {
+        const d = TT['cfg_sessions_' + fac] || {};
+        const s = d.sessions && Object.values(d.sessions).filter(x => x && !x.deleted).length ? d.sessions : DEF_SESS.sessions;
+        const x = d.examSlots && Object.values(d.examSlots).filter(v => v && !v.deleted).length ? d.examSlots : DEF_SESS.examSlots;
+        return { days: (d.days && d.days.length) ? DAYS_ALL.filter(z => d.days.includes(z)) : DEF_SESS.days.slice(), sessions: s, examSlots: x, saved: !!d.sessions };
+    };
+    const sessList = (fac) => Object.values(sessCfg(fac).sessions).filter(s => s && !s.deleted).sort((a, b) => toMin(a.start) - toMin(b.start));
+    const examSlotList = (fac) => Object.values(sessCfg(fac).examSlots).filter(s => s && !s.deleted).sort((a, b) => toMin(a.start) - toMin(b.start));
+    // time slots of a faculty (generated from the sessions: slot length + break, or a custom list)
+    const slotsOf = (fac) => {
+        const out = [];
+        sessList(fac).forEach(s => {
+            const custom = String(s.custom || '').trim();
+            if (custom) {
+                custom.split(/[,;\n]+/).forEach(p => { const m = p.match(/(\d{1,2}[:.]\d{2})\s*[-–to]+\s*(\d{1,2}[:.]\d{2})/); if (m) out.push({ sid: s.id, sname: s.name, color: s.color, start: toHM(toMin(m[1])), end: toHM(toMin(m[2])) }); });
+                return;
+            }
+            const st = toMin(s.start), en = toMin(s.end), len = Math.max(15, num(s.slot, 60)), br = Math.max(0, num(s.brk, 0));
+            if (isNaN(st) || isNaN(en)) return;
+            for (let c = st, g = 0; c + len <= en && g < 60; c += len + br, g++) out.push({ sid: s.id, sname: s.name, color: s.color, start: toHM(c), end: toHM(c + len) });
+        });
+        out.sort((a, b) => toMin(a.start) - toMin(b.start));
+        out.forEach((s, i) => { s.i = i; });
+        return out;
+    };
+    const cfgData = (fac) => TT['cfg_data_' + fac] || {};
+
+    // ------------------------------------------------------------------ OFFERINGS = module + batch + faculty (built from the software's data)
+    const splitList = (s) => String(s ?? '').split(/[,;\/|\n]+/).map(x => x.trim()).filter(Boolean);
+    let OFF = null, OFF_V = '';
+    const offerings = () => {
+        const ver = DV + ':' + LV;
+        if (OFF && OFF_V === ver) return OFF;
+        const map = {};
+        const byCode = {};
+        (localDB.modules || []).forEach(m => { const c = String(window.getSafeVal(m, ['ModuleCode', 'Code']) || '').trim(); if (c) byCode[c.toUpperCase()] = m; });
+        const put = (fac, code, batch, course, name, o = {}) => {
+            code = String(code || '').trim(); if (!code) return null;
+            fac = String(fac || '').trim() || 'UNKNOWN';
+            const key = K(fac, code, batch);
+            const cur = map[key] || (map[key] = { key, fac, code, batch: String(batch || '').trim(), course: String(course || '').trim(), name: String(name || '').trim(), lects: [], coordId: '', wch: 0, students: 0, modality: '', session: '', campus: '', combined: [], classLen: 0, exam: '', examHrs: 0, venueType: '', medium: '', src: [] });
+            if (!cur.course && course) cur.course = String(course).trim();
+            if (!cur.name && name) cur.name = String(name).trim();
+            Object.entries(o).forEach(([k, v]) => {
+                if (v === undefined || v === null || v === '') return;
+                if (k === 'lects') { v.filter(Boolean).forEach(l => { if (!cur.lects.includes(l)) cur.lects.push(l); }); return; }
+                if (k === 'combined') { v.forEach(b => { if (b && !cur.combined.includes(b)) cur.combined.push(b); }); return; }
+                if (k === 'src') { cur.src.push(v); return; }
+                if (!cur[k]) cur[k] = v;
+            });
+            return cur;
+        };
+        // (1) Subject Coordinator Checklist rows (module + batch + lecturer + coordinator)
+        (localDB.checklist || []).forEach(r => put(r.faculty, r.code, r.batch, r.course, r.name, { lects: [r.lecturerId], coordId: r.coordinatorId, src: 'checklist' }));
+        // (2) Modules data (program, batch, WCH, students, modality, session, campus, assigned lecturer)
+        (localDB.modules || []).forEach(m => {
+            const code = window.getSafeVal(m, ['ModuleCode', 'Code']); if (!code) return;
+            const fac = window.getFaculty(m);
+            const batches = splitList(window.getSafeVal(m, ['OfferedBatch']));
+            const ass = localDB.assignments[window.makeSafeId(code)];
+            const ax = (m.aims && typeof m.aims === 'object') ? m.aims : {};
+            const o = {
+                lects: [...(ax.lects || []), ass && ass.id ? ass.id : ''].filter(Boolean), coordId: ax.coordId || '',
+                wch: num(window.getSafeVal(m, ['WCH'])), students: num(window.getSafeVal(m, ['NoofStudents'])),
+                modality: window.getSafeVal(m, ['Modality']), session: window.getSafeVal(m, ['Session']), campus: window.getSafeVal(m, ['Campus']),
+                medium: window.getSafeVal(m, ['MediumofInstruction', 'Medium']),
+                combined: splitList(window.getSafeVal(m, ['CombinedBatch'])),
+                classLen: num(ax.classLen), exam: ax.exam || '', examHrs: num(ax.examHrs), venueType: ax.venueType || '', src: 'modules'
+            };
+            (batches.length ? batches : ['']).forEach(b => put(fac, code, b, window.getSafeVal(m, ['ProgramName']), window.getSafeVal(m, ['ModuleName']), o));
+        });
+        // a module without batch next to the same module with batches → fold it into those rows
+        Object.values(map).filter(o => !o.batch).forEach(o => {
+            const sibs = Object.values(map).filter(x => x !== o && x.fac === o.fac && x.code.toUpperCase() === o.code.toUpperCase() && x.batch);
+            if (!sibs.length) return;
+            sibs.forEach(x => ['course', 'name', 'coordId', 'wch', 'students', 'modality', 'session', 'campus', 'classLen', 'exam', 'examHrs', 'venueType', 'medium'].forEach(k => { if (!x[k] && o[k]) x[k] = o[k]; }));
+            sibs.forEach(x => { if (!x.lects.length) x.lects = o.lects.slice(); });
+            delete map[o.key];
+        });
+        // (3) timetable-specific settings saved by the faculty / uploaded with the Excel template (win over the rest)
+        Object.keys(TT).filter(k => k.startsWith('cfg_data_')).forEach(k => {
+            const d = TT[k]; const fac = d.faculty || k.slice(9);
+            Object.values(d.offerings || {}).forEach(x => {
+                if (!x || !x.code) return;
+                const key = K(fac, x.code, x.batch);
+                const cur = map[key] || put(fac, x.code, x.batch, x.course, x.name, { src: 'timetable' });
+                if (!cur) return;
+                if (x.deleted) { delete map[key]; return; }
+                ['course', 'name', 'coordId', 'modality', 'session', 'campus', 'exam', 'venueType', 'medium'].forEach(f => { if (x[f]) cur[f] = x[f]; });
+                ['wch', 'students', 'classLen', 'examHrs'].forEach(f => { if (num(x[f])) cur[f] = num(x[f]); });
+                if (Array.isArray(x.lects) && x.lects.length) cur.lects = x.lects.slice();
+                if (Array.isArray(x.combined)) cur.combined = x.combined.slice();
+                if (x.hidden) cur.hidden = true;
+                cur.custom = true;
+            });
+        });
+        Object.values(map).forEach(o => {
+            const m = byCode[o.code.toUpperCase()];
+            if (!o.name && m) o.name = window.getSafeVal(m, ['ModuleName']);
+            if (!o.lects.length) { const a = localDB.assignments[window.makeSafeId(o.code)]; if (a && a.id) o.lects = [a.id]; }
+            if (!o.wch) o.wch = 3;
+            if (!o.classLen) o.classLen = o.wch <= 3 ? o.wch : 2;
+            if (!o.exam) o.exam = 'Yes';
+            if (!o.examHrs) o.examHrs = 2;
+            const mod = nrm(o.modality);
+            o.mode = mod.includes('online') ? 'Online' : (mod.includes('blend') || mod.includes('hybrid') ? 'Hybrid' : 'F2F');
+            o.cohorts = [{ k: K(o.course, o.batch), course: o.course, batch: o.batch }];
+            o.combined.forEach(b => { const k = K(o.course, b); if (!o.cohorts.some(c => c.k === k)) o.cohorts.push({ k, course: o.course, batch: b }); });
+        });
+        OFF = map; OFF_V = ver;
+        return map;
+    };
+    const offList = (fac) => Object.values(offerings()).filter(o => (!fac || o.fac === fac) && !o.hidden)
+        .sort((a, b) => a.course.localeCompare(b.course) || a.batch.localeCompare(b.batch, undefined, { numeric: true }) || a.code.localeCompare(b.code));
+    const cohortsOf = (fac) => {
+        const m = {};
+        offList(fac).forEach(o => o.cohorts.forEach(c => { if (!m[c.k]) m[c.k] = { k: c.k, course: c.course, batch: c.batch, offs: [] }; if (!m[c.k].offs.includes(o.key)) m[c.k].offs.push(o.key); }));
+        return Object.values(m).sort((a, b) => a.course.localeCompare(b.course) || a.batch.localeCompare(b.batch, undefined, { numeric: true }));
+    };
+    const cohortLabel = (c) => c ? `${c.course || '—'}${c.batch ? ' · ' + c.batch : ''}` : '';
+
+    // ------------------------------------------------------------------ STUDENTS: cohort + individual registrations (repeat / failed / carry-over / skip)
+    let SIX = null, SIX_V = '';
+    const stuIdOf = (s) => window.makeSafeId(window.getSafeVal(s, ['StudentID']));
+    const allRegs = () => {
+        const out = [];
+        Object.keys(TT).filter(k => k.startsWith('cfg_data_')).forEach(k => { const d = TT[k]; Object.values(d.regs || {}).forEach(r => { if (r && r.stu && r.code && !r.deleted) out.push({ ...r, fac: r.fac || d.faculty || k.slice(9), _doc: k }); }); });
+        return out;
+    };
+    const stuIndex = () => {
+        const ver = DV + ':' + LV;
+        if (SIX && SIX_V === ver) return SIX;
+        const offs = offerings();
+        const byId = {}, byCohort = {}, offStu = {}, stuOffs = {}, regsOf = {};
+        (localDB.students || []).forEach(s => {
+            const id = stuIdOf(s); if (!id || id.startsWith('UNKNOWN')) return;
+            byId[id] = s;
+            const ck = K(window.getSafeVal(s, ['EnrolledProgram', 'Program']), window.getSafeVal(s, ['Batch']));
+            (byCohort[ck] = byCohort[ck] || []).push(id);
+        });
+        Object.values(offs).forEach(o => { const set = new Set(); o.cohorts.forEach(c => (byCohort[c.k] || []).forEach(id => set.add(id))); offStu[o.key] = set; });
+        const regs = allRegs();
+        regs.filter(r => r.type === 'SKIP').forEach(r => {
+            const id = window.makeSafeId(r.stu);
+            Object.values(offs).forEach(o => { if (o.code.toUpperCase() === String(r.code).toUpperCase() && (!r.batch || nrm(o.batch) === nrm(r.batch))) offStu[o.key] && offStu[o.key].delete(id); });
+            (regsOf[id] = regsOf[id] || []).push(r);
+        });
+        regs.filter(r => r.type !== 'SKIP').forEach(r => {
+            const id = window.makeSafeId(r.stu);
+            const cands = Object.values(offs).filter(o => o.code.toUpperCase() === String(r.code).toUpperCase());
+            const o = cands.find(x => r.batch && nrm(x.batch) === nrm(r.batch) && (!r.fac || x.fac === r.fac)) || cands.find(x => r.batch && nrm(x.batch) === nrm(r.batch)) || (!r.batch ? cands.find(x => !r.fac || x.fac === r.fac) : null);
+            r._off = o ? o.key : '';
+            if (o) (offStu[o.key] = offStu[o.key] || new Set()).add(id);
+            (regsOf[id] = regsOf[id] || []).push(r);
+        });
+        Object.entries(offStu).forEach(([k, set]) => set.forEach(id => (stuOffs[id] = stuOffs[id] || new Set()).add(k)));
+        SIX = { byId, byCohort, offStu, stuOffs, regsOf, regs }; SIX_V = ver;
+        return SIX;
+    };
+    const offStudents = (key) => stuIndex().offStu[key] || new Set();
+    const stuCount = (o) => { if (!o) return 0; const n = offStudents(o.key).size; return n || num(o.students); };
+    const stuName = (id) => { const s = stuIndex().byId[id]; return s ? window.getSafeVal(s, ['FullName']) : id; };
+
+    // ------------------------------------------------------------------ timetables
+    const ttList = (kind, fac) => Object.values(TT).filter(d => d && d.id && d.id.startsWith('tt_') && d.kind === kind && (!fac || d.faculty === fac) && !d.deleted)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const termKey = (tt) => K(tt.year, tt.semester);
+    const entsOf = (tt, pub) => { if (pub === undefined && RO() && tt.published && tt.published.version) pub = true; return Object.values(((pub ? (tt.published || {}).entries : tt.entries)) || {}).filter(e => e && e.id); };
+    const hrsOf = (e) => num(e.hrs) || Math.max(0, (toMin(e.end) - toMin(e.start)) / 60);
+    // every entry of the same term (all faculties) – used by the clash engine so cross-faculty lecturers / students are safe
+    let POOLC = {};
+    const pool = (tt) => {
+        const key = tt.kind + '|' + termKey(tt) + '|' + DV;
+        if (POOLC[key]) return POOLC[key];
+        if (Object.keys(POOLC).length > 40) POOLC = {};
+        const out = [];
+        Object.values(TT).forEach(d => {
+            if (!d || !d.id || !d.id.startsWith('tt_') || d.kind !== tt.kind || d.deleted || d.archived || termKey(d) !== termKey(tt)) return;
+            entsOf(d).forEach(e => out.push({ ...e, _tt: d.id, _fac: d.faculty }));
+        });
+        return (POOLC[key] = out);
+    };
+    const withLocal = (tt, list) => { const ids = new Set(entsOf(tt).map(e => e.id)); return list.filter(e => e._tt !== tt.id || ids.has(e.id)); };
+
+    // ------------------------------------------------------------------ CLASH ENGINE: lecture timetable
+    const checkClass = (tt, c, P) => {
+        const hard = [], soft = [];
+        P = P || pool(tt);
+        const s1 = toMin(c.start), e1 = toMin(c.end);
+        if (!c.day) hard.push({ t: 'time', m: 'Choose a day.' });
+        if (!(e1 > s1)) hard.push({ t: 'time', m: 'End time must be after the start time.' });
+        const o = offerings()[c.off];
+        const coh = new Set((c.cohorts || (o ? o.cohorts : [])).map(x => x.k));
+        const stu = offStudents(c.off);
+        const v = venueById(c.venue);
+        const lects = c.lects || [];
+        for (const e of P) {
+            if (e.id === c.id || e.day !== c.day || !ovl(s1, e1, toMin(e.start), toMin(e.end))) continue;
+            const when = `${DSH[e.day] || e.day} ${e.start}–${e.end}`;
+            const where = e._fac && e._fac !== tt.faculty ? ` · ${e._fac}` : (e._tt !== tt.id ? ' · other timetable' : '');
+            const sameCoh = (e.cohorts || []).some(x => coh.has(x.k));
+            if (sameCoh) hard.push({ t: 'cohort', m: `Batch clash – ${cohortLabel(e.cohorts.find(x => coh.has(x.k)))} already has ${e.code} (${when})${where}`, e });
+            const cl = (e.lects || []).filter(l => lects.includes(l));
+            if (cl.length) hard.push({ t: 'lect', m: `Lecturer clash – ${lnames(cl)} teaches ${e.code} · ${e.batch || e.course} (${when})${where}`, e });
+            if (c.venue && e.venue === c.venue && !(v && v.multi)) hard.push({ t: 'venue', m: `Venue clash – ${vname(c.venue)} is booked for ${e.code} · ${e.batch || e.course} (${when})${where}`, e });
+            if (!sameCoh && stu.size && e.off !== c.off) {
+                const both = []; offStudents(e.off).forEach(x => { if (stu.has(x)) both.push(x); });
+                if (both.length) hard.push({ t: 'stu', m: `Student clash – ${both.length} student(s) also take ${e.code} · ${e.batch} (${when}): ${both.slice(0, 4).map(stuName).join(', ')}${both.length > 4 ? '…' : ''}`, e, stu: both });
+            }
+        }
+        const n = o ? stuCount(o) : 0;
+        if (v && !isVirtual(v) && num(v.capacity) && n > num(v.capacity)) soft.push({ t: 'cap', m: `${vname(c.venue)} holds ${v.capacity} – this class has ${n} students.` });
+        if (o && v) {
+            if (c.mode === 'Online' && !isVirtual(v)) soft.push({ t: 'mode', m: `Module is ONLINE – an online venue is recommended (a physical room is not needed).` });
+            if (c.mode === 'F2F' && isVirtual(v)) soft.push({ t: 'mode', m: `Module is FACE TO FACE but the venue is online.` });
+            if (c.mode === 'Hybrid' && !v.hybrid && !isVirtual(v)) soft.push({ t: 'mode', m: `Module is HYBRID / BLENDED – choose a hybrid-equipped room.` });
+        }
+        if (!c.venue) soft.push({ t: 'venue', m: 'No venue chosen (will show as TBA).' });
+        if (!lects.length) soft.push({ t: 'lect', m: 'No lecturer allocated.' });
+        if (o) {
+            const mine = entsOf(tt).filter(e => e.off === c.off && e.id !== c.id);
+            const h = mine.reduce((a, e) => a + hrsOf(e), 0) + num(c.hrs, (e1 - s1) / 60);
+            if (h > o.wch + 0.01) soft.push({ t: 'hrs', m: `Scheduled ${h} h – more than the ${o.wch} weekly contact hours.` });
+            if (mine.some(e => e.day === c.day)) soft.push({ t: 'day', m: `${o.code} already has a class on ${c.day}.` });
+            const pref = nrm(o.session);
+            if (pref) {
+                const sl = slotsOf(tt.faculty).find(s => s.start === c.start);
+                if (sl && !sessMatch(pref, sl.sname, sl.start)) soft.push({ t: 'sess', m: `Preferred session is "${o.session}" – this is the ${sl.sname} session.` });
+            }
+        }
+        return { hard, soft };
+    };
+    const sessMatch = (pref, sname, start) => {
+        pref = nrm(pref); const s = nrm(sname); const st = toMin(start);
+        if (!pref) return true;
+        if (s.includes(pref) || pref.includes(s)) return true;
+        if (pref.includes('even') || pref.includes('night')) return st >= 16 * 60;
+        if (pref.includes('morn')) return st < 12 * 60 + 30;
+        if (pref.includes('after')) return st >= 12 * 60 && st < 18 * 60;
         return true;
     };
 
-    // ------------------------------------------------------------------ students (with irregular registrations)
-    const loadStudents = async (force) => {
-        if (TT.stuLoaded && !force) return TT.students;
-        if (!(isOversight() || window.isManagerRole() || facManaged() || activeRole === 'EXAM')) { TT.stuLoaded = true; return TT.students = []; }
-        if (TT.stuLoading && !force) return TT.stuLoading;
-        TT.stuLoading = (async () => {
-            const list = [];
-            try { if (dbCloud) (await getDocs(collection(dbCloud, 'iqra_students'))).forEach(d => (d.data().list || []).forEach(s => list.push({ ...s, fac: s.fac || d.data().fac }))); }
-            catch (e) { console.warn('[students]', e.code || e); }
-            TT.students = list; TT.stuLoaded = true; TT.stuLoading = null; TT.ver++; return list;
-        })();
-        return TT.stuLoading;
-    };
-    const saveStudentsFac = async (fac) => {
-        const list = TT.students.filter(s => (s.fac || '') === fac).map(s => ({ id: s.id, name: s.name || '', fac, course: s.course || '', batch: s.batch || '', mode: s.mode || '', semester: s.semester || '', email: s.email || '', mobile: s.mobile || '', extra: s.extra || [], dropped: s.dropped || [] }));
-        const size = 1500; const n = Math.max(1, Math.ceil(list.length / size));
-        for (let i = 0; i < n; i++) await setDoc(doc(dbCloud, 'iqra_students', `${sk(fac)}__${i}`), { fac, n: i, list: list.slice(i * size, (i + 1) * size), updatedAt: Date.now(), updatedBy: meEmail() });
-        for (let i = n; i < n + 5; i++) { try { const r = doc(dbCloud, 'iqra_students', `${sk(fac)}__${i}`); const g = await getDoc(r); if (g.exists()) await deleteDoc(r); else break; } catch (e) { break; } }
-        TT.ver++;
-    };
-
-    // ------------------------------------------------------------------ offerings = every module/batch that needs a slot
-    let _offCache = null, _offVer = -1;
-    const offerings = () => {
-        const v = TT.ver + '|' + (localDB.checklist || []).length + '|' + localDB.modules.length + '|' + Object.keys(localDB.assignments || {}).length;
-        if (_offCache && _offVer === v) return _offCache;
-        const map = {};
-        (localDB.checklist || []).forEach(r => {
-            if (!r.code) return; const k = offKey(r.code, r.batch); const mi = modInfo(r.code, r.batch);
-            map[k] = { key: k, code: r.code, name: r.name || '', course: r.course || '', batch: r.batch || '', fac: r.faculty || '', lecturerId: r.lecturerId || '', coordinatorId: r.coordinatorId || '', students: n1(mi.students) || n1(r.students) || 0, wch: n1(r.weeklyHrs) || n1(mi.wch), mode: modalityOf(r), session: '', src: 'checklist' };
+    // ------------------------------------------------------------------ CLASH ENGINE: examination timetable
+    const examCap = (v) => v ? (num(v.examCap) || num(v.capacity)) : 0;
+    const checkExam = (tt, c, P) => {
+        const hard = [], soft = [];
+        P = P || pool(tt);
+        const s1 = toMin(c.start), e1 = toMin(c.end);
+        if (!c.date) hard.push({ t: 'time', m: 'Choose a date.' });
+        if (!(e1 > s1)) hard.push({ t: 'time', m: 'End time must be after the start time.' });
+        const o = offerings()[c.off];
+        const coh = new Set((c.cohorts || (o ? o.cohorts : [])).map(x => x.k));
+        const stu = offStudents(c.off);
+        const inv = c.invig || [];
+        const used = {};
+        for (const e of P) {
+            if (e.id === c.id || e.date !== c.date) continue;
+            const ov = ovl(s1, e1, toMin(e.start), toMin(e.end));
+            const when = `${fmtD(e.date)} ${e.start}–${e.end}`;
+            const where = e._fac && e._fac !== tt.faculty ? ` · ${e._fac}` : '';
+            const sameCoh = (e.cohorts || []).some(x => coh.has(x.k));
+            if (sameCoh) (ov ? hard : soft).push({ t: 'cohort', m: ov ? `Batch clash – ${e.batch || e.course} already sits ${e.code} (${when})${where}` : `${e.batch || e.course} has another exam the same day (${e.code} ${e.start})${where}`, e });
+            if (!sameCoh && stu.size && e.off !== c.off) {
+                const both = []; offStudents(e.off).forEach(x => { if (stu.has(x)) both.push(x); });
+                if (both.length) (ov ? hard : soft).push({ t: 'stu', m: `${ov ? 'Student clash' : 'Same-day exams'} – ${both.length} student(s) also sit ${e.code} (${when}): ${both.slice(0, 4).map(stuName).join(', ')}${both.length > 4 ? '…' : ''}`, e, stu: both });
+            }
+            if (ov) {
+                const ci = (e.invig || []).filter(x => inv.includes(x));
+                if (ci.length) hard.push({ t: 'invig', m: `Invigilator clash – ${lnames(ci)} is invigilating ${e.code} (${when})`, e });
+                (e.venues || []).forEach(v => { used[v.id] = (used[v.id] || 0) + num(v.n); });
+            }
+        }
+        let seated = 0;
+        (c.venues || []).forEach(v => {
+            const V = venueById(v.id); seated += num(v.n);
+            if (!V) return;
+            const cap = examCap(V);
+            if (cap && (used[v.id] || 0) + num(v.n) > cap) hard.push({ t: 'venue', m: `${V.name}: ${used[v.id] || 0} already seated + ${num(v.n)} = more than the exam capacity (${cap}).` });
         });
-        localDB.modules.forEach(m => {
-            const code = window.getSafeVal(m, ['ModuleCode', 'Code']); if (!code) return;
-            const batch = window.getSafeVal(m, ['OfferedBatch', 'Batch']); const k = offKey(code, batch);
-            const a = localDB.assignments[window.makeSafeId(code)];
-            const base = { code, name: window.getSafeVal(m, ['ModuleName', 'Name']), course: window.getSafeVal(m, ['ProgramName', 'Program']), batch, fac: window.getFaculty(m) === 'UNKNOWN' ? '' : window.getFaculty(m), lecturerId: a && a.id ? a.id : '', students: n1(window.getSafeVal(m, ['NoofStudents', 'Students'])), wch: n1(window.getSafeVal(m, ['WCH', 'WeeklyContactHours'])), mode: window.getSafeVal(m, ['Modality']) || '', session: window.getSafeVal(m, ['Session']) || '' };
-            if (map[k]) Object.entries(base).forEach(([f, val]) => { if (!map[k][f] && val) map[k][f] = val; });
-            else map[k] = { key: k, ...base, coordinatorId: '', src: 'modules' };
-        });
-        Object.values(TT.plans).forEach(p => Object.values(p.offers || {}).forEach(o => { if (!o || !o.key) return; const clean = Object.fromEntries(Object.entries(o).filter(([, x]) => x !== '' && x != null)); map[o.key] = { ...(map[o.key] || { src: 'timetable' }), ...clean, key: o.key }; }));
-        Object.values(map).forEach(o => { if (!o.mode || o.mode === 'Not set') o.mode = 'Face to Face'; });
-        _offCache = map; _offVer = v; return map;
+        const n = o ? stuCount(o) : num(c.students);
+        if (n && seated < n) soft.push({ t: 'seat', m: `${n - seated} of ${n} students have no seat yet – add another venue.` });
+        if (!(c.venues || []).length) soft.push({ t: 'venue', m: 'No hall / venue chosen.' });
+        const ex = examDays(tt);
+        if (c.date && ex.length && !ex.includes(c.date)) soft.push({ t: 'date', m: `${fmtDW(c.date)} is outside the exam period or is an excluded day / holiday.` });
+        return { hard, soft };
     };
-    const offList = () => Object.values(offerings());
-    // enrolment index: offering key → Set(student ids)  (regular course/batch students minus drops, plus irregular add-ons)
-    let _enr = null, _enrVer = -1;
-    const enrolment = () => {
-        if (_enr && _enrVer === TT.ver) return _enr;
-        const offs = offerings(); const byGroup = {}; Object.values(offs).forEach(o => (byGroup[grpKey(o.course, o.batch)] = byGroup[grpKey(o.course, o.batch)] || []).push(o));
-        const idx = {}; const add = (k, id) => (idx[k] = idx[k] || new Set()).add(id);
-        TT.students.forEach(s => {
-            const dropped = new Set((s.dropped || []).map(c => sk(c)));
-            (byGroup[grpKey(s.course, s.batch)] || []).forEach(o => { if (!dropped.has(sk(o.code))) add(o.key, s.id); });
-            (s.extra || []).forEach(x => {
-                const code = typeof x === 'string' ? x.split('|')[0] : x.code; const b = typeof x === 'string' ? (x.split('|')[1] || '') : (x.batch || '');
-                let k = offKey(code, b || s.batch);
-                if (!offs[k]) { const c = Object.values(offs).filter(o => sk(o.code) === sk(code)); const pick = c.find(o => o.course === s.course) || c[0]; if (pick) k = pick.key; }
-                add(k, s.id);
-            });
-        });
-        _enr = idx; _enrVer = TT.ver; return idx;
-    };
-    const stuById = (id) => TT.students.find(s => s.id === id);
-    const enrolledCount = (o) => { const e = enrolment()[o.key]; return e && e.size ? e.size : (n1(o.students) || 0); };
-    const sameGroup = (a, b) => a.course && b.course && sk(a.course) === sk(b.course) && sk(a.batch) === sk(b.batch);
-    const sharedStudents = (k1, k2) => { const A = enrolment()[k1], B = enrolment()[k2]; if (!A || !B) return []; const out = []; A.forEach(id => { if (B.has(id)) out.push(id); }); return out; };
-
-    // ------------------------------------------------------------------ clash engine
-    const entryLabel = (e) => `${e.code} (${e.course} · ${e.batch}) ${e.day || fmtDay(e.date)} ${hm(e.start)}–${hm(e.end)}`;
-    const classClashes = (c, ignoreId) => {
-        const out = [];
-        allClasses().forEach(e => {
-            if (e.id === ignoreId || e.day !== c.day || !overlap(e, c)) return;
-            const combined = sk(e.code) === sk(c.code) && e.key !== c.key && e.lecturerId && e.lecturerId === c.lecturerId && (e.roomId || '') === (c.roomId || '');
-            if (combined) { out.push({ soft: true, type: 'combined', e, msg: `Combined class with ${entryLabel(e)} (same module, lecturer and venue)` }); return; }
-            if (c.lecturerId && e.lecturerId === c.lecturerId) out.push({ type: 'lecturer', e, msg: `Lecturer ${nm(c.lecturerId)} already teaches ${entryLabel(e)}` });
-            if (c.roomId && e.roomId === c.roomId) out.push({ type: 'room', e, msg: `Venue ${roomName(c.roomId)} is taken by ${entryLabel(e)}` });
-            if (e.key === c.key) out.push({ type: 'self', e, msg: `This module is already scheduled at this time (${entryLabel(e)})` });
-            else if (sameGroup(e, c)) out.push({ type: 'group', e, msg: `Students of ${c.course} · ${c.batch} already have ${entryLabel(e)}` });
-            else { const sh = sharedStudents(e.key, c.key); if (sh.length) out.push({ type: 'student', e, students: sh, msg: `${sh.length} student(s) registered in both: ${sh.slice(0, 6).map(id => (stuById(id) || {}).name || id).join(', ')}${sh.length > 6 ? '…' : ''} – they also have ${entryLabel(e)}` }); }
-        });
+    const examDays = (tt) => {
+        const out = []; if (!tt || !tt.from || !tt.to) return out;
+        const d = new Date(tt.from + 'T00:00:00'), end = new Date(tt.to + 'T00:00:00');
+        const skip = tt.skipDays || ['Friday'];
+        const hol = splitList(tt.holidays);
+        for (let g = 0; d <= end && g < 200; g++, d.setDate(d.getDate() + 1)) { const s = ymd(d); if (!skip.includes(DAYS_ALL[d.getDay()]) && !hol.includes(s)) out.push(s); }
         return out;
     };
-    const examClashes = (c, ignoreId) => {
-        const out = [];
-        const same = allExams().filter(e => e.id !== ignoreId && e.date === c.date && overlap(e, c));
-        same.forEach(e => {
-            if (e.key === c.key) out.push({ type: 'self', e, msg: `Already scheduled: ${entryLabel(e)}` });
-            else if (sameGroup(e, c)) out.push({ type: 'group', e, msg: `Students of ${c.course} · ${c.batch} already sit ${entryLabel(e)}` });
-            else { const sh = sharedStudents(e.key, c.key); if (sh.length) out.push({ type: 'student', e, students: sh, msg: `${sh.length} student(s) also sit ${entryLabel(e)}: ${sh.slice(0, 6).map(id => (stuById(id) || {}).name || id).join(', ')}` }); }
-        });
-        (c.rooms || []).forEach(rid => { const r = roomById(rid); if (!r) return; const used = same.filter(e => (e.rooms || []).includes(rid)).reduce((a, e) => a + (e.seats && e.seats[rid] !== undefined ? n1(e.seats[rid]) : Math.ceil(n1(e.students) / Math.max(1, (e.rooms || []).length))), 0); const need = c.seats && c.seats[rid] !== undefined ? n1(c.seats[rid]) : Math.ceil(n1(c.students) / Math.max(1, c.rooms.length)); if (n1(r.capacity) && used + need > n1(r.capacity)) out.push({ type: 'room', msg: `${r.name} holds ${r.capacity}; ${used} seats already used at this time – ${need} more will not fit` }); });
-        return out;
+    const cohortColor = (tt, e) => {
+        const key = (tt.colorBy === 'cohort') ? K(e.course, e.batch) : K(e.course);
+        const cm = tt.colors || {};
+        if (cm[key]) return cm[key];
+        const keys = [...new Set(entsOf(tt).map(x => (tt.colorBy === 'cohort') ? K(x.course, x.batch) : K(x.course)))].sort();
+        const i = Math.max(0, keys.indexOf(key));
+        return PALETTE[i % PALETTE.length][1];
     };
-    const hard = (cl) => cl.filter(x => !x.soft);
-    const inSession = (fac, start, end, pref) => {
-        let ss = sessionsOf(fac);
-        if (pref) { const p = String(pref).toLowerCase().slice(0, 4); const m = ss.filter(x => String(x.name).toLowerCase().startsWith(p)); if (m.length) ss = m; }
-        return ss.some(x => toMin(start) >= toMin(x.start) && toMin(end) <= toMin(x.end));
-    };
-    // venues that suit an offering (size + delivery mode) and are free at that time
-    const recommendRooms = (o, day, start, end, ignoreId) => {
-        const need = enrolledCount(o); const mode = String(o.mode || '').toLowerCase();
-        const busy = new Set(allClasses().filter(e => e.id !== ignoreId && e.day === day && overlap(e, { start, end })).map(e => e.roomId));
-        const fit = rooms().filter(r => !busy.has(r.id)).map(r => {
-            let score = 0; const cap = n1(r.capacity);
-            if (/online/.test(mode)) score += r.type === 'Online' ? 0 : r.type === 'Hybrid' ? 5 : 50;
-            else if (/blend|hybrid/.test(mode)) score += r.type === 'Hybrid' ? 0 : r.type === 'Online' ? 30 : 10;
-            else score += ['Online'].includes(r.type) ? 80 : r.type === 'Exam Hall' ? 15 : 0;
-            if (r.type !== 'Online') { if (cap && need > cap) score += 100 + (need - cap); else if (cap) score += Math.min(40, (cap - need) / 5); }
-            if (r.fac && r.fac !== o.fac) score += 8;
-            return { r, score, ok: r.type === 'Online' || !cap || !need || cap >= need };
-        }).sort((a, b) => a.score - b.score);
-        return fit;
-    };
-    const scheduledHrsTT = (key) => allClasses().filter(e => e.key === key).reduce((a, e) => a + durH(e), 0);
-    window.__ttHours = (code, batch) => scheduledHrsTT(offKey(code, batch));
-    const lecturerTTHours = (lid) => allClasses().filter(e => e.lecturerId === lid).reduce((a, e) => a + durH(e), 0);
 
-    // ------------------------------------------------------------------ studio shell
-    document.body.insertAdjacentHTML('beforeend', `<div id="tt-studio" class="iq-ov" style="z-index:1090;padding:0"><div class="iq-box" style="max-width:none;max-height:none;height:100vh;border-radius:0;border:none">
-        <div class="iq-head !py-2.5"><div class="iq-pattern"></div><div class="relative flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-3"><div><div class="text-[9px] font-black tracking-[4px] uppercase text-sky-200">${IQ.short} ${IQ.arabic} · ${IQ.inst}</div><h2 id="tt-title">🗓️ Timetable Studio</h2></div>
-                <div class="flex rounded-xl overflow-hidden border border-sky-300"><button id="tt-m-class" onclick="window.ttMode('class')" class="px-3 py-1.5 text-[11px] font-black">📚 Class timetable</button><button id="tt-m-exam" onclick="window.ttMode('exam')" class="px-3 py-1.5 text-[11px] font-black">🎓 Exam timetable</button></div></div>
-            <div class="flex items-center gap-2 flex-wrap"><select id="tt-term" class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.ttSetTerm(this.value)"></select><span id="tt-live" class="text-[10px] font-bold text-sky-100"></span><button class="iq-x" onclick="window.ttClose()">&times;</button></div>
-        </div></div>
-        <div class="iq-tabs" id="tt-tabs"></div>
-        <div id="tt-filters" class="flex flex-wrap gap-1.5 items-center px-3 py-2 bg-white border-b"></div>
-        <div class="iq-body" id="tt-body" style="padding:12px"></div>
-    </div></div>
-    <div id="tt-dlg" class="iq-ov" style="z-index:1160"><div class="iq-box" style="max-width:720px"><div class="iq-head"><div class="iq-pattern"></div><div class="relative flex justify-between items-center"><h2 id="tt-dlg-title"></h2><button class="iq-x" onclick="window.ttDlgClose()">&times;</button></div></div><div class="iq-body" id="tt-dlg-body"></div></div></div>`);
-    const ttStyle = document.createElement('style');
-    ttStyle.textContent = `
-        #tt-m-class,#tt-m-exam{background:rgba(255,255,255,.1);color:#e0f2fe} #tt-m-class.on,#tt-m-exam.on{background:white;color:#004d40}
-        .tt-grid{border-collapse:separate;border-spacing:0;width:100%;font-size:10px;background:white}
-        .tt-grid th{background:linear-gradient(180deg,#004d40,#00695c);color:white;font-weight:800;padding:5px 3px;text-align:center;position:sticky;top:0;z-index:2;font-size:9px;border-right:1px solid rgba(255,255,255,.2)}
-        .tt-grid th.tt-day{background:linear-gradient(90deg,#0a2472,#0d47a1);position:sticky;left:0;z-index:3;min-width:86px}
-        .tt-grid td{border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:2px;vertical-align:top;min-width:78px;height:44px}
-        .tt-grid td.tt-dayc{background:#eff6ff;font-weight:900;color:#0a2472;position:sticky;left:0;z-index:1;text-align:center;vertical-align:middle;font-size:10.5px;border-right:3px solid #0d47a1}
-        .tt-grid td.tt-lane-end{border-bottom:2px solid #94a3b8}
-        .tt-e{border-radius:7px;padding:3px 5px;color:white;font-size:9.5px;line-height:1.25;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);height:100%;min-height:38px;overflow:hidden}
-        .tt-e b{font-size:10.5px;letter-spacing:.2px} .tt-e i{font-style:normal;opacity:.9;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .tt-e .tt-b{display:inline-block;background:rgba(255,255,255,.22);border-radius:4px;padding:0 3px;font-size:8px;font-weight:800;margin-top:1px}
-        .tt-cell{cursor:pointer;border-radius:6px;height:38px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
-        .tt-free{background:#dcfce7;color:#065f46;border:1px dashed #22c55e} .tt-free:hover{background:#22c55e;color:white}
-        .tt-out{background:#e0f2fe;color:#075985;border:1px dashed #7dd3fc} .tt-out:hover{background:#0284c7;color:white}
-        .tt-noroom{background:#f3e8ff;color:#6b21a8;border:1px dashed #c084fc}
-        .tt-clash{background:#fee2e2;color:#b91c1c;border:1px dashed #fca5a5;cursor:help}
-        .tt-off{border:1px solid #e2e8f0;border-radius:10px;padding:7px 9px;background:white;cursor:pointer;margin-bottom:5px;border-left:5px solid var(--c,#0d47a1)}
-        .tt-off.on{box-shadow:0 0 0 2px #0d47a1;background:#eff6ff}
-        .tt-sec{font-family:Cinzel,serif;font-weight:900;color:#004d40;font-size:13px;margin:12px 0 6px;letter-spacing:.05em}
-    `;
-    document.head.appendChild(ttStyle);
-    const COL = ['#004d40', '#0d47a1', '#4a148c', '#00695c', '#1565c0', '#6a1b9a', '#00838f', '#283593', '#2e7d32', '#ad1457', '#37474f', '#5d4037', '#006064', '#311b92', '#1b5e20', '#01579b'];
-    const hashN = (s) => { let h = 0; String(s).split('').forEach(c => h = (h * 31 + c.charCodeAt(0)) >>> 0); return h; };
-    const colorOf = (course, batch) => COL[hashN(grpKey(course, batch)) % COL.length];
 
-    window.ttClose = () => { document.getElementById('tt-studio').style.display = 'none'; };
-    window.ttDlgClose = () => { document.getElementById('tt-dlg').style.display = 'none'; };
-    const dlg = (title, html) => { document.getElementById('tt-dlg-title').innerHTML = title; document.getElementById('tt-dlg-body').innerHTML = html; document.getElementById('tt-dlg').style.display = 'flex'; };
-    window.ttOpen = async (mode, tab) => {
-        if (activeRole === 'STUDENT') return;
-        startTT();
-        TT.ui.mode = mode || TT.ui.mode; TT.ui.tab = tab || (isWorkspaceRole() ? 'mine' : TT.ui.tab || 'week');
-        if (!TT.ui.fac && facManaged()) TT.ui.fac = facManaged();
-        if (!TT.ui.fac && isWorkspaceRole() && meLect()) TT.ui.fac = '';
-        document.getElementById('tt-studio').style.display = 'flex';
-        ttRender();
-        log('TIMETABLE', 'Timetable Studio opened', mode || '');
-        if (!isWorkspaceRole()) { await loadStudents(); ttRender(); }
-        if (!TT.cfg.activeTerm && canCfg()) setTimeout(async () => { if (!TT.cfg.activeTerm && await ensureTerm()) ttRender(); }, 1500);
+    // ------------------------------------------------------------------ studio state & rendering
+    const ST = {
+        CLASS: { fac: '', tt: '', view: 'build', cohort: '', sel: '', q: '', day: '', rowsBy: 'cohort', fCourse: '', fLect: '', fVenue: '', fSess: '' },
+        EXAM: { fac: '', tt: '', view: 'build', cohort: '', sel: '', q: '', rowsBy: 'date', fCourse: '', fVenue: '' }
     };
-    window.ttMode = (m) => { TT.ui.mode = m; TT.ui.sel = ''; TT.ui.moveId = ''; ttRender(); };
-    window.ttTab = (t) => { TT.ui.tab = t; ttRender(); };
-    window.ttSet = (k, v) => { TT.ui[k] = v; if (k === 'fac') { TT.ui.course = ''; TT.ui.batch = ''; } if (k === 'course') TT.ui.batch = ''; ttRender(); };
-    window.ttSetTerm = (id) => { if (!id) return; if (id === '__new') return window.ttNewTerm(); TT.cfg.activeTerm = id; TT.planTerm = ''; subscribePlans(); ttRender(); };
-    let _ttRefT = null;
-    function ttRefresh() { clearTimeout(_ttRefT); _ttRefT = setTimeout(() => { if (document.getElementById('tt-studio').style.display === 'flex' && !document.activeElement?.closest?.('#tt-body input:not([type=checkbox]),#tt-body textarea,#tt-body select')) ttRender(); try { if (isWorkspaceRole()) renderMyTT(); } catch (e) {} }, 250); }
-
-    const ttTabs = () => {
-        const ro = isWorkspaceRole();
-        return [...(currentLecturerId ? [['mine', '👤 My timetable']] : []), ['week', TT.ui.mode === 'exam' ? '📅 Exam dashboard' : '📅 Week dashboard'], ['day', TT.ui.mode === 'exam' ? '🏛️ Halls by date' : '☀️ Day dashboard'],
-            ...(!ro && !isReadOnly() ? [['build', TT.ui.mode === 'exam' ? '🧩 Build exam table' : '🧩 Build timetable']] : []), ['publish', '🖨️ Publish & download'],
-            ...(!ro ? [['setup', '⚙️ Times, sessions & venues'], ['data', '📥 Data & Excel']] : [])];
-    };
-    // entries visible in the current filter
-    const teamIds = () => { if (!currentLecturerId) return new Set(); return new Set([currentLecturerId, ...window.teamOf(currentLecturerId), ...window.rowsForLecturer(currentLecturerId, 'coord').map(r => r.lecturerId).filter(Boolean)]); };
-    const filt = (list) => {
-        const u = TT.ui; const q = u.q.toLowerCase(); const team = u.team ? teamIds() : null;
-        return list.filter(e => (!u.fac || e.fac === u.fac) && (!u.course || e.course === u.course) && (!u.batch || e.batch === u.batch) && (!u.lect || e.lecturerId === u.lect) && (!u.room || e.roomId === u.room || (e.rooms || []).includes(u.room)) && (!team || team.has(e.lecturerId) || (u.team === 'coord' && window.rowsForLecturer(currentLecturerId, 'coord').some(r => offKey(r.code, r.batch) === e.key))) && (!q || [e.code, e.name, e.course, e.batch, nm(e.lecturerId), roomName(e.roomId)].join(' ').toLowerCase().includes(q)));
-    };
-    const filtersHtml = () => {
-        const u = TT.ui; const offs = offList();
-        const facs = [...new Set(offs.map(o => o.fac).filter(Boolean))].sort();
-        const courses = [...new Set(offs.filter(o => !u.fac || o.fac === u.fac).map(o => o.course).filter(Boolean))].sort();
-        const batches = [...new Set(offs.filter(o => (!u.fac || o.fac === u.fac) && (!u.course || o.course === u.course)).map(o => o.batch).filter(Boolean))].sort();
-        const lects = [...new Set(offs.filter(o => !u.fac || o.fac === u.fac).map(o => o.lecturerId).filter(Boolean))].sort((a, b) => nm(a).localeCompare(nm(b)));
-        const sel = (k, label, opts, fmt = (x) => x) => `<select class="iq-in !w-auto !py-1 !text-[11px] max-w-[190px]" onchange="window.ttSet('${k}', this.value)"><option value="">${label}</option>${opts.map(x => `<option value="${esc(x)}" ${u[k] === x ? 'selected' : ''}>${esc(fmt(x))}</option>`).join('')}</select>`;
-        return `${sel('fac', 'All faculties', facs)}${sel('course', 'All courses', courses)}${sel('batch', 'All batches', batches)}${sel('lect', 'All lecturers', lects, nm)}${sel('room', 'All venues', rooms().map(r => r.id), roomName)}
-            ${currentLecturerId ? `<select class="iq-in !w-auto !py-1 !text-[11px]" onchange="window.ttSet('team', this.value)"><option value="">Everyone</option><option value="1" ${u.team === '1' ? 'selected' : ''}>👨‍💼 Me + my coordination team</option><option value="coord" ${u.team === 'coord' ? 'selected' : ''}>🧭 Modules I coordinate</option></select>` : ''}
-            <input class="iq-in !w-44 !py-1 !text-[11px]" placeholder="🔍 search" value="${esc(u.q)}" onchange="window.ttSet('q', this.value)">
-            <button class="iq-btn-soft !py-1" onclick="Object.assign(window.__tt.ui,{fac:'${js(facManaged())}',course:'',batch:'',lect:'',room:'',team:'',q:''}); window.ttTab(window.__tt.ui.tab)">↺ Clear</button>
-            <span class="ml-auto text-[10px] font-bold text-gray-500">${TT.ui.mode === 'exam' ? filt(allExams()).length + ' exam sitting(s)' : filt(allClasses()).length + ' class session(s) · ' + Math.round(filt(allClasses()).reduce((a, e) => a + durH(e), 0) * 10) / 10 + ' h/week'}</span>`;
-    };
-    function ttRender() {
-        const st = document.getElementById('tt-studio'); if (!st || st.style.display !== 'flex') return;
-        document.getElementById('tt-m-class').classList.toggle('on', TT.ui.mode === 'class');
-        document.getElementById('tt-m-exam').classList.toggle('on', TT.ui.mode === 'exam');
-        const ts = document.getElementById('tt-term');
-        ts.innerHTML = Object.values(TT.cfg.terms || {}).sort((a, b) => String(b.id).localeCompare(String(a.id))).map(t => `<option value="${esc(t.id)}" ${t.id === TT.cfg.activeTerm ? 'selected' : ''}>${esc(t.label || t.id)}</option>`).join('') + (canCfg() ? '<option value="__new">➕ New semester…</option>' : '') || '<option>No semester yet</option>';
-        document.getElementById('tt-live').innerHTML = TT.ready ? '● live' : (dbCloud ? 'connecting…' : 'offline');
-        const tabs = ttTabs(); if (!tabs.some(t => t[0] === TT.ui.tab)) TT.ui.tab = tabs[0][0];
-        document.getElementById('tt-tabs').innerHTML = tabs.map(([k, l]) => `<button class="iq-tab ${TT.ui.tab === k ? 'on' : ''}" onclick="window.ttTab('${k}')">${l}</button>`).join('');
-        document.getElementById('tt-filters').style.display = ['setup', 'data', 'mine'].includes(TT.ui.tab) ? 'none' : 'flex';
-        if (!['setup', 'data', 'mine'].includes(TT.ui.tab)) document.getElementById('tt-filters').innerHTML = filtersHtml();
-        const body = document.getElementById('tt-body');
-        if (!TT.cfg.activeTerm) { body.innerHTML = `<div class="iq-card text-center p-8"><div class="text-4xl">🗓️</div><div class="tt-sec">No semester set up yet</div><p class="text-[11px] text-gray-500 font-bold mb-3">${canCfg() ? 'Create the first semester to start building timetables.' : 'The Academic Affairs / faculty will publish the timetable soon.'}</p>${canCfg() ? '<button class="iq-btn" onclick="window.ttNewTerm()">➕ Create semester</button>' : ''}</div>`; return; }
+    window.AX_ST = ST;
+    let rTimer = null;
+    const scheduleRender = () => { clearTimeout(rTimer); rTimer = setTimeout(renderVisible, 150); };
+    const typingInside = (el) => { const a = document.activeElement; return !!(a && el && el.contains(a) && ['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName) && a.type !== 'checkbox'); };
+    const renderVisible = () => {
         try {
-            const t = TT.ui.tab, ex = TT.ui.mode === 'exam';
-            body.innerHTML = t === 'mine' ? mineHtml() : t === 'week' ? (ex ? examBoardHtml(filt(allExams())) : weekHtml(filt(allClasses()), { click: true })) : t === 'day' ? (ex ? examHallsHtml() : dayHtml()) : t === 'build' ? (ex ? buildExamHtml() : buildHtml()) : t === 'publish' ? publishHtml() : t === 'setup' ? setupHtml() : dataHtml();
-        } catch (e) { console.error(e); body.innerHTML = `<p class="text-red-600">Could not draw this view: ${esc(e.message)}</p>`; }
-    }
-
-    // ------------------------------------------------------------------ week grid (days × periods), with lanes for overlapping sessions
-    const slotSpan = (e) => { const ss = slots(); let i = ss.findIndex(s => toMin(s.end) > toMin(e.start)); if (i < 0) i = ss.length - 1; let j = i; while (j + 1 < ss.length && toMin(ss[j + 1].start) < toMin(e.end)) j++; return [i, j - i + 1]; };
-    const lanesFor = (list) => { const lanes = []; list.slice().sort((a, b) => toMin(a.start) - toMin(b.start)).forEach(e => { let L = lanes.find(l => !l.some(x => overlap(x, e))); if (!L) { L = []; lanes.push(L); } L.push(e); }); return lanes.length ? lanes : [[]]; };
-    const entryChip = (e, o = {}) => { const c = colorOf(e.course, e.batch); return `<div class="tt-e" style="background:linear-gradient(135deg,${c},${c}dd)" ${o.click ? `onclick="window.ttEntry('${e.id}')"` : ''} title="${esc(e.code + ' ' + e.name + ' · ' + e.course + ' ' + e.batch + ' · ' + nm(e.lecturerId) + ' · ' + roomName(e.roomId) + ' · ' + hm(e.start) + '–' + hm(e.end))}"><b>${esc(e.code)}</b>${o.noName ? '' : `<i>${esc(e.name)}</i>`}${o.noLect ? '' : `<i>👤 ${esc(e.lecturerId ? nm(e.lecturerId) : 'TBA')}</i>`}<i>📍 ${esc(roomName(e.roomId))}</i>${o.noGroup ? '' : `<span class="tt-b">${esc(e.course)} · ${esc(e.batch)}</span>`}${/online|blend|hybrid/i.test(e.mode || '') ? ` <span class="tt-b">${/online/i.test(e.mode) ? '💻 Online' : '🔀 Blended'}</span>` : ''}</div>`; };
-    const weekHtml = (list, o = {}) => {
-        const ss = slots(); if (!ss.length) return '<p class="text-gray-400 italic p-6 text-center">Set the teaching periods first (⚙️ Times, sessions & venues).</p>';
-        const used = list.map(slotSpan); let lo = 0, hi = ss.length - 1;
-        if (o.trim !== false && used.length) { lo = Math.max(0, Math.min(...used.map(u => u[0]))); hi = Math.min(ss.length - 1, Math.max(...used.map(u => u[0] + u[1] - 1))); }
-        const cols = ss.slice(lo, hi + 1);
-        let html = `<div style="overflow:auto;border:2px solid #0d47a1;border-radius:12px;max-height:${o.maxH || '72vh'}"><table class="tt-grid"><thead><tr><th class="tt-day">Day</th>${cols.map(s => `<th>${hm(s.start)}<br><span style="opacity:.75">${hm(s.end)}</span></th>`).join('')}</tr></thead><tbody>`;
-        days().forEach(d => {
-            const lanes = lanesFor(list.filter(e => e.day === d));
-            lanes.forEach((L, li) => {
-                html += `<tr>${li === 0 ? `<td class="tt-dayc" rowspan="${lanes.length}">${d.slice(0, 3).toUpperCase()}<div class="text-[8px] font-bold text-gray-500">${d}</div></td>` : ''}`;
-                for (let i = lo; i <= hi;) {
-                    const e = L.find(x => slotSpan(x)[0] === i || (i === lo && slotSpan(x)[0] < lo && slotSpan(x)[0] + slotSpan(x)[1] > lo));
-                    if (e) { const [si, sp] = slotSpan(e); const span = Math.min(hi + 1, si + sp) - Math.max(lo, i); html += `<td colspan="${span}" class="${li === lanes.length - 1 ? 'tt-lane-end' : ''}">${entryChip(e, o)}</td>`; i += span; }
-                    else { html += `<td class="${li === lanes.length - 1 ? 'tt-lane-end' : ''}">${o.cell ? o.cell(d, i) : ''}</td>`; i++; }
-                }
-                html += '</tr>';
-            });
-        });
-        return html + '</tbody></table></div>' + legendHtml(list);
+            const a = document.querySelector('.tab-content.active');
+            ['CLASS', 'EXAM'].forEach(k => { const h = hostOf(k); if (h && a === h) { if (typingInside(h)) { clearTimeout(rTimer); rTimer = setTimeout(renderVisible, 1500); return; } renderStudio(k); } });
+            if (MOD.open) refreshModalChecks();
+            const lp = document.getElementById('ax-lect-tt'); if (lp && lp.offsetParent !== null) renderLectTT();
+            const pv = document.getElementById('ax-pv'); if (pv && pv.classList.contains('open') && PV.who) renderPersonal();
+        } catch (e) { console.error('[AIMS render]', e); }
     };
-    const legendHtml = (list) => { const g = {}; list.forEach(e => g[grpKey(e.course, e.batch)] = e); const v = Object.values(g); return v.length > 1 && v.length < 40 ? `<div class="flex flex-wrap gap-1.5 mt-2">${v.map(e => `<span class="iq-chip" style="background:${colorOf(e.course, e.batch)};color:white">${esc(e.course)} · ${esc(e.batch)}</span>`).join('')}</div>` : ''; };
+    const hostOf = (kind) => document.getElementById(kind === 'CLASS' ? 'tab-timetable' : 'tab-exam-tt');
+    const VIEWS = {
+        CLASS: [['build', '🧩 Builder'], ['week', '📅 Week Dashboard'], ['day', '📆 Day Dashboard'], ['clash', '⚠️ Clashes'], ['students', '👩‍🎓 Individual Students'], ['offer', '📚 Modules & Lecturers'], ['venues', '🏫 Classrooms / Venues'], ['sessions', '⏱️ Sessions & Times'], ['export', '📤 Download'], ['data', '📥 Excel Data'], ['history', '🕘 Amendments']],
+        EXAM: [['build', '🧩 Builder'], ['board', '📅 Exam Dashboard'], ['halls', '🚪 Hall Sheets'], ['clash', '⚠️ Clashes'], ['students', '👩‍🎓 Individual Students'], ['offer', '📚 Modules & Lecturers'], ['venues', '🏫 Halls / Venues'], ['sessions', '⏱️ Exam Slots'], ['export', '📤 Download'], ['data', '📥 Excel Data'], ['history', '🕘 Amendments']]
+    };
+    const RO_VIEWS = { CLASS: ['week', 'day', 'clash', 'export', 'history'], EXAM: ['board', 'halls', 'clash', 'export', 'history'] };
+    const pickFac = (kind, facs) => { const withTT = facs.find(f => ttList(kind, f).length); if (withTT) return withTT; const fv = document.getElementById('facView'); if (fv && facs.includes(fv.value)) return fv.value; const withOff = facs.find(f => offList(f).length); return withOff || facs[0] || ''; };
 
-    // day dashboard: venues × periods for one day
-    const dayHtml = () => {
-        const d = TT.ui.day && days().includes(TT.ui.day) ? TT.ui.day : days()[0]; TT.ui.day = d;
-        const ss = slots(); const list = filt(allClasses()).filter(e => e.day === d);
-        const rs = rooms(); const rows = [...rs.map(r => r.id), ...(list.some(e => !e.roomId || !roomById(e.roomId)) ? ['__none'] : [])];
-        const free = {}; rs.forEach(r => free[r.id] = ss.filter(s => !allClasses().some(e => e.day === d && e.roomId === r.id && overlap(e, s))).length);
-        let html = `<div class="flex flex-wrap gap-1.5 mb-2">${days().map(x => `<button class="iq-chip !text-[11px] !px-3 !py-1.5" style="${x === d ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.ttSet('day','${x}')">${x}</button>`).join('')}</div>
-            <div class="iq-kpis mb-2">${kpi('Sessions today', list.length, '#0d47a1')}${kpi('Lecturers teaching', new Set(list.map(e => e.lecturerId).filter(Boolean)).size, '#004d40')}${kpi('Venues in use', new Set(list.map(e => e.roomId).filter(Boolean)).size + ' / ' + rs.length, '#4a148c')}${kpi('Groups with class', new Set(list.map(e => grpKey(e.course, e.batch))).size, '#00838f')}</div>`;
-        html += `<div class="overflow-auto rounded-xl border-2 border-[#0d47a1]" style="max-height:62vh"><table class="tt-grid"><thead><tr><th class="tt-day">Venue</th>${ss.map(s => `<th>${hm(s.start)}<br><span style="opacity:.75">${hm(s.end)}</span></th>`).join('')}</tr></thead><tbody>`;
-        rows.forEach(rid => {
-            const r = roomById(rid); const L = list.filter(e => rid === '__none' ? (!e.roomId || !roomById(e.roomId)) : e.roomId === rid);
-            const lanes = lanesFor(L);
-            lanes.forEach((ln, li) => {
-                html += `<tr>${li === 0 ? `<td class="tt-dayc" rowspan="${lanes.length}" style="text-align:left">${rid === '__none' ? 'No venue / TBA' : esc(r.name)}<div class="text-[8px] font-bold text-gray-500">${r ? `${esc(r.type)} · ${r.capacity || '?'} seats · ${free[rid]} free periods` : ''}</div></td>` : ''}`;
-                for (let i = 0; i < ss.length;) { const e = ln.find(x => slotSpan(x)[0] === i); if (e) { const sp = slotSpan(e)[1]; html += `<td colspan="${sp}">${entryChip(e, { click: true, noName: true })}</td>`; i += sp; } else { html += `<td style="background:${rid !== '__none' && !allClasses().some(x => x.day === d && x.roomId === rid && overlap(x, ss[i])) ? '#f0fdf4' : ''}"></td>`; i++; } }
-                html += '</tr>';
-            });
-        });
-        return html + '</tbody></table></div><p class="text-[10px] text-gray-500 font-bold mt-1">Light green = venue free in that period.</p>';
+    const statusChip = (tt) => {
+        if (!tt) return '';
+        const pub = tt.published && tt.published.version;
+        const dirty = pub && isDirty(tt);
+        if (!pub) return `<span class="ax-st ax-st-draft">DRAFT · not published</span>`;
+        return `<span class="ax-st ax-st-pub">PUBLISHED · v${tt.published.version}</span>${dirty ? `<span class="ax-st ax-st-amend">✎ unpublished changes</span>` : ''}`;
+    };
+    const metaLine = (tt) => {
+        if (!tt) return '';
+        const p = tt.published || {};
+        const bits = [tt.semester && `Semester: <b>${E(tt.semester)}</b>`, tt.year && `Year: <b>${E(tt.year)}</b>`, tt.course && `Course: <b>${E(tt.course)}</b>`,
+            tt.kind === 'EXAM' && tt.from ? `Exam period: <b>${fmtD(tt.from)} – ${fmtD(tt.to)}</b>` : (tt.from ? `Semester: <b>${fmtD(tt.from)} – ${fmtD(tt.to)}</b>` : ''),
+            p.version ? `Last amended: <b>${fmtDT(p.publishedAt)}</b>` : '', p.effectiveFrom ? `Effective from: <b>${fmtD(p.effectiveFrom)}</b>` : ''].filter(Boolean);
+        return bits.join(' <span class="opacity-50">·</span> ');
     };
 
-    // ------------------------------------------------------------------ click on a class → details / move / change venue / delete
-    window.ttEntry = (id) => {
-        const e = allClasses().find(x => x.id === id) || allExams().find(x => x.id === id); if (!e) return;
-        const isExam = !!e.date; const can = isExam ? canEditExam(e.fac) : canEditFacTT(e.fac);
-        const cl = isExam ? examClashes(e, e.id) : classClashes(e, e.id);
-        const o = offerings()[e.key] || e;
-        dlg(`${isExam ? '🎓' : '📚'} ${esc(e.code)} · ${esc(e.name)}`, `<div class="grid grid-cols-2 gap-2 text-[11.5px]">
-            <div><span class="iq-lbl">Course / batch</span><b>${esc(e.course)} · ${esc(e.batch)}</b></div><div><span class="iq-lbl">Faculty</span><b>${esc(e.fac)}</b></div>
-            <div><span class="iq-lbl">${isExam ? 'Date' : 'Day'}</span><b>${isExam ? fmtDay(e.date) : e.day}</b></div><div><span class="iq-lbl">Time</span><b>${hm(e.start)} – ${hm(e.end)}</b> (${durH(e)} h)</div>
-            <div><span class="iq-lbl">Lecturer</span><b>${e.lecturerId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(e.lecturerId)}')">${esc(nm(e.lecturerId))}</span>` : 'TBA'}</b></div><div><span class="iq-lbl">Venue${isExam ? 's' : ''}</span><b>${isExam ? (e.rooms || []).map(r => esc(roomName(r)) + (e.seats && e.seats[r] ? ` (${e.seats[r]})` : '')).join(', ') || 'TBA' : esc(roomName(e.roomId))}</b></div>
-            <div><span class="iq-lbl">Students</span><b>${enrolledCount(o)}</b></div><div><span class="iq-lbl">Mode</span><b>${esc(e.mode || o.mode || '')}</b></div>
-            <div class="col-span-2 text-[10px] text-gray-500">Last change ${fmtDT(e.at)} by ${esc(String(e.by || '').split('@')[0])}</div></div>
-            ${cl.length ? `<div class="mt-3 rounded-lg p-2 ${hard(cl).length ? 'bg-red-50 border border-red-200' : 'bg-sky-50 border border-sky-200'}">${cl.map(c => `<div class="text-[11px] font-bold ${c.soft ? 'text-sky-800' : 'text-red-700'}">${c.soft ? 'ℹ️' : '⛔'} ${esc(c.msg)}</div>`).join('')}</div>` : '<div class="mt-3 text-[11px] font-bold text-green-700">✔ No clashes</div>'}
-            ${can ? `<div class="flex flex-wrap gap-2 mt-4">
-                ${isExam ? '' : `<select id="tt-chg-room" class="iq-in !w-auto !py-1.5 !text-[11px]"><option value="">— change venue —</option>${recommendRooms(o, e.day, e.start, e.end, e.id).slice(0, 25).map(x => `<option value="${esc(x.r.id)}">${x.ok ? '✔' : '⚠'} ${esc(x.r.name)} · ${esc(x.r.type)} · ${x.r.capacity || '?'} seats</option>`).join('')}</select><button class="iq-btn-soft" onclick="window.ttChangeRoom('${e.id}', document.getElementById('tt-chg-room').value)">Save venue</button>`}
-                <button class="iq-btn-soft" onclick="window.ttMove('${e.id}')">↔ Move</button>
-                <button class="iq-btn-soft !text-red-700" onclick="window.ttDelete('${e.id}')">🗑️ Remove</button></div>` : ''}`);
-    };
-    window.ttChangeRoom = async (id, rid) => {
-        const e = allClasses().find(x => x.id === id); if (!e || !rid) return;
-        const c = { ...e, roomId: rid }; const h = hard(classClashes(c, id));
-        if (h.length) return showClash(h, c, null);
-        const obj = { [`classes.${id}`]: { ...c, by: meEmail(), at: Date.now() } }; markAmended(obj, e);
-        await planUpdate(e.fac, obj, { a: 'Class venue changed', d: `${e.code} ${e.batch} ${e.day} ${e.start}: ${roomName(e.roomId)} → ${roomName(rid)}` });
-        window.ttDlgClose(); window.showToast('Venue changed ✔', 'success');
-    };
-    window.ttMove = (id) => { const e = allClasses().find(x => x.id === id) || allExams().find(x => x.id === id); if (!e) return; TT.ui.sel = e.key; TT.ui.moveId = id; TT.ui.fac = e.fac; TT.ui.course = e.course; TT.ui.batch = e.batch; if (!e.date) TT.ui.dur = slotSpan(e)[1]; TT.ui.tab = 'build'; window.ttDlgClose(); ttRender(); window.showToast('Choose the new slot (green) – the class will be moved there.', 'info'); };
-    window.ttDelete = (id) => {
-        const e = allClasses().find(x => x.id === id) || allExams().find(x => x.id === id); if (!e) return;
-        if (!confirm(`Remove ${e.code} (${e.course} · ${e.batch}) ${e.date ? fmtDay(e.date) : e.day} ${hm(e.start)} from the ${e.date ? 'exam' : 'class'} timetable?`)) return;
-        const obj = { [`${e.date ? 'exams' : 'classes'}.${id}`]: DEL }; markAmended(obj, e);
-        planUpdate(e.fac, obj, { a: e.date ? 'Exam removed' : 'Class removed', d: `${e.code} ${e.batch} ${e.date || e.day} ${e.start}` });
-        window.ttDlgClose();
-    };
-    const showClash = (h, c, onForce) => {
-        window.__ttForce = onForce;
-        dlg('⛔ Clash detected – not saved', `<p class="text-[11.5px] font-bold mb-2">${esc(c.code)} · ${esc(c.course)} · ${esc(c.batch)} — ${c.date ? fmtDay(c.date) : c.day} ${hm(c.start)}–${hm(c.end)}</p>
-            ${h.map(x => `<div class="rounded-lg bg-red-50 border border-red-200 p-2 mb-1.5 text-[11px]"><b class="text-red-700">${{ lecturer: '👤 Lecturer clash', room: '📍 Venue clash', group: '👥 Student group clash', student: '🎓 Individual student clash', self: '🔁 Duplicate' }[x.type] || '⛔ Clash'}</b><div>${esc(x.msg)}</div>${x.students ? `<details class="mt-1"><summary class="cursor-pointer font-bold text-[10px]">Show students (${x.students.length})</summary>${x.students.map(id => { const s = stuById(id) || {}; return `<div class="text-[10px]">• ${esc(s.name || id)} (${esc(id)}) – ${esc(s.course || '')} ${esc(s.batch || '')}</div>`; }).join('')}</details>` : ''}</div>`).join('')}
-            <p class="text-[10.5px] text-gray-600 font-bold mt-2">Tip: open 🧩 Build and pick a green cell – green cells are free for the lecturer, the venue and every registered student.</p>
-            ${onForce && activeRole === 'ALL' ? '<div class="flex justify-end mt-3"><button class="iq-btn-soft !text-red-700" onclick="window.__ttForce && window.__ttForce(); window.ttDlgClose()">Save anyway (Super Admin override)</button></div>' : ''}`);
-    };
-
-    // ------------------------------------------------------------------ BUILDER (classes)
-    const offColor = (o) => colorOf(o.course, o.batch);
-    const offsForBuild = () => { const u = TT.ui; const q = u.q.toLowerCase(); return offList().filter(o => (!u.fac || o.fac === u.fac) && (!u.course || o.course === u.course) && (!u.batch || o.batch === u.batch) && (!u.lect || o.lecturerId === u.lect) && (!q || [o.code, o.name, o.course, o.batch, nm(o.lecturerId)].join(' ').toLowerCase().includes(q))).sort((a, b) => String(a.course + a.batch + a.code).localeCompare(String(b.course + b.batch + b.code))); };
-    const cellStatus = (o, day, i, dur, ignoreId) => {
-        const ss = slots(); if (i + dur > ss.length) return { s: 'na' };
-        const c = { ...o, day, start: ss[i].start, end: ss[i + dur - 1].end, roomId: '' };
-        const h = hard(classClashes(c, ignoreId)); if (h.length) return { s: 'clash', h };
-        const rr = recommendRooms(o, day, c.start, c.end, ignoreId).filter(x => x.ok);
-        if (!rr.length) return { s: 'noroom' };
-        return { s: inSession(o.fac, c.start, c.end, o.session) ? 'free' : 'out', room: rr[0].r };
-    };
-    const buildHtml = () => {
-        const offs = offsForBuild(); const o = offerings()[TT.ui.sel];
-        const listHtml = offs.map(x => { const done = scheduledHrsTT(x.key); const need = x.wch || 0; const p = need ? Math.min(100, Math.round(done / need * 100)) : (done ? 100 : 0); return `<div class="tt-off ${TT.ui.sel === x.key ? 'on' : ''}" style="--c:${offColor(x)}" onclick="window.ttSet('sel','${js(x.key)}')"><div class="flex justify-between gap-1"><b class="text-[11px] text-[#0d47a1]">${esc(x.code)}</b><span class="text-[9px] font-black" style="color:${need && done >= need ? '#065f46' : '#7e22ce'}">${Math.round(done * 10) / 10}/${need || '?'} h</span></div><div class="text-[10px] font-bold truncate">${esc(x.name)}</div><div class="text-[9px] text-gray-500 font-bold truncate">${esc(x.course)} · ${esc(x.batch)} · 👤 ${esc(x.lecturerId ? nm(x.lecturerId) : 'no lecturer')} · 👥 ${enrolledCount(x)}</div>${barHtml(p, need && done >= need ? '#065f46' : '#0d47a1')}</div>`; }).join('') || '<p class="text-[11px] text-gray-400 italic p-3">No modules for this filter. Choose a faculty / course, or add modules in 📥 Data & Excel.</p>';
-        let right = '<div class="iq-card text-center p-10 text-gray-400"><div class="text-4xl">🧩</div><b>Choose a module on the left</b><p class="text-[11px]">Green cells show every place the module fits without any clash (lecturer, venue, course group and individually registered students). Blue = free but outside the faculty session. Purple = no suitable venue free. Red = clash.</p></div>';
-        if (o) {
-            const can = canEditFacTT(o.fac); const dur = Math.max(1, Math.min(6, parseInt(TT.ui.dur) || 2)); const ignore = TT.ui.moveId || '';
-            const mine = allClasses().filter(e => e.key === o.key || sameGroup(e, o) || (o.lecturerId && e.lecturerId === o.lecturerId));
-            const sug = []; days().forEach(d => slots().forEach((s, i) => { const st = cellStatus(o, d, i, dur, ignore); if (st.s === 'free' && sug.length < 8) sug.push({ d, i, room: st.room }); }));
-            right = `<div class="iq-card mb-2"><div class="flex flex-wrap justify-between gap-2 items-start"><div><div class="text-[10px] font-black uppercase text-[#004d40]">${TT.ui.moveId ? '↔ Moving an existing class' : 'Scheduling'}</div><b class="text-[14px] text-[#0d47a1]">${esc(o.code)} · ${esc(o.name)}</b><div class="text-[10.5px] font-bold text-gray-600">${esc(o.course)} · ${esc(o.batch)} · ${esc(o.fac)} · 👤 ${esc(o.lecturerId ? nm(o.lecturerId) : 'no lecturer')} · 👥 ${enrolledCount(o)} students · ${esc(o.mode)} ${o.session ? '· ' + esc(o.session) + ' session' : ''}</div><div class="text-[10.5px] font-black mt-1" style="color:#0d47a1">Scheduled ${Math.round(scheduledHrsTT(o.key) * 10) / 10} of ${o.wch || '?'} h per week</div></div>
-                <div class="flex flex-wrap gap-2 items-center"><label class="text-[10px] font-black">Length <select class="iq-in !w-auto !py-1 !text-[11px]" onchange="window.ttSet('dur', this.value)">${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}" ${dur === n ? 'selected' : ''}>${n} period${n > 1 ? 's' : ''}</option>`).join('')}</select></label>${TT.ui.moveId ? '<button class="iq-btn-soft" onclick="window.__tt.ui.moveId=\'\'; window.ttTab(\'build\')">Cancel move</button>' : ''}${can ? `<button class="iq-btn-soft" onclick="window.ttAuto()">✨ Auto-arrange this filter</button>` : ''}</div></div>
-                ${sug.length ? `<div class="mt-2 text-[10.5px]"><b class="text-green-800">Best free slots:</b> ${sug.map(x => `<button class="iq-chip !text-[10px] !py-1 mr-1 mb-1" style="background:#dcfce7;color:#065f46" onclick="window.ttPlace('${x.d}',${x.i})">${x.d.slice(0, 3)} ${hm(slots()[x.i].start)} · ${esc(x.room.name)}</button>`).join('')}</div>` : '<div class="mt-2 text-[10.5px] font-bold text-red-700">No clash-free slot with a suitable venue for this length – try a shorter length, add venues or check sessions.</div>'}
-                ${!can ? '<div class="mt-2 text-[10.5px] font-bold text-purple-800">View only – only this faculty or the Super Admin can place it.</div>' : ''}</div>
-                ${weekHtml(mine, { trim: false, click: true, maxH: '60vh', cell: (d, i) => { if (!can) return ''; const st = cellStatus(o, d, i, dur, ignore); if (st.s === 'na') return ''; const tip = st.s === 'clash' ? st.h.map(x => x.msg).join('\n') : st.s === 'noroom' ? 'No suitable free venue' : st.s === 'out' ? 'Free, but outside the faculty session' : 'Free – ' + st.room.name; return `<div class="tt-cell tt-${st.s}" title="${esc(tip)}" ${st.s === 'clash' ? `onclick="window.ttWhy('${d}',${i})"` : `onclick="window.ttPlace('${d}',${i})"`}>${st.s === 'free' ? '＋' : st.s === 'out' ? '＋·' : st.s === 'noroom' ? 'no venue' : '✕'}</div>`; } })}`;
-        }
-        return `<div class="grid gap-3" style="grid-template-columns:minmax(230px,300px) 1fr"><div class="overflow-y-auto pr-1" style="max-height:78vh"><div class="text-[10px] font-black uppercase text-gray-500 mb-1">${offs.length} module(s) · hours scheduled / needed</div>${listHtml}</div><div>${right}</div></div>`;
-    };
-    window.ttWhy = (d, i) => { const o = offerings()[TT.ui.sel]; const st = cellStatus(o, d, i, parseInt(TT.ui.dur) || 2, TT.ui.moveId); if (st.h) showClash(st.h, { ...o, day: d, start: slots()[i].start, end: slots()[Math.min(slots().length - 1, i + (parseInt(TT.ui.dur) || 2) - 1)].end }, null); };
-    window.ttPlace = (d, i) => {
-        const o = offerings()[TT.ui.sel]; if (!o) return;
-        const dur = parseInt(TT.ui.dur) || 2; const ss = slots(); const start = ss[i].start, end = ss[Math.min(ss.length - 1, i + dur - 1)].end;
-        const recs = recommendRooms(o, d, start, end, TT.ui.moveId);
-        const out = !inSession(o.fac, start, end, o.session);
-        dlg(`📍 ${esc(o.code)} · ${d} ${hm(start)}–${hm(end)}`, `${out ? '<div class="rounded-lg bg-sky-50 border border-sky-200 p-2 text-[11px] font-bold text-sky-900 mb-2">ℹ️ This time is outside the faculty session. You can still save it.</div>' : ''}
-            <label class="block"><span class="iq-lbl">Venue – recommended for ${enrolledCount(o)} students (${esc(o.mode)})</span><select id="tt-pl-room" class="iq-in">${recs.slice(0, 40).map((x, k) => `<option value="${esc(x.r.id)}" ${k === 0 ? 'selected' : ''}>${x.ok ? (k < 3 ? '⭐' : '✔') : '⚠ too small'} ${esc(x.r.name)} · ${esc(x.r.type)} · ${x.r.capacity || '?'} seats${x.r.building ? ' · ' + esc(x.r.building) : ''}</option>`).join('')}<option value="">No venue yet (TBA)</option></select></label>
-            <label class="block mt-2"><span class="iq-lbl">Delivery mode</span><select id="tt-pl-mode" class="iq-in">${['Face to Face', 'Online', 'Blended'].map(m => `<option ${String(o.mode).toLowerCase().startsWith(m.toLowerCase().slice(0, 4)) ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
-            <div class="flex justify-end gap-2 mt-4"><button class="iq-btn-soft" onclick="window.ttDlgClose()">Cancel</button><button class="iq-btn" onclick="window.ttSaveClass('${d}', ${i}, ${dur})">💾 Save to timetable</button></div>`);
-    };
-    window.ttSaveClass = async (d, i, dur, force) => {
-        const o = offerings()[TT.ui.sel]; if (!o) return;
-        const ss = slots(); const roomId = (document.getElementById('tt-pl-room') || {}).value || ''; const mode = (document.getElementById('tt-pl-mode') || {}).value || o.mode;
-        const editId = TT.ui.moveId || '';
-        const e = { id: editId || newId('c'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || meFac() || 'GEN', lecturerId: o.lecturerId || '', day: d, start: ss[i].start, end: ss[Math.min(ss.length - 1, i + dur - 1)].end, roomId, mode, by: meEmail(), at: Date.now() };
-        const h = hard(classClashes(e, editId));
-        if (h.length && !force) return showClash(h, e, () => { TT.__forceArgs = [d, i, dur, roomId, mode]; saveForce(e); });
-        const obj = { [`classes.${e.id}`]: e }; markAmended(obj, e);
-        await planUpdate(e.fac, obj, { a: editId ? 'Class moved' : 'Class scheduled', d: `${e.code} ${e.course} ${e.batch} → ${d} ${e.start}-${e.end} · ${roomName(roomId)}` });
-        TT.ui.moveId = ''; window.ttDlgClose(); window.showToast(`${e.code} placed on ${d} ${hm(e.start)} ✔`, 'success');
-    };
-    const saveForce = async (e) => { const obj = { [`classes.${e.id}`]: { ...e, forced: true } }; markAmended(obj, e); await planUpdate(e.fac, obj, { a: 'Class scheduled (override)', d: `${e.code} ${e.batch} ${e.day} ${e.start}` }); TT.ui.moveId = ''; };
-    // greedy auto-arrange: fills missing weekly hours for every module in the current filter, never creating a clash
-    window.ttAuto = async () => {
-        const offs = offsForBuild().filter(o => canEditFacTT(o.fac) && (o.wch || 0) > scheduledHrsTT(o.key));
-        if (!offs.length) return alert('Every module in this filter already has its weekly hours (or has no weekly hours set).');
-        if (!confirm(`Auto-arrange ${offs.length} module(s)?\n\nThe studio will look for clash-free slots inside the faculty sessions, with suitable venues, spreading classes across the week. You can move or remove anything afterwards.`)) return;
-        const ss = slots(); const byFac = {}; let placed = 0, missing = [];
-        offs.sort((a, b) => enrolledCount(b) - enrolledCount(a)).forEach(o => {
-            let need = (o.wch || 0) - scheduledHrsTT(o.key); let guard = 0;
-            while (need > 0.2 && guard++ < 12) {
-                const perH = ss.length ? durH(ss[0]) || 1 : 1; const dur = Math.max(1, Math.min(2, Math.round(need / perH)));
-                const dayLoad = (d) => allClasses().filter(e => e.day === d && (sameGroup(e, o) || e.key === o.key)).length + (allClasses().some(e => e.day === d && e.key === o.key) ? 10 : 0);
-                let best = null;
-                days().slice().sort((a, b) => dayLoad(a) - dayLoad(b)).some(d => ss.some((s, i) => { const st = cellStatus(o, d, i, dur, ''); if (st.s === 'free') { best = { d, i, room: st.room }; return true; } return false; }));
-                if (!best) { missing.push(o.code + ' ' + o.batch); break; }
-                const e = { id: newId('c'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || 'GEN', lecturerId: o.lecturerId || '', day: best.d, start: ss[best.i].start, end: ss[best.i + dur - 1].end, roomId: best.room.id, mode: o.mode, by: meEmail(), at: Date.now(), auto: true };
-                const p = planOf(e.fac); p.classes[e.id] = e; TT.ver++;
-                const obj = (byFac[e.fac] = byFac[e.fac] || {}); obj[`classes.${e.id}`] = e; markAmended(obj, e);
-                placed++; need -= durH(e);
-            }
-        });
-        for (const [f, obj] of Object.entries(byFac)) await planUpdate(f, obj, { a: 'Timetable auto-arranged', d: `${Object.keys(obj).filter(k => k.startsWith('classes.')).length} session(s)` });
-        alert(`✨ ${placed} class session(s) placed.${missing.length ? `\n\nCould not fully place (no clash-free slot / venue): ${[...new Set(missing)].join(', ')}` : ''}`);
-        ttRender();
-    };
-
-    // ------------------------------------------------------------------ EXAMS: dashboard, halls, builder
-    const examDates = () => { const t = term(); const out = []; if (t.examFrom && t.examTo) { const d = new Date(t.examFrom + 'T00:00:00'), e = new Date(t.examTo + 'T00:00:00'); for (let i = 0; d <= e && i < 60; i++) { const dn = ALL_DAYS[(d.getDay() + 1) % 7]; if (days().includes(dn) || (TT.cfg.examDays || []).includes(dn)) out.push(ymdL(d)); d.setDate(d.getDate() + 1); } } allExams().forEach(x => { if (!out.includes(x.date)) out.push(x.date); }); return out.sort(); };
-    const sittingColors = (date, start) => { const groups = [...new Set(allExams().filter(e => e.date === date && e.start === start).map(e => grpKey(e.course, e.batch)))].sort((a, b) => hashN(a) - hashN(b)); const used = new Set(); const map = {}; groups.forEach(g => { let k = hashN(g) % EXAM_COLORS.length; while (used.has(k) && used.size < EXAM_COLORS.length) k = (k + 1) % EXAM_COLORS.length; used.add(k); map[g] = EXAM_COLORS[k]; }); return map; };
-    const exColor = (e) => (sittingColors(e.date, e.start)[grpKey(e.course, e.batch)] || EXAM_COLORS[0]);
-    const examChip = (e, o = {}) => { const [c, cn] = exColor(e); return `<div class="tt-e" style="background:${c};border-left:6px solid rgba(255,255,255,.55)" ${o.click !== false ? `onclick="window.ttEntry('${e.id}')"` : ''}><b>${esc(e.code)}</b> <span class="tt-b">${esc(cn)}</span><i>${esc(e.name)}</i><i>${esc(e.course)} · ${esc(e.batch)}</i><i>📍 ${(e.rooms || []).map(r => esc(roomName(r))).join(', ') || 'TBA'} · 👥 ${e.students || ''}</i></div>`; };
-    const examBoardHtml = (list) => {
-        const xs = exSlots(); const ds = [...new Set([...examDates(), ...list.map(e => e.date)])].sort().filter(d => !TT.ui.fac && !TT.ui.course && !TT.ui.batch && !TT.ui.lect && !TT.ui.room && !TT.ui.q ? true : list.some(e => e.date === d));
-        if (!ds.length) return `<div class="iq-card text-center p-8 text-gray-400"><div class="text-4xl">🎓</div><b>No exam dates yet</b><p class="text-[11px]">Set the exam period in ⚙️ Times, sessions & venues, then use 🧩 Build exam table.</p></div>`;
-        return `<div class="overflow-auto rounded-xl border-2 border-[#0d47a1]" style="max-height:74vh"><table class="tt-grid"><thead><tr><th class="tt-day">Date</th>${xs.map(s => `<th>${esc(s.name || '')}<br>${hm(s.start)} – ${hm(s.end)}</th>`).join('')}</tr></thead><tbody>${ds.map(d => `<tr><td class="tt-dayc">${fmtDay(d).split(',')[0]}<div class="text-[8px] font-bold text-gray-500">${fmtDay(d).split(',').slice(1).join(',')}</div></td>${xs.map(s => `<td><div class="flex flex-col gap-1">${list.filter(e => e.date === d && overlap(e, s)).map(e => examChip(e)).join('')}</div></td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="text-[10px] text-gray-500 font-bold mt-1">Each course / batch in the same sitting gets its own colour – print the colour on the hall entry list so students find their seats quickly.</p>`;
-    };
-    const examHallsHtml = () => {
-        const ds = examDates(); const d = TT.ui.date && ds.includes(TT.ui.date) ? TT.ui.date : ds[0]; TT.ui.date = d;
-        if (!d) return examBoardHtml([]);
-        const xs = exSlots(); const list = filt(allExams()).filter(e => e.date === d);
-        const hallRooms = rooms().filter(r => r.type !== 'Online');
-        return `<div class="flex flex-wrap gap-1.5 mb-2">${ds.map(x => `<button class="iq-chip !text-[10.5px] !px-3 !py-1.5" style="${x === d ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.ttSet('date','${x}')">${fmtDay(x)}</button>`).join('')}</div>
-            <div class="overflow-auto rounded-xl border-2 border-[#0d47a1]"><table class="tt-grid"><thead><tr><th class="tt-day">Hall / venue</th>${xs.map(s => `<th>${esc(s.name || '')}<br>${hm(s.start)}–${hm(s.end)}</th>`).join('')}</tr></thead><tbody>${hallRooms.map(r => `<tr><td class="tt-dayc" style="text-align:left">${esc(r.name)}<div class="text-[8px] text-gray-500 font-bold">${r.capacity || '?'} seats · ${esc(r.type)}</div></td>${xs.map(s => { const es = list.filter(e => overlap(e, s) && (e.rooms || []).includes(r.id)); const used = es.reduce((a, e) => a + (e.seats && e.seats[r.id] !== undefined ? n1(e.seats[r.id]) : Math.ceil(n1(e.students) / Math.max(1, (e.rooms || []).length))), 0); return `<td>${es.map(e => examChip(e)).join('')}${es.length ? `<div class="text-[9px] font-black mt-0.5" style="color:${n1(r.capacity) && used > n1(r.capacity) ? '#b91c1c' : '#065f46'}">${used}/${r.capacity || '?'} seats</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
-    };
-    const exCellStatus = (o, date, xi, ignoreId) => { const s = exSlots()[xi]; const c = { ...o, date, start: s.start, end: s.end, rooms: [], students: enrolledCount(o) }; const h = hard(examClashes(c, ignoreId)); if (h.length) return { s: 'clash', h }; const need = enrolledCount(o); const free = rooms().filter(r => r.type !== 'Online').map(r => { const used = allExams().filter(e => e.id !== ignoreId && e.date === date && overlap(e, s) && (e.rooms || []).includes(r.id)).reduce((a, e) => a + (e.seats && e.seats[r.id] !== undefined ? n1(e.seats[r.id]) : Math.ceil(n1(e.students) / Math.max(1, (e.rooms || []).length))), 0); return { r, left: Math.max(0, n1(r.capacity) - used) }; }).filter(x => x.left > 0); const tot = free.reduce((a, x) => a + x.left, 0); if (need && tot < need) return { s: 'noroom' }; return { s: 'free', free }; };
-    const buildExamHtml = () => {
-        const offs = offsForBuild(); const o = offerings()[TT.ui.sel]; const ds = examDates(); const xs = exSlots();
-        const listHtml = offs.map(x => { const has = allExams().filter(e => e.key === x.key); return `<div class="tt-off ${TT.ui.sel === x.key ? 'on' : ''}" style="--c:${offColor(x)}" onclick="window.ttSet('sel','${js(x.key)}')"><div class="flex justify-between"><b class="text-[11px] text-[#0d47a1]">${esc(x.code)}</b><span class="text-[9px] font-black" style="color:${has.length ? '#065f46' : '#b91c1c'}">${has.length ? '✔ ' + fmtDay(has[0].date).split(',')[0] : 'not set'}</span></div><div class="text-[10px] font-bold truncate">${esc(x.name)}</div><div class="text-[9px] text-gray-500 font-bold">${esc(x.course)} · ${esc(x.batch)} · 👥 ${enrolledCount(x)}</div></div>`; }).join('') || '<p class="text-[11px] text-gray-400 italic p-3">No modules for this filter.</p>';
-        let right = `<div class="iq-card text-center p-10 text-gray-400"><div class="text-4xl">🎓</div><b>Choose a module on the left</b><p class="text-[11px]">${ds.length ? 'Green = every student is free and there are enough seats. Red = clash. Purple = not enough free seats.' : 'First set the exam period (from / to) in ⚙️ Times, sessions & venues.'}</p></div>`;
-        if (o && ds.length) {
-            const can = canEditExam(o.fac); const ig = TT.ui.moveId || '';
-            right = `<div class="iq-card mb-2"><b class="text-[14px] text-[#0d47a1]">${esc(o.code)} · ${esc(o.name)}</b><div class="text-[10.5px] font-bold text-gray-600">${esc(o.course)} · ${esc(o.batch)} · 👥 ${enrolledCount(o)} candidates ${TT.ui.moveId ? '· ↔ moving' : ''}</div></div>
-                <div class="overflow-auto rounded-xl border-2 border-[#0d47a1]" style="max-height:66vh"><table class="tt-grid"><thead><tr><th class="tt-day">Date</th>${xs.map(s => `<th>${esc(s.name || '')}<br>${hm(s.start)}–${hm(s.end)}</th>`).join('')}</tr></thead><tbody>${ds.map(d => `<tr><td class="tt-dayc">${fmtDay(d)}</td>${xs.map((s, xi) => { const here = allExams().filter(e => e.date === d && overlap(e, s) && (e.key === o.key || sameGroup(e, o))); const st = can ? exCellStatus(o, d, xi, ig) : { s: '' }; return `<td>${here.map(e => examChip(e)).join('')}${!here.length && can ? `<div class="tt-cell tt-${st.s === 'free' ? 'free' : st.s}" title="${esc(st.h ? st.h.map(x => x.msg).join('\n') : st.s === 'noroom' ? 'Not enough free seats' : 'Free')}" onclick="${st.s === 'clash' ? `window.ttExWhy('${d}',${xi})` : `window.ttExPlace('${d}',${xi})`}">${st.s === 'free' ? '＋' : st.s === 'noroom' ? 'no seats' : '✕'}</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
-        }
-        return `<div class="grid gap-3" style="grid-template-columns:minmax(230px,300px) 1fr"><div class="overflow-y-auto pr-1" style="max-height:78vh">${listHtml}</div><div>${right}</div></div>`;
-    };
-    window.ttExWhy = (d, xi) => { const o = offerings()[TT.ui.sel]; const st = exCellStatus(o, d, xi, TT.ui.moveId); if (st.h) showClash(st.h, { ...o, date: d, start: exSlots()[xi].start, end: exSlots()[xi].end }, null); };
-    window.ttExPlace = (d, xi) => {
-        const o = offerings()[TT.ui.sel]; if (!o) return; const st = exCellStatus(o, d, xi, TT.ui.moveId); const need = enrolledCount(o);
-        let left = need || 1; const pre = {}; (st.free || []).sort((a, b) => (b.r.type === 'Exam Hall') - (a.r.type === 'Exam Hall') || b.left - a.left).forEach(x => { if (left > 0) { const t = Math.min(x.left, left); pre[x.r.id] = t; left -= t; } });
-        dlg(`🎓 ${esc(o.code)} · ${fmtDay(d)} · ${esc(exSlots()[xi].name || '')}`, `<p class="text-[11px] font-bold mb-2">${need} candidate(s). Tick the halls and the seats to use in each (suggested below).</p>
-            <div class="space-y-1 max-h-[45vh] overflow-y-auto">${(st.free || []).map(x => `<label class="flex items-center gap-2 text-[11px] border rounded-lg p-1.5 bg-white"><input type="checkbox" class="tt-ex-r" value="${esc(x.r.id)}" ${pre[x.r.id] ? 'checked' : ''}><b class="flex-1">${esc(x.r.name)}</b><span class="text-gray-500">${x.left} free of ${x.r.capacity}</span><input type="number" min="0" max="${x.left}" value="${pre[x.r.id] || ''}" data-r="${esc(x.r.id)}" class="tt-ex-s iq-in !w-20 !py-1 text-center" placeholder="seats"></label>`).join('') || '<p class="text-[11px] text-red-700 font-bold">No hall has free seats in this sitting.</p>'}</div>
-            <div class="flex justify-end gap-2 mt-3"><button class="iq-btn-soft" onclick="window.ttDlgClose()">Cancel</button><button class="iq-btn" onclick="window.ttSaveExam('${d}', ${xi})">💾 Save exam</button></div>`);
-    };
-    window.ttSaveExam = async (d, xi) => {
-        const o = offerings()[TT.ui.sel]; if (!o) return; const s = exSlots()[xi];
-        const rs = [...document.querySelectorAll('.tt-ex-r:checked')].map(x => x.value); const seats = {}; document.querySelectorAll('.tt-ex-s').forEach(x => { if (rs.includes(x.dataset.r) && x.value) seats[x.dataset.r] = n1(x.value); });
-        const editId = TT.ui.moveId || '';
-        const e = { id: editId || newId('x'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || meFac() || 'GEN', lecturerId: o.lecturerId || '', date: d, slotName: s.name || '', start: s.start, end: s.end, rooms: rs, seats, students: enrolledCount(o), by: meEmail(), at: Date.now() };
-        const h = hard(examClashes(e, editId)); if (h.length) return showClash(h, e, activeRole === 'ALL' ? async () => { const obj = { [`exams.${e.id}`]: { ...e, forced: true } }; markAmended(obj, e); await planUpdate(e.fac, obj, { a: 'Exam scheduled (override)', d: `${e.code} ${e.date}` }); } : null);
-        const obj = { [`exams.${e.id}`]: e }; markAmended(obj, e);
-        await planUpdate(e.fac, obj, { a: editId ? 'Exam moved' : 'Exam scheduled', d: `${e.code} ${e.course} ${e.batch} → ${e.date} ${e.start} · ${rs.map(roomName).join(', ')}` });
-        TT.ui.moveId = ''; window.ttDlgClose(); window.showToast(`${e.code} exam set on ${fmtDay(d)} ✔`, 'success');
-    };
-
-    // ------------------------------------------------------------------ MY TIMETABLE (lecturer / coordinator)
-    const myClasses = (team) => { const ids = team ? teamIds() : new Set([currentLecturerId]); return allClasses().filter(e => ids.has(e.lecturerId) || (team === 'coord' && window.rowsForLecturer(currentLecturerId, 'coord').some(r => offKey(r.code, r.batch) === e.key))); };
-    const myExams = () => { const keys = new Set(offList().filter(o => o.lecturerId === currentLecturerId).map(o => o.key)); return allExams().filter(e => keys.has(e.key) || e.lecturerId === currentLecturerId); };
-    const lastAmendFor = (lid) => Math.max(0, ...Object.values(TT.plans).map(p => n1((p.amended || {})['l_' + sk(lid)])));
-    function mineHtml() {
-        if (!currentLecturerId) return '<p class="text-gray-400 italic p-6 text-center">Verify your identity first.</p>';
-        const u = TT.ui; const view = u.mineView || 'me';
-        const list = view === 'me' ? myClasses() : myClasses(view === 'coord' ? 'coord' : '1');
-        const ex = myExams(); const la = lastAmendFor(currentLecturerId);
-        return `<div class="flex flex-wrap gap-2 items-center mb-2">${[['me', '👤 My classes'], ['team', '👨‍💼 Me + my team'], ['coord', '🧭 Modules I coordinate']].map(([k, l]) => `<button class="iq-chip !text-[11px] !px-3 !py-1.5" style="${view === k ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.__tt.ui.mineView='${k}'; window.ttTab('mine')">${l}</button>`).join('')}
-            <span class="ml-auto text-[10.5px] font-bold text-gray-600">${la ? '🔔 Last amended ' + fmtDT(la) : ''} · ${Math.round(list.filter(e => e.lecturerId === currentLecturerId).reduce((a, e) => a + durH(e), 0) * 10) / 10} teaching h / week</span>
-            <button class="iq-btn-soft" onclick="window.ttQuickPdf('mine')">🖨️ PDF</button></div>
-            ${weekHtml(list, { click: true, noLect: view === 'me' })}
-            <div class="tt-sec">🎓 My exams</div>${ex.length ? examListTable(ex) : '<p class="text-[11px] text-gray-400 italic">No exams scheduled yet.</p>'}`;
-    }
-    const examListTable = (ex) => `<div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Colour</th><th>Date</th><th>Time</th><th>Module</th><th>Course · Batch</th><th>Candidates</th><th>Hall(s)</th></tr></thead><tbody>${ex.slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start)).map(e => { const [c, cn] = exColor(e); return `<tr><td><span class="iq-chip" style="background:${c};color:white">${cn}</span></td><td><b>${fmtDay(e.date)}</b></td><td>${hm(e.start)}–${hm(e.end)}</td><td><b>${esc(e.code)}</b> ${esc(e.name)}</td><td>${esc(e.course)} · ${esc(e.batch)}</td><td>${e.students || ''}</td><td>${(e.rooms || []).map(r => esc(roomName(r)) + (e.seats && e.seats[r] ? ` (${e.seats[r]})` : '')).join(', ')}</td></tr>`; }).join('')}</tbody></table></div>`;
-
-    // ------------------------------------------------------------------ PUBLISH: royal cards → PDF / HTML / Excel / print
-    const FAC_FULL = (f) => f ? `Faculty of ${f}` : '';
-    const groupsFor = (kind) => {
-        const list = filt(kind === 'exam' ? allExams() : allClasses()); const by = TT.ui.pubGroup; const g = {};
-        const put = (k, meta, e) => { (g[k] = g[k] || { meta, list: [] }).list.push(e); };
-        list.forEach(e => {
-            if (by === 'lecturer') put('L' + e.lecturerId, { type: 'Lecturer', lid: e.lecturerId, title: e.lecturerId ? nm(e.lecturerId) : 'Lecturer not assigned', fac: lFac(window.getLecturerById(e.lecturerId)) || e.fac }, e);
-            else if (by === 'room') { (kind === 'exam' ? (e.rooms || []) : [e.roomId]).forEach(r => put('R' + r, { type: 'Venue', room: r, title: roomName(r), fac: '' }, e)); }
-            else if (by === 'faculty') put('F' + e.fac, { type: 'Faculty', title: FAC_FULL(e.fac), fac: e.fac }, e);
-            else put('G' + grpKey(e.course, e.batch), { type: 'Course', course: e.course, batch: e.batch, title: e.course, fac: e.fac }, e);
-        });
-        return Object.values(g).sort((a, b) => String(a.meta.title + (a.meta.batch || '')).localeCompare(String(b.meta.title + (b.meta.batch || ''))));
-    };
-    const groupAmended = (meta, list) => { let t = Math.max(0, ...list.map(e => n1(e.at))); Object.values(TT.plans).forEach(p => { const a = p.amended || {}; if (meta.course) t = Math.max(t, n1(a[grpKey(meta.course, meta.batch)])); if (meta.lid) t = Math.max(t, n1(a['l_' + sk(meta.lid)])); }); return t; };
-    const groupEffective = (kind, meta, list) => { const fs = meta.fac ? [meta.fac] : [...new Set(list.map(e => e.fac))]; const ds = fs.map(f => ((TT.plans[f] || {}).effective || {})[kind]).filter(Boolean).sort(); return ds.pop() || ''; };
-    const groupPublished = (kind, meta, list) => { const fs = meta.fac ? [meta.fac] : [...new Set(list.map(e => e.fac))]; return fs.length && fs.every(f => ((TT.plans[f] || {}).published || {})[kind]); };
-    const cardHeader = (kind, meta, list) => {
-        const t = term(); const amended = groupAmended(meta, list); const eff = groupEffective(kind, meta, list); const pub = groupPublished(kind, meta, list);
-        const facName = meta.fac ? FAC_FULL(meta.fac) : ''; const courseInfo = meta.course ? Object.values(TT.plans).map(p => (p.courses || {})[grpKey(meta.course, meta.batch)]).find(Boolean) : null;
-        const cell = (k, v) => v ? `<div style="padding:4px 10px;border-right:1px solid rgba(255,255,255,.25)"><div style="font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;color:#bae6fd;font-weight:800">${k}</div><div style="font-size:11.5px;font-weight:900">${esc(v)}</div></div>` : '';
-        return `<div style="text-align:center;padding:6px 0 8px;border-bottom:4px double #0d47a1">
-                <div style="font-size:9.5px;letter-spacing:5px;font-weight:800;color:#00695c;text-transform:uppercase">${esc(IQ.inst)}</div>
-                <div style="font-family:Cinzel,'Times New Roman',serif;font-weight:900;font-size:25px;letter-spacing:.14em;color:#004d40;line-height:1.15">${kind === 'exam' ? 'EXAMINATION TIMETABLE' : 'CLASS TIMETABLE'}</div>
-                <div style="font-size:9px;font-weight:800;color:#0d47a1;letter-spacing:.08em">${esc(IQ.short)} ${esc(IQ.arabic)} · ${esc(IQ.long)}</div></div>
-            <div style="margin-top:8px;border-radius:12px;background:linear-gradient(115deg,#00261f,#004d40 40%,#0d47a1);color:white;display:flex;flex-wrap:wrap;align-items:stretch;overflow:hidden">
-                <div style="padding:8px 14px;border-right:2px solid #7dd3fc;min-width:200px"><div style="font-size:8px;letter-spacing:2px;color:#bae6fd;font-weight:800;text-transform:uppercase">${esc(meta.type)}</div><div style="font-family:Cinzel,serif;font-size:17px;font-weight:900">${esc(meta.title)}</div>${meta.batch ? `<div style="font-size:12px;font-weight:800;color:#e0f2fe">Batch: ${esc(meta.batch)}</div>` : ''}</div>
-                ${cell('Faculty', facName)}${cell('Semester', t.semester)}${cell('Academic year', t.year)}${courseInfo && courseInfo.level ? cell('Level', courseInfo.level) : ''}${courseInfo && courseInfo.mode ? cell('Study mode', courseInfo.mode) : ''}${kind === 'exam' && t.examFrom ? cell('Exam period', fmtDay(t.examFrom) + ' – ' + fmtDay(t.examTo)) : ''}
-                ${cell('Effective from', eff ? fmtDay(eff) : '')}${cell('Last amended', amended ? new Date(amended).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '')}
-                <div style="padding:4px 10px;margin-left:auto;display:flex;align-items:center"><span style="padding:3px 9px;border-radius:999px;font-size:9px;font-weight:900;background:${pub ? '#dcfce7' : '#fee2e2'};color:${pub ? '#065f46' : '#b91c1c'}">${pub ? 'OFFICIAL' : 'DRAFT'}</span></div></div>`;
-    };
-    const classCardGrid = (meta, list) => weekHtml(list, { click: false, noLect: meta.type === 'Lecturer', noGroup: meta.type === 'Course', maxH: 'none' }).replace(/max-height:none/, '');
-    const classCardHtml = (meta, list, forExport) => {
-        const hrs = Math.round(list.reduce((a, e) => a + durH(e), 0) * 10) / 10;
-        const mods = {}; list.forEach(e => { const k = e.key; (mods[k] = mods[k] || { e, h: 0, days: new Set() }); mods[k].h += durH(e); mods[k].days.add(e.day.slice(0, 3)); });
-        return `<div class="tt-card" style="background:white;padding:16px 18px;border:3px solid #004d40;border-radius:14px;font-family:Inter,Arial,sans-serif;color:#0f172a;${forExport ? 'width:1100px;' : 'margin-bottom:18px;'}">${cardHeader('class', meta, list)}<div style="margin-top:10px">${classCardGrid(meta, list)}</div>
-            <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:9.5px"><thead><tr>${['Module', 'Title', meta.type === 'Course' ? 'Lecturer' : 'Course · Batch', 'Days', 'Hrs/week', 'Venue(s)'].map(h => `<th style="background:#0d47a1;color:white;padding:4px 6px;text-align:left">${h}</th>`).join('')}</tr></thead><tbody>${Object.values(mods).map(m => `<tr><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0;font-weight:900;color:#0d47a1">${esc(m.e.code)}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${esc(m.e.name)}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${esc(meta.type === 'Course' ? nm(m.e.lecturerId) : m.e.course + ' · ' + m.e.batch)}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${[...m.days].join(', ')}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0;font-weight:900">${Math.round(m.h * 10) / 10}</td><td style="padding:3px 6px;border-bottom:1px solid #e2e8f0">${[...new Set(list.filter(x => x.key === m.e.key).map(x => roomName(x.roomId)))].map(esc).join(', ')}</td></tr>`).join('')}<tr><td colspan="4" style="padding:4px 6px;font-weight:900;text-align:right">TOTAL</td><td style="padding:4px 6px;font-weight:900;color:#004d40">${hrs} h</td><td></td></tr></tbody></table>
-            <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-top:8px"><span>Generated ${new Date().toLocaleString()} · ${esc(IQ.short)} ${esc(IQ.arabic)}</span><span>Changes after publication are shown live in the portal.</span></div></div>`;
-    };
-    const examCardHtml = (meta, list, forExport) => {
-        const legend = {}; list.forEach(e => { const [c, cn] = exColor(e); legend[grpKey(e.course, e.batch) + e.date + e.start] = { c, cn, e }; });
-        return `<div class="tt-card" style="background:white;padding:16px 18px;border:3px solid #0d47a1;border-radius:14px;font-family:Inter,Arial,sans-serif;color:#0f172a;${forExport ? 'width:1100px;' : 'margin-bottom:18px;'}">${cardHeader('exam', meta, list)}
-            <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:10px"><thead><tr>${['Hall colour', 'Date', 'Day', 'Session / time', 'Module', 'Course · Batch', 'Candidates', 'Hall(s) & seats'].map(h => `<th style="background:linear-gradient(90deg,#004d40,#0d47a1);color:white;padding:6px;text-align:left;font-size:8.5px;text-transform:uppercase">${h}</th>`).join('')}</tr></thead><tbody>
-            ${list.slice().sort((a, b) => (a.date + a.start + a.code).localeCompare(b.date + b.start + b.code)).map(e => { const [c, cn] = exColor(e); return `<tr style="border-bottom:1px solid #e2e8f0"><td style="padding:0;width:90px"><div style="background:${c};color:white;font-weight:900;padding:9px 6px;text-align:center;font-size:10px;letter-spacing:.5px">${cn.toUpperCase()}</div></td><td style="padding:6px;font-weight:900">${new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td><td style="padding:6px">${new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' })}</td><td style="padding:6px">${esc(e.slotName || '')}<br><b>${hm(e.start)} – ${hm(e.end)}</b></td><td style="padding:6px"><b style="color:#0d47a1">${esc(e.code)}</b><br>${esc(e.name)}</td><td style="padding:6px">${esc(e.course)}<br><b>${esc(e.batch)}</b></td><td style="padding:6px;text-align:center;font-weight:900">${e.students || ''}</td><td style="padding:6px">${(e.rooms || []).map(r => `<span style="display:inline-block;border:2px solid ${c};border-radius:6px;padding:1px 6px;margin:1px;font-weight:800">${esc(roomName(r))}${e.seats && e.seats[r] ? ' · ' + e.seats[r] : ''}</span>`).join('') || 'TBA'}</td></tr>`; }).join('')}</tbody></table>
-            <div style="margin-top:10px;padding:8px;border:1px dashed #94a3b8;border-radius:10px;font-size:9.5px"><b style="color:#004d40">HALL ENTRY GUIDE:</b> students find the colour of their course & batch on the hall door and sit in the matching colour zone. ${Object.values(legend).slice(0, 30).map(x => `<span style="display:inline-block;margin:2px;padding:2px 8px;border-radius:999px;background:${x.c};color:white;font-weight:800">${esc(x.cn)} = ${esc(x.e.course)} · ${esc(x.e.batch)} (${fmtDay(x.e.date).split(',')[0]} ${hm(x.e.start)})</span>`).join('')}</div>
-            <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-top:8px"><span>Generated ${new Date().toLocaleString()} · ${esc(IQ.short)} ${esc(IQ.arabic)}</span><span>Bring your student ID card. Arrive 20 minutes early.</span></div></div>`;
-    };
-    function publishHtml() {
-        const kind = TT.ui.mode; const gs = groupsFor(kind); const f = TT.ui.fac || facManaged();
-        const canPub = f && (kind === 'exam' ? canEditExam(f) : canEditFacTT(f)); const p = f ? (TT.plans[f] || {}) : {};
-        return `<div class="iq-card mb-3 flex flex-wrap items-center gap-2"><b class="text-[11px]">One card per:</b>${[['group', '🎓 Course & batch'], ['lecturer', '👤 Lecturer'], ['room', '📍 Venue'], ['faculty', '🏛️ Faculty']].map(([k, l]) => `<button class="iq-chip !text-[11px] !px-3 !py-1.5" style="${TT.ui.pubGroup === k ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;border:1px solid #cbd5e1'}" onclick="window.ttSet('pubGroup','${k}')">${l}</button>`).join('')}
-            <span class="text-[10.5px] font-bold text-gray-500">${gs.length} card(s) – use the filters above (faculty, course, batch, lecturer…)</span>
-            <div class="ml-auto flex flex-wrap gap-2"><button class="iq-btn" onclick="window.ttExport('pdf')">📄 PDF</button><button class="iq-btn" onclick="window.ttExport('html')">🌐 HTML (website)</button><button class="iq-btn" onclick="window.ttExport('xlsx')">📗 Excel</button><button class="iq-btn-soft" onclick="window.ttExport('print')">🖨️ Print</button></div></div>
-            ${canPub ? `<div class="iq-card mb-3 flex flex-wrap items-center gap-2" style="border-left:5px solid #0d47a1"><b class="text-[11px]">📢 Publish ${kind === 'exam' ? 'exam' : 'class'} timetable of ${esc(FAC_FULL(f))}</b><label class="text-[10.5px] font-bold">Changes apply from <input type="date" id="tt-eff" class="iq-in !w-auto !py-1" value="${esc((p.effective || {})[kind] || ymdL())}"></label><button class="iq-btn" onclick="window.ttPublish('${js(f)}')">Publish as OFFICIAL</button><span class="text-[10px] font-bold ${((p.published || {})[kind]) ? 'text-green-700' : 'text-red-700'}">${(p.published || {})[kind] ? 'Published ' + fmtDT((p.published || {})[kind]) : 'Not published yet (cards show DRAFT)'}</span></div>` : ''}
-            <div id="tt-pub-cards" style="display:flex;flex-direction:column;align-items:center">${gs.slice(0, 12).map(g => kind === 'exam' ? examCardHtml(g.meta, g.list) : classCardHtml(g.meta, g.list)).join('') || '<p class="text-gray-400 italic p-8">Nothing scheduled for this filter yet.</p>'}${gs.length > 12 ? `<p class="text-[11px] font-bold text-gray-500">Preview shows 12 of ${gs.length} cards – downloads include all of them.</p>` : ''}</div>`;
-    }
-    window.ttPublish = async (f) => {
-        const kind = TT.ui.mode; const eff = document.getElementById('tt-eff').value || ymdL();
-        await planUpdate(f, { [`effective.${kind}`]: eff, [`published.${kind}`]: Date.now() }, { a: `${kind === 'exam' ? 'Exam' : 'Class'} timetable published`, d: `${f} · effective ${eff}` });
-        window.showToast('Published – lecturers and coordinators see it live ✔', 'success');
-    };
-    const htmlDoc = (cards, title) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet"><style>body{font-family:Inter,Arial,sans-serif;background:#eef2f7;margin:0;padding:20px;display:flex;flex-direction:column;align-items:center;gap:22px}${ttStyle.textContent}.tt-card{max-width:1180px;width:100%;box-sizing:border-box}.overflow-auto{overflow:auto}.flex{display:flex}.flex-wrap{flex-wrap:wrap}.gap-1\\.5{gap:6px}.mt-2{margin-top:8px}.iq-chip{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:900}.rounded-xl{border-radius:12px}.border-2{border-width:2px;border-style:solid}.text-\\[8px\\]{font-size:8px}.font-bold{font-weight:700}.text-gray-500{color:#64748b}@media print{body{background:white;padding:0}.tt-card{page-break-after:always;border-radius:0}}</style></head><body>${cards}<div style="font-size:10px;color:#64748b">${esc(IQ.short)} ${esc(IQ.arabic)} · ${esc(IQ.inst)} · generated ${new Date().toLocaleString()}</div></body></html>`;
-    const dl = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000); };
-    window.ttExport = async (fmt, groupsOverride, nameOverride) => {
-        const kind = TT.ui.mode; const gs = groupsOverride || groupsFor(kind); if (!gs.length) return alert('Nothing to export for this filter.');
-        const t = term(); const base = nameOverride || `${kind === 'exam' ? 'Exam' : 'Class'}_Timetable_${(t.label || '').replace(/[^a-z0-9]+/gi, '_')}_${TT.ui.pubGroup}`;
-        const cardsFor = (x) => gs.map(g => kind === 'exam' ? examCardHtml(g.meta, g.list, x) : classCardHtml(g.meta, g.list, x));
-        log('TIMETABLE', 'Timetable exported', `${fmt} · ${kind} · ${gs.length} card(s)`);
-        if (fmt === 'html') return dl(new Blob([htmlDoc(cardsFor(false).join(''), base)], { type: 'text/html' }), base + '.html');
-        if (fmt === 'print') { const w = window.open('', '_blank'); if (!w) return alert('Allow pop-ups to print.'); w.document.write(htmlDoc(cardsFor(false).join(''), base)); w.document.close(); setTimeout(() => w.print(), 900); return; }
-        if (fmt === 'xlsx') {
-            if (!window.XLSX) return alert('Excel library not loaded.');
-            const wb = XLSX.utils.book_new(); const used = new Set();
-            gs.forEach(g => {
-                const head = [[IQ.inst], [`${kind === 'exam' ? 'EXAMINATION' : 'CLASS'} TIMETABLE – ${IQ.short}`], [`${g.meta.type}: ${g.meta.title}${g.meta.batch ? ' · Batch ' + g.meta.batch : ''}`], [`Faculty: ${g.meta.fac || ''}`, `Semester: ${t.semester || ''}`, `Year: ${t.year || ''}`], [`Effective from: ${groupEffective(kind, g.meta, g.list) || ''}`, `Last amended: ${groupAmended(g.meta, g.list) ? new Date(groupAmended(g.meta, g.list)).toLocaleString() : ''}`, groupPublished(kind, g.meta, g.list) ? 'OFFICIAL' : 'DRAFT'], []];
-                const rows = kind === 'exam' ? [['Hall colour', 'Date', 'Day', 'Session', 'Start', 'End', 'Module code', 'Module', 'Course', 'Batch', 'Candidates', 'Halls (seats)'], ...g.list.slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start)).map(e => [exColor(e)[1], e.date, new Date(e.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' }), e.slotName || '', e.start, e.end, e.code, e.name, e.course, e.batch, e.students || '', (e.rooms || []).map(r => roomName(r) + (e.seats && e.seats[r] ? ` (${e.seats[r]})` : '')).join(', ')])]
-                    : [['Day', 'Start', 'End', 'Hours', 'Module code', 'Module', 'Course', 'Batch', 'Lecturer', 'Venue', 'Mode'], ...g.list.slice().sort((a, b) => (ALL_DAYS.indexOf(a.day) - ALL_DAYS.indexOf(b.day)) || toMin(a.start) - toMin(b.start)).map(e => [e.day, e.start, e.end, durH(e), e.code, e.name, e.course, e.batch, nm(e.lecturerId), roomName(e.roomId), e.mode || ''])];
-                const ws = XLSX.utils.aoa_to_sheet([...head, ...rows]); ws['!cols'] = rows[0].map((_, i) => ({ wch: i === 5 || i === 7 ? 34 : 16 }));
-                let nmS = String(g.meta.title + (g.meta.batch ? ' ' + g.meta.batch : '')).replace(/[\\/?*[\]:]/g, ' ').slice(0, 28) || 'Sheet'; let k = 2; while (used.has(nmS)) nmS = nmS.slice(0, 25) + ' ' + k++; used.add(nmS);
-                XLSX.utils.book_append_sheet(wb, ws, nmS);
-            });
-            return XLSX.writeFile(wb, base + '.xlsx');
-        }
-        // PDF – one royal A4 landscape page per card
-        if (!window.jspdf || !window.html2canvas) return alert('PDF library not loaded.');
-        const ld = document.getElementById('loader'); ld.style.display = 'flex';
-        const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-12000px;top:0;background:white'; document.body.appendChild(host);
-        try {
-            const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4'); const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-            const cards = cardsFor(true);
-            for (let i = 0; i < cards.length; i++) {
-                document.getElementById('loader-text').innerText = `Designing page ${i + 1} of ${cards.length}…`;
-                host.innerHTML = cards[i]; await new Promise(r => setTimeout(r, 60));
-                host.querySelectorAll('[style*="max-height"]').forEach(x => x.style.maxHeight = 'none');
-                const canvas = await html2canvas(host.firstElementChild, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-                const r = Math.min((pw - 10) / canvas.width, (ph - 10) / canvas.height);
-                if (i) pdf.addPage();
-                pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', (pw - canvas.width * r) / 2, 5, canvas.width * r, canvas.height * r);
-            }
-            pdf.save(base + '.pdf'); window.showToast('PDF downloaded 👑', 'success');
-        } catch (e) { console.error(e); alert('PDF failed: ' + e.message); }
-        finally { host.remove(); ld.style.display = 'none'; }
-    };
-    window.ttQuickPdf = (what) => {
-        if (what === 'mine') { const list = myClasses(TT.ui.mineView === 'me' || !TT.ui.mineView ? '' : TT.ui.mineView === 'coord' ? 'coord' : '1'); const prev = TT.ui.mode; TT.ui.mode = 'class'; window.ttExport('pdf', [{ meta: { type: 'Lecturer', lid: currentLecturerId, title: nm(currentLecturerId), fac: meFac() }, list }], `My_Timetable_${nm(currentLecturerId).replace(/[^a-z0-9]+/gi, '_')}`); TT.ui.mode = prev; }
-    };
-
-    // ------------------------------------------------------------------ SETUP: semesters, days, periods, exam sittings, faculty sessions, venues
-    window.ttNewTerm = async () => {
-        const sem = prompt('Semester name (e.g. Semester 1, Semester 2, Short semester):', 'Semester 1'); if (!sem) return;
-        const yr = prompt('Academic year (e.g. 2026 or 2026/2027):', String(new Date().getFullYear())); if (!yr) return;
-        const id = 'T' + sk(yr) + '_' + sk(sem);
-        await cfgUpdate({ [`terms.${id}`]: { id, semester: sem, year: yr, label: `${sem} · ${yr}`, examFrom: '', examTo: '', createdAt: Date.now() }, activeTerm: id, ...(TT.cfg.slots && TT.cfg.slots.length ? {} : { slots: slots().map(s => ({ start: s.start, end: s.end })) }), days: TT.cfg.days, examSlots: exSlots() });
-        TT.planTerm = ''; subscribePlans(); ttRender();
-    };
-    function setupHtml() {
-        const t = term(); const f = TT.ui.fac || facManaged() || ''; const can = canCfg(); const dis = can ? '' : 'disabled';
-        const ss = slots(); const xs = exSlots();
-        return `<div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
-            <div class="iq-card"><div class="tt-sec">📅 Semester</div>
-                <div class="grid grid-cols-2 gap-2"><label><span class="iq-lbl">Semester</span><input class="iq-in" ${dis} value="${esc(t.semester || '')}" onchange="window.ttTermSet('semester', this.value)"></label><label><span class="iq-lbl">Academic year</span><input class="iq-in" ${dis} value="${esc(t.year || '')}" onchange="window.ttTermSet('year', this.value)"></label>
-                <label><span class="iq-lbl">Teaching starts</span><input type="date" class="iq-in" ${dis} value="${esc(t.teachFrom || '')}" onchange="window.ttTermSet('teachFrom', this.value)"></label><label><span class="iq-lbl">Teaching ends</span><input type="date" class="iq-in" ${dis} value="${esc(t.teachTo || '')}" onchange="window.ttTermSet('teachTo', this.value)"></label>
-                <label><span class="iq-lbl">Exams from</span><input type="date" class="iq-in" ${dis} value="${esc(t.examFrom || '')}" onchange="window.ttTermSet('examFrom', this.value)"></label><label><span class="iq-lbl">Exams to</span><input type="date" class="iq-in" ${dis} value="${esc(t.examTo || '')}" onchange="window.ttTermSet('examTo', this.value)"></label></div>
-                ${can ? '<button class="iq-btn-soft mt-2" onclick="window.ttNewTerm()">➕ New semester</button>' : ''}
-                <div class="tt-sec">🗓️ Teaching days</div><div class="flex flex-wrap gap-2">${ALL_DAYS.map(d => `<label class="text-[11px] font-bold flex items-center gap-1 border rounded-lg px-2 py-1 bg-white"><input type="checkbox" ${dis} ${days().includes(d) ? 'checked' : ''} onchange="window.ttDay('${d}', this.checked)"> ${d}</label>`).join('')}</div></div>
-            <div class="iq-card"><div class="tt-sec">⏰ Teaching periods (time grid)</div><div class="space-y-1">${ss.map((s, i) => `<div class="flex items-center gap-2 text-[11px]"><b class="w-6 text-gray-400">${i + 1}</b><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.start)}" onchange="window.ttSlot(${i}, 'start', this.value)"><span>to</span><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.end)}" onchange="window.ttSlot(${i}, 'end', this.value)">${can ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttSlotDel(${i})">✖</button>` : ''}</div>`).join('')}</div>${can ? '<button class="iq-btn-soft mt-2" onclick="window.ttSlotAdd()">➕ Add period</button>' : ''}
-                <div class="tt-sec">🎓 Exam sittings</div><div class="space-y-1">${xs.map((s, i) => `<div class="flex items-center gap-2 text-[11px]"><input class="iq-in !w-28 !py-1" ${dis} value="${esc(s.name || '')}" onchange="window.ttXSlot(${i}, 'name', this.value)"><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.start)}" onchange="window.ttXSlot(${i}, 'start', this.value)"><span>to</span><input type="time" class="iq-in !w-auto !py-1" ${dis} value="${esc(s.end)}" onchange="window.ttXSlot(${i}, 'end', this.value)">${can ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttXSlotDel(${i})">✖</button>` : ''}</div>`).join('')}</div>${can ? '<button class="iq-btn-soft mt-2" onclick="window.ttXSlotAdd()">➕ Add sitting</button>' : ''}</div>
-            <div class="iq-card"><div class="tt-sec">🌗 Faculty sessions</div><p class="text-[10.5px] text-gray-600 font-bold mb-2">Each faculty decides its sessions (e.g. Morning 08:10–12:00, Afternoon 13:00–18:00, Night 18:00–23:00). Classes are suggested inside these sessions.</p>
-                <select class="iq-in !py-1.5 mb-2" onchange="window.ttSet('fac', this.value)">${(activeRole === 'ALL' || isOversight() ? FACULTIES : [f]).map(x => `<option ${x === f ? 'selected' : ''}>${x}</option>`).join('')}</select>
-                ${f ? `<div class="space-y-1">${sessionsOf(f).map((s, i) => `<div class="flex items-center gap-2 text-[11px]"><input class="iq-in !w-28 !py-1" ${canEditFacTT(f) ? '' : 'disabled'} value="${esc(s.name)}" onchange="window.ttSess('${f}', ${i}, 'name', this.value)"><input type="time" class="iq-in !w-auto !py-1" ${canEditFacTT(f) ? '' : 'disabled'} value="${esc(s.start)}" onchange="window.ttSess('${f}', ${i}, 'start', this.value)"><span>to</span><input type="time" class="iq-in !w-auto !py-1" ${canEditFacTT(f) ? '' : 'disabled'} value="${esc(s.end)}" onchange="window.ttSess('${f}', ${i}, 'end', this.value)">${canEditFacTT(f) ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttSessDel('${f}', ${i})">✖</button>` : ''}</div>`).join('')}</div>${canEditFacTT(f) ? `<button class="iq-btn-soft mt-2" onclick="window.ttSessAdd('${f}')">➕ Add session</button>` : ''}` : ''}</div>
+    const renderStudio = (kind) => {
+        const host = hostOf(kind); if (!host) return;
+        if (!ttUnsub && !ttReady) startTT();
+        const S = ST[kind];
+        const facs = facChoices();
+        if (!S.fac || !facs.includes(S.fac)) S.fac = (facs.includes(myFac()) ? myFac() : '') || (facs.includes(userFaculty) ? userFaculty : '') || pickFac(kind, facs);
+        const list = ttList(kind, S.fac);
+        if (!list.find(t => t.id === S.tt)) S.tt = (list.find(t => t.published && t.published.version) || list[0] || {}).id || '';
+        const tt = TT[S.tt];
+        const ro = !canTT(tt) && !(tt ? false : canFac(S.fac));
+        const views = VIEWS[kind].filter(v => !RO() || RO_VIEWS[kind].includes(v[0]));
+        if (!views.find(v => v[0] === S.view)) S.view = views[0][0];
+        const needTT = !['venues', 'sessions', 'data', 'offer', 'students'].includes(S.view);
+        const foc = document.activeElement && host.contains(document.activeElement) ? { id: document.activeElement.id, s: document.activeElement.selectionStart } : null;
+        const scrollers = [...host.querySelectorAll('[data-keep-scroll]')].map(el => [el.getAttribute('data-keep-scroll'), el.scrollTop, el.scrollLeft]);
+        const title = kind === 'CLASS' ? 'Lecture Timetable' : 'Examination Timetable';
+        host.innerHTML = `<div class="ax-studio ax-k-${kind}">
+            <div class="ax-hero">
+                <div class="ax-hero-pat"></div>
+                <div class="relative flex flex-col xl:flex-row xl:items-end justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="ax-kick">${AX.app} · Timetable Studio · ${kind === 'CLASS' ? 'ލެކްޗަރ ޓައިމްޓޭބަލް' : 'އެގްޒާމް ޓައިމްޓޭބަލް'}</div>
+                        <h2 class="ax-h2">${title}${tt ? ` <span class="ax-h2s">— ${E(tt.title || '')}</span>` : ''}</h2>
+                        <div class="ax-meta">${tt ? metaLine(tt) : 'No timetable selected yet.'}</div>
+                        <div class="mt-1 flex gap-1 flex-wrap">${statusChip(tt)}${ro && tt ? '<span class="ax-st ax-st-ro">👁 view only</span>' : ''}</div>
+                    </div>
+                    <div class="ax-ctl">
+                        <label>Faculty<select onchange="window.AXset('${kind}','fac',this.value)" ${facs.length < 2 ? 'disabled' : ''}>${facs.map(f => `<option ${f === S.fac ? 'selected' : ''}>${f}</option>`).join('')}</select></label>
+                        <label>Timetable<select onchange="window.AXset('${kind}','tt',this.value)">${list.length ? list.map(t => `<option value="${t.id}" ${t.id === S.tt ? 'selected' : ''}>${E(t.title || t.id)}${t.published && t.published.version ? ' ✓' : ''}</option>`).join('') : '<option value="">— none —</option>'}</select></label>
+                        ${canFac(S.fac) || (kind === 'EXAM' && activeRole === 'EXAM' && !RO()) ? `<button class="ax-b ax-b-gold" onclick="window.AXnewTT('${kind}')">＋ New</button>` : ''}
+                        ${tt && canTT(tt) ? `<button class="ax-b" onclick="window.AXttSettings('${kind}')">⚙️ Settings</button><button class="ax-b ax-b-green" onclick="window.AXpublish('${kind}')">📢 ${tt.published && tt.published.version ? 'Publish Amendment' : 'Publish'}</button>` : ''}
+                    </div>
+                </div>
             </div>
-            <div class="iq-card mt-3"><div class="flex flex-wrap justify-between items-center gap-2"><div class="tt-sec !m-0">🏫 Classrooms, labs, halls & online rooms (${rooms().length})</div>${can ? '<button class="iq-btn" onclick="window.ttRoomAdd()">➕ Add venue</button>' : ''}</div>
-                <p class="text-[10.5px] text-gray-600 font-bold my-1">Capacity is used to recommend a room that fits the class. Mark rooms <b>Online</b> (Zoom / Teams account) or <b>Hybrid</b> (camera & mic) so online and blended classes are sent there.</p>
-                <div class="overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Name</th><th>Type</th><th>Capacity</th><th>Building / campus</th><th>Faculty (optional)</th><th>Features / link</th><th>Use this week</th><th></th></tr></thead><tbody>${rooms().map(r => { const use = allClasses().filter(e => e.roomId === r.id).reduce((a, e) => a + durH(e), 0); return `<tr><td><input class="iq-in !py-1" ${dis} value="${esc(r.name)}" onchange="window.ttRoom('${r.id}','name',this.value)"></td><td><select class="iq-in !py-1" ${dis} onchange="window.ttRoom('${r.id}','type',this.value)">${ROOM_TYPES.map(x => `<option ${r.type === x ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><input type="number" class="iq-in !py-1 !w-20" ${dis} value="${esc(r.capacity || '')}" onchange="window.ttRoom('${r.id}','capacity',this.value)"></td><td><input class="iq-in !py-1" ${dis} value="${esc(r.building || '')}" onchange="window.ttRoom('${r.id}','building',this.value)"></td><td><select class="iq-in !py-1" ${dis} onchange="window.ttRoom('${r.id}','fac',this.value)"><option value="">Shared</option>${FACULTIES.map(x => `<option ${r.fac === x ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><input class="iq-in !py-1" ${dis} value="${esc(r.features || '')}" onchange="window.ttRoom('${r.id}','features',this.value)"></td><td class="font-bold">${Math.round(use * 10) / 10} h</td><td>${can ? `<button class="iq-btn-soft !py-0.5 !px-2" onclick="window.ttRoomDel('${r.id}')">🗑️</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="8" class="text-center text-gray-400 italic p-4">No venues yet – add them here or import the “Rooms” sheet from the Excel template.</td></tr>'}</tbody></table></div></div>`;
-    }
-    window.ttTermSet = (k, v) => cfgUpdate({ [`terms.${TT.cfg.activeTerm}.${k}`]: v, [`terms.${TT.cfg.activeTerm}.label`]: k === 'semester' || k === 'year' ? `${k === 'semester' ? v : term().semester} · ${k === 'year' ? v : term().year}` : term().label });
-    window.ttDay = (d, on) => cfgUpdate({ days: ALL_DAYS.filter(x => x === d ? on : days().includes(x)) });
-    window.ttSlot = (i, k, v) => { const s = slots().map(x => ({ ...x })); s[i][k] = v; cfgUpdate({ slots: s.sort((a, b) => toMin(a.start) - toMin(b.start)) }); };
-    window.ttSlotAdd = () => { const s = slots().map(x => ({ ...x })); const last = s[s.length - 1] || { end: '08:00' }; const st = last.end; const en = `${pad2(Math.min(23, Math.floor(toMin(st) / 60) + 1))}:${pad2(toMin(st) % 60)}`; s.push({ start: st, end: en }); cfgUpdate({ slots: s }); };
-    window.ttSlotDel = (i) => { if (!confirm('Remove this period? Classes already placed keep their times.')) return; const s = slots().slice(); s.splice(i, 1); cfgUpdate({ slots: s }); };
-    window.ttXSlot = (i, k, v) => { const s = exSlots().map(x => ({ ...x })); s[i][k] = v; cfgUpdate({ examSlots: s }); };
-    window.ttXSlotAdd = () => { const s = exSlots().map(x => ({ ...x })); s.push({ name: 'Sitting ' + (s.length + 1), start: '15:00', end: '17:00' }); cfgUpdate({ examSlots: s }); };
-    window.ttXSlotDel = (i) => { const s = exSlots().slice(); s.splice(i, 1); cfgUpdate({ examSlots: s }); };
-    window.ttSess = (f, i, k, v) => { const s = sessionsOf(f).map(x => ({ ...x })); s[i][k] = v; cfgUpdate({ [`sessions.${f}`]: s }); };
-    window.ttSessAdd = (f) => { const s = sessionsOf(f).map(x => ({ ...x })); s.push({ name: 'New session', start: '08:00', end: '12:00' }); cfgUpdate({ [`sessions.${f}`]: s }); };
-    window.ttSessDel = (f, i) => { const s = sessionsOf(f).slice(); s.splice(i, 1); cfgUpdate({ [`sessions.${f}`]: s }); };
-    window.ttRoomAdd = () => { const id = 'r_' + Date.now().toString(36); cfgUpdate({ [`rooms.${id}`]: { id, name: 'New room ' + (rooms().length + 1), type: 'Classroom', capacity: 30, building: '', fac: '', features: '' } }); };
-    window.ttRoom = (id, k, v) => cfgUpdate({ [`rooms.${id}.${k}`]: k === 'capacity' ? n1(v) : v });
-    window.ttRoomDel = (id) => { const n = allClasses().filter(e => e.roomId === id).length; if (!confirm(`Delete venue ${roomName(id)}?${n ? `\n${n} class(es) use it – they will show “TBA”.` : ''}`)) return; cfgUpdate({ [`rooms.${id}`]: DEL }); };
-
-    // ------------------------------------------------------------------ DATA: Excel template, import, offerings, students & irregular registrations
-    const TPL = {
-        Courses: [['Faculty', 'CourseCode', 'CourseName', 'Level', 'StudyMode', 'Batch', 'IntakeYear', 'Semester', 'Students'], ['KIRK', 'ACIC', 'Advanced Certificate in Islamic Counselling', 'Level 5', 'Face to Face', 'B2', '2025', 'Semester 2', 32]],
-        Modules: [['Faculty', 'CourseName', 'Batch', 'ModuleCode', 'ModuleName', 'Credit', 'WeeklyHours', 'DeliveryMode', 'Session', 'LecturerID', 'LecturerName', 'CoordinatorID', 'Students'], ['KIRK', 'Advanced Certificate in Islamic Counselling', 'B2', 'HSS0403', 'Counselling Skills', 10, 3, 'Face to Face', 'Morning', 'IUM-FATHIMATH-SAIFA', 'Fathimath Saifa', 'IUM-ALI-IBRAHIM-DIDI', 32]],
-        Lecturers: [['Faculty', 'LecturerID', 'LecturerName', 'Email', 'Mobile', 'Type', 'Category', 'Position'], ['KIRK', 'IUM-FATHIMATH-SAIFA', 'Fathimath Saifa', 'fathimath.saifa@ium.edu.mv', '9988363', 'Part-time', 'Teaching Focused', 'Lecturer']],
-        Students: [['StudentID', 'FullName', 'Faculty', 'CourseName', 'Batch', 'StudyMode', 'Semester', 'Email', 'Mobile'], ['S12345', 'Aishath Example', 'KIRK', 'Advanced Certificate in Islamic Counselling', 'B2', 'Face to Face', 'Semester 2', 'ium12345@ium.edu.mv', '7000000']],
-        Registrations: [['StudentID', 'ModuleCode', 'AttendBatch', 'Action', 'Reason'], ['S12345', 'HSS0301', 'B1', 'Add', 'Repeat – failed previously'], ['S12345', 'HSS0405', '', 'Drop', 'Exempted']],
-        Rooms: [['RoomName', 'Type', 'Capacity', 'Building', 'Faculty', 'Features'], ['CR-101', 'Classroom', 40, 'Main building', '', 'Projector'], ['Main Hall', 'Exam Hall', 250, 'Main building', '', ''], ['Zoom-1', 'Online', 300, '', '', 'zoom account 1'], ['Hybrid-201', 'Hybrid', 35, 'Block B', 'KIRK', 'Camera + mic']],
-        Sessions: [['Faculty', 'SessionName', 'Start', 'End'], ['KIRK', 'Morning', '08:10', '12:00'], ['KIRK', 'Afternoon', '13:00', '18:00'], ['KIRK', 'Night', '18:00', '23:00']],
-        Periods: [['Start', 'End'], ['08:10', '09:00'], ['09:00', '10:00'], ['10:10', '11:00']],
-        ExamSittings: [['SittingName', 'Start', 'End'], ['Morning', '09:00', '12:00'], ['Afternoon', '13:30', '16:30']]
+            ${AX.err ? `<div class="ax-warnbar">⚠️ Live timetable data could not be loaded (${E(AX.err)}). ${String(AX.err).includes('permission') ? 'Admin: publish the new <b>firestore.rules</b> (adds the <code>aims_timetable</code> collection).' : 'Showing the last copy saved on this device.'}</div>` : ''}
+            <div class="ax-tabs">${views.map(v => `<button class="${v[0] === S.view ? 'on' : ''}" onclick="window.AXset('${kind}','view','${v[0]}')">${v[1]}</button>`).join('')}</div>
+            <div class="ax-body" id="ax-body-${kind}">${needTT && !tt ? emptyState(kind, S) : ''}</div>
+        </div>`;
+        if (!needTT || tt) {
+            const body = document.getElementById('ax-body-' + kind);
+            try { body.innerHTML = viewHtml(kind, S, tt); } catch (e) { console.error(e); body.innerHTML = `<div class="ax-empty">⚠️ ${E(e.message)}</div>`; }
+        }
+        scrollers.forEach(([k, t, l]) => { const el = host.querySelector(`[data-keep-scroll="${k}"]`); if (el) { el.scrollTop = t; el.scrollLeft = l; } });
+        if (foc && foc.id) { const el = document.getElementById(foc.id); if (el) { el.focus(); try { if (foc.s != null) el.setSelectionRange(foc.s, foc.s); } catch (e) {} } }
     };
-    window.ttTemplate = () => {
+    const emptyState = (kind, S) => `<div class="ax-empty">
+        <div class="text-5xl mb-2">${kind === 'CLASS' ? '🗓️' : '📝'}</div>
+        <div class="font-black text-lg text-slate-800">No ${kind === 'CLASS' ? 'lecture' : 'examination'} timetable for ${E(S.fac || 'this faculty')} yet</div>
+        <p class="text-xs text-slate-500 mt-1 max-w-xl mx-auto">Step 1 – set the <b>Sessions & times</b> ${kind === 'EXAM' ? '(exam slots)' : '(e.g. Morning 08:10–12:00, Afternoon 13:00–18:00, Night 18:00–23:00)'}.<br>Step 2 – add the <b>venues</b> with capacity (mark online / hybrid rooms).<br>Step 3 – check <b>Modules & Lecturers</b> (comes from the Modules, Lecturers, Students and Checklist data – or upload the Excel data template).<br>Step 4 – press <b>＋ New</b> and build the table – clashes are blocked automatically.</p>
+        ${canFac(S.fac) || (kind === 'EXAM' && activeRole === 'EXAM' && !RO()) ? `<button class="ax-b ax-b-gold mt-3" onclick="window.AXnewTT('${kind}')">＋ Create the ${kind === 'CLASS' ? 'lecture' : 'exam'} timetable</button>` : '<p class="text-xs mt-2 font-bold text-slate-600">It will appear here as soon as the faculty publishes it.</p>'}
+    </div>`;
+    window.AXset = (kind, k, v) => {
+        const S = ST[kind]; S[k] = v;
+        if (k === 'fac') { S.tt = ''; S.cohort = ''; S.sel = ''; }
+        if (k === 'tt') { S.sel = ''; }
+        if (k === 'cohort') S.sel = '';
+        renderStudio(kind);
+    };
+
+    const viewHtml = (kind, S, tt) => {
+        switch (S.view) {
+            case 'build': return kind === 'CLASS' ? buildClassHtml(tt, S) : buildExamHtml(tt, S);
+            case 'week': return weekHtml(tt, S);
+            case 'day': return dayHtml(tt, S);
+            case 'board': return examBoardHtml(tt, S);
+            case 'halls': return hallsHtml(tt, S, false);
+            case 'clash': return clashHtml(kind, tt, S);
+            case 'students': return studentsHtml(kind, S);
+            case 'offer': return offerHtml(kind, S);
+            case 'venues': return venuesHtml(kind, S);
+            case 'sessions': return sessionsHtml(kind, S);
+            case 'export': return exportHtml(kind, tt, S);
+            case 'data': return dataHtml(kind, S);
+            case 'history': return historyHtml(tt);
+        }
+        return '';
+    };
+
+    // ------------------------------------------------------------------ timeline track (bg cells + spanning entries)
+    const spanOf = (slots, e) => {
+        const a = toMin(e.start), b = toMin(e.end);
+        let s = -1, t = -1;
+        slots.forEach((sl, i) => { if (ovl(toMin(sl.start), toMin(sl.end), a, b)) { if (s < 0) s = i; t = i; } });
+        return s < 0 ? null : [s, t];
+    };
+    const sessBand = (slots) => {
+        const groups = []; slots.forEach((s, i) => { const g = groups[groups.length - 1]; if (g && g.sid === s.sid) g.n++; else groups.push({ sid: s.sid, name: s.sname, color: s.color, i, n: 1 }); });
+        return groups.map(g => `<div class="ax-band" style="grid-column:${g.i + 1} / span ${g.n};--c:${g.color || '#334155'}">${E(g.name || '')}</div>`).join('');
+    };
+    const headTrack = (slots, label = 'Day') => `<div class="ax-row ax-head"><div class="ax-lab">${label}</div><div class="ax-trk"><div class="ax-fg ax-hdr" style="--n:${slots.length}">${sessBand(slots)}${slots.map((s, i) => `<div class="ax-th ${i && slots[i - 1].sid !== s.sid ? 'ax-sep' : ''}" style="grid-column:${i + 1};grid-row:2"><b>${s.start}</b><span>${s.end}</span></div>`).join('')}</div></div></div>`;
+    const track = (slots, entries, o) => {
+        const n = slots.length || 1;
+        const cells = slots.map((s, i) => {
+            const h = (o.hl || {})[i];
+            const st = h ? h.st : '';
+            const act = o.drop ? `ondragover="window.AXover(event)" ondragleave="this.classList.remove('ax-dragover')" ondrop="window.AXdrop(event,'${o.drop.kind}','${o.drop.a}',${i})" onclick="window.AXcell('${o.drop.kind}','${o.drop.a}',${i})"` : '';
+            return `<div class="ax-c ${st} ${i && slots[i - 1].sid !== s.sid ? 'ax-sep' : ''}" title="${E(h ? h.tip : '')}" ${act}>${h && h.st === 'ok' ? '<i>＋</i>' : ''}</div>`;
+        }).join('');
+        const off = [];
+        const ents = entries.slice().sort((x, y) => toMin(x.start) - toMin(y.start)).map(e => {
+            const sp = spanOf(slots, e);
+            if (!sp) { off.push(e); return ''; }
+            return `<div class="ax-e ${o.clash && o.clash.has(e.id) ? 'ax-e-clash' : ''} ${o.hi && o.hi(e) ? 'ax-e-hi' : ''}" style="grid-column:${sp[0] + 1} / ${sp[1] + 2};${o.style ? o.style(e) : ''}" ${o.drag ? `draggable="true" ondragstart="window.AXdrag(event,'ent','${e.id}')"` : ''} onclick="event.stopPropagation();${o.click || 'window.AXentClick'}('${o.kind}','${e.id}','${e._tt || ''}')">${o.ent(e)}</div>`;
+        }).join('');
+        const offHtml = off.length ? `<div class="ax-offgrid">⏱ other times: ${off.map(e => `<a onclick="${o.click || 'window.AXentClick'}('${o.kind}','${e.id}','${e._tt || ''}')">${e.start}–${e.end} ${E(e.code)}</a>`).join(' · ')}</div>` : '';
+        return `<div class="ax-trk"><div class="ax-bg" style="--n:${n}">${cells}</div><div class="ax-fg" style="--n:${n}">${ents}</div>${offHtml}</div>`;
+    };
+    const classEntHtml = (e, mode = 'cohort') => {
+        const lines = [];
+        if (mode !== 'lect') lines.push(`<div class="ax-e-l">👤 ${E(lnames(e.lects) || 'TBA')}</div>`);
+        if (mode !== 'cohort') lines.push(`<div class="ax-e-l">🎓 ${E(e.batch || e.course)}</div>`);
+        if (mode !== 'venue') lines.push(`<div class="ax-e-l">📍 ${E(vname(e.venue))}</div>`);
+        return `<div class="ax-e-top"><b>${E(e.code)}</b>${e.mode && e.mode !== 'F2F' ? `<span class="ax-md ax-md-${e.mode}">${e.mode === 'Online' ? '🌐 Online' : '🔀 Hybrid'}</span>` : ''}${e.override ? '<span class="ax-md ax-md-ov" title="Clash approved">!</span>' : ''}</div><div class="ax-e-n">${E(e.name || '')}</div>${lines.join('')}<div class="ax-e-t">${e.start}–${e.end}</div>`;
+    };
+    const modStyle = (e) => `background:${modBg(e.code)};border-color:${modFg(e.code)};color:${modFg(e.code)}`;
+
+    // clash marks for a whole timetable (cached per data version)
+    let CLC = {};
+    const clashSet = (tt) => {
+        const key = tt.id + '|' + DV + '|' + LV;
+        if (CLC[key]) return CLC[key];
+        if (Object.keys(CLC).length > 20) CLC = {};
+        const P = pool(tt); const set = new Set(); const list = [];
+        entsOf(tt).forEach(e => { const r = tt.kind === 'CLASS' ? checkClass(tt, e, P) : checkExam(tt, e, P); if (r.hard.length) { set.add(e.id); list.push({ e, r }); } });
+        return (CLC[key] = { set, list });
+    };
+
+    // ------------------------------------------------------------------ BUILDER – lecture timetable
+    const schedHrs = (tt, key) => entsOf(tt).filter(e => e.off === key).reduce((a, e) => a + hrsOf(e), 0);
+    const offCard = (kind, tt, o, S) => {
+        const h = kind === 'CLASS' ? schedHrs(tt, o.key) : entsOf(tt).filter(e => e.off === o.key).length;
+        const need = kind === 'CLASS' ? o.wch : 1;
+        const st = h >= need ? 'done' : (h > 0 ? 'part' : 'none');
+        const n = stuCount(o);
+        return `<div class="ax-off ax-off-${st} ${S.sel === o.key ? 'sel' : ''}" draggable="${canTT(tt)}" ondragstart="window.AXdrag(event,'off','${o.key}')" onclick="window.AXsel('${kind}','${o.key}')">
+            <div class="flex justify-between gap-1"><b style="color:${modFg(o.code)}">${E(o.code)}</b><span class="ax-pill">${kind === 'CLASS' ? `${h}/${o.wch} h` : (h ? '✓ set' : 'not set')}</span></div>
+            <div class="ax-off-n">${E(o.name)}</div>
+            <div class="ax-off-m">🎓 ${E(o.batch || '—')} · 👥 ${n} · ${o.mode === 'Online' ? '🌐' : o.mode === 'Hybrid' ? '🔀' : '🏫'} ${o.mode}${o.session ? ' · ' + E(o.session) : ''}</div>
+            <div class="ax-off-m">👤 ${E(lnames(o.lects) || 'No lecturer')}</div>
+        </div>`;
+    };
+    const blockLen = (tt, o) => { const rem = Math.max(0, o.wch - schedHrs(tt, o.key)); const L = Math.round(Math.min(o.classLen || 2, rem > 0 ? rem : (o.classLen || 2))); return Math.max(1, L || 1); };
+    // availability of the selected offering over the week (for highlighting and suggestions)
+    const classAvail = (tt, o, P, Lx) => {
+        const slots = slotsOf(tt.faculty), days = sessCfg(tt.faculty).days, L = Lx || blockLen(tt, o);
+        const res = {};
+        const venues = venuesArr();
+        days.forEach(d => {
+            res[d] = {};
+            slots.forEach((s, i) => {
+                const last = slots[i + L - 1];
+                if (!last || last.sid !== s.sid) { res[d][i] = { st: 'na', tip: 'Not enough time left in this session' }; return; }
+                const c = { off: o.key, cohorts: o.cohorts, lects: o.lects, day: d, start: s.start, end: last.end, hrs: L, mode: o.mode, venue: '' };
+                const r = checkClass(tt, c, P);
+                const hard = r.hard.filter(x => x.t !== 'venue');
+                if (hard.length) { res[d][i] = { st: 'bad', tip: hard.map(x => x.m).join('\n') }; return; }
+                const rv = recVenues(tt, c, P, venues);
+                const free = rv.filter(v => v.free && v.fit >= 0);
+                const soft = r.soft.filter(x => !['venue', 'cap', 'mode'].includes(x.t));
+                if (!free.length && o.mode !== 'Online') soft.push({ m: venues.length ? 'No suitable free room at this time' : 'No venues set up yet' });
+                res[d][i] = { st: soft.length ? 'warn' : 'ok', tip: soft.length ? soft.map(x => x.m).join('\n') : `Free · ${L} slot(s) ${s.start}–${last.end}${free[0] ? ' · best room: ' + free[0].v.name : ''}`, end: last.end, v: free[0] ? free[0].v.id : (o.mode === 'Online' ? 'ONLINE' : '') };
+            });
+        });
+        return res;
+    };
+    // venue recommendation: free, right type (online / hybrid / physical), capacity best fit
+    const recVenues = (tt, c, P, venues) => {
+        P = P || pool(tt); venues = venues || venuesArr();
+        const o = offerings()[c.off]; const n = o ? stuCount(o) : 0;
+        const s1 = toMin(c.start), e1 = toMin(c.end);
+        const busy = new Set(P.filter(e => e.id !== c.id && e.day === c.day && e.venue && ovl(s1, e1, toMin(e.start), toMin(e.end))).map(e => e.venue));
+        const all = [ONLINE_V, ...venues];
+        return all.map(v => {
+            const free = v.multi || !busy.has(v.id);
+            let fit = 0; const tags = [];
+            const mode = c.mode || (o ? o.mode : 'F2F');
+            if (mode === 'Online') { fit = isVirtual(v) ? 100 : 10; if (isVirtual(v)) tags.push('🌐 online'); }
+            else if (mode === 'Hybrid') { fit = v.hybrid ? 90 : (isVirtual(v) ? -1 : 30); if (v.hybrid) tags.push('🔀 hybrid'); }
+            else fit = isVirtual(v) ? -1 : 60;
+            const cap = num(v.capacity);
+            if (!isVirtual(v)) {
+                if (cap && n > cap) { fit -= 60; tags.push(`⚠ ${cap} seats`); }
+                else if (cap) { fit += Math.max(0, 30 - (cap - n) / 3); tags.push(`👥 ${cap}`); }
+                if (o && o.venueType && nrm(v.type) === nrm(o.venueType)) { fit += 15; tags.push('✓ ' + v.type); }
+                if (o && o.campus && v.campus && nrm(v.campus) !== nrm(o.campus)) fit -= 40;
+                if (v.faculty && v.faculty !== 'SHARED' && v.faculty === tt.faculty) fit += 5;
+            }
+            return { v, free, fit, tags };
+        }).sort((a, b) => (b.free - a.free) || (b.fit - a.fit));
+    };
+
+    const buildClassHtml = (tt, S) => {
+        const cohorts = cohortsOf(tt.faculty).filter(c => !tt.course || nrm(c.course) === nrm(tt.course));
+        if (!S.cohort || !cohorts.find(c => c.k === S.cohort)) S.cohort = (cohorts[0] || {}).k || '';
+        const coh = cohorts.find(c => c.k === S.cohort);
+        const offs = coh ? coh.offs.map(k => offerings()[k]).filter(Boolean) : [];
+        const sel = offerings()[S.sel];
+        const slots = slotsOf(tt.faculty), days = sessCfg(tt.faculty).days;
+        const P = pool(tt);
+        const av = (sel && canTT(tt)) ? classAvail(tt, sel, P) : null;
+        const cl = clashSet(tt);
+        const ents = entsOf(tt).filter(e => (e.cohorts || []).some(c => c.k === S.cohort));
+        const tot = offs.reduce((a, o) => a + o.wch, 0), done = offs.reduce((a, o) => a + Math.min(o.wch, schedHrs(tt, o.key)), 0);
+        return `<div class="ax-build">
+            <aside class="ax-side">
+                <label class="ax-lbl">Course / Batch (${cohorts.length})</label>
+                <select class="ax-in" onchange="window.AXset('CLASS','cohort',this.value)">${cohorts.map(c => `<option value="${c.k}" ${c.k === S.cohort ? 'selected' : ''}>${E(cohortLabel(c))} (${c.offs.length})</option>`).join('') || '<option>— no modules found —</option>'}</select>
+                <input id="ax-q-CLASS" class="ax-in mt-1" placeholder="🔍 search module / lecturer" value="${E(S.q)}" oninput="window.AXq('CLASS',this.value)">
+                <div class="ax-prog"><div style="width:${tot ? Math.round(done / tot * 100) : 0}%"></div></div>
+                <div class="text-[9px] font-bold text-slate-500 mb-1">${done}/${tot} weekly hours placed · ${offs.length} modules</div>
+                ${canTT(tt) ? `<div class="grid grid-cols-2 gap-1 mb-2"><button class="ax-b ax-b-sm" onclick="window.AXauto('CLASS','cohort')" title="Place every unscheduled module of this batch in the best free slots">⚡ Auto – this batch</button><button class="ax-b ax-b-sm" onclick="window.AXauto('CLASS','all')" title="Auto-schedule every batch of the timetable">⚡ Auto – all</button></div>` : ''}
+                <div id="ax-offlist-CLASS" class="ax-offlist" data-keep-scroll="offl">${offListHtml('CLASS', tt, S, offs)}</div>
+            </aside>
+            <section class="ax-main">
+                <div class="ax-legend">
+                    ${sel ? `<span class="ax-selinfo">Selected: <b>${E(sel.code)}</b> · ${blockLen(tt, sel)} slot block · click a <i class="lg ok"></i> free cell (or drag) to place it${!canTT(tt) ? ' (view only)' : ''} <a onclick="window.AXsel('CLASS','')">✕</a></span>` : '<span>👈 Pick a module to see where it fits (green = free, amber = warning, red = clash). Drag entries to move them.</span>'}
+                    <span class="ml-auto flex gap-2"><i class="lg ok"></i>free <i class="lg warn"></i>warning <i class="lg bad"></i>clash</span>
+                </div>
+                ${coh ? `<div class="ax-cap">🎓 ${E(cohortLabel(coh))} · 👥 ${stuIndex().byCohort[coh.k] ? stuIndex().byCohort[coh.k].length : '?'} students${cl.list.length ? ` · <a class="text-red-700 font-black" onclick="window.AXset('CLASS','view','clash')">⚠ ${cl.list.length} clash(es) in this timetable</a>` : ' · <span class="text-emerald-700 font-black">✓ no clashes</span>'}</div>` : ''}
+                <div class="ax-grid" data-keep-scroll="grid">
+                    ${headTrack(slots)}
+                    ${days.map(d => `<div class="ax-row"><div class="ax-lab"><b>${d}</b><span>${DV_DAYS[d] || ''}</span></div>${track(slots, ents.filter(e => e.day === d), { kind: 'CLASS', drop: canTT(tt) ? { kind: 'CLASS', a: d } : null, hl: av ? av[d] : null, clash: cl.set, drag: canTT(tt), ent: (e) => classEntHtml(e, 'cohort'), style: modStyle, hi: (e) => sel && e.off === sel.key })}</div>`).join('')}
+                </div>
+                ${!slots.length ? '<div class="ax-empty">No time slots – open ⏱️ Sessions & Times.</div>' : ''}
+            </section>
+        </div>`;
+    };
+    const offListHtml = (kind, tt, S, offs) => {
+        const q = nrm(S.q);
+        const list = offs.filter(o => !q || nrm(`${o.code} ${o.name} ${lnames(o.lects)} ${o.batch}`).includes(q));
+        return list.map(o => offCard(kind, tt, o, S)).join('') || '<div class="text-[10px] italic text-slate-500 p-2">No modules. Add them in 📚 Modules & Lecturers, the Modules data tab, or the Excel data template.</div>';
+    };
+    window.AXq = (kind, v) => {
+        const S = ST[kind]; S.q = v; const tt = TT[S.tt]; if (!tt) return;
+        const el = document.getElementById('ax-offlist-' + kind); if (!el) return;
+        if (kind === 'CLASS') { const coh = cohortsOf(tt.faculty).find(c => c.k === S.cohort); el.innerHTML = offListHtml(kind, tt, S, coh ? coh.offs.map(k => offerings()[k]).filter(Boolean) : []); }
+        else el.innerHTML = offListHtml(kind, tt, S, examOffs(tt, S));
+    };
+    window.AXsel = (kind, key) => { ST[kind].sel = ST[kind].sel === key ? '' : key; renderStudio(kind); };
+
+    // drag & drop
+    window.AXdrag = (ev, type, id) => { ev.dataTransfer.setData('text/plain', type + '|' + id); ev.dataTransfer.effectAllowed = 'move'; };
+    window.AXover = (ev) => { ev.preventDefault(); ev.currentTarget.classList.add('ax-dragover'); };
+    window.AXdrop = (ev, kind, a, i) => {
+        ev.preventDefault(); ev.currentTarget.classList.remove('ax-dragover');
+        const [type, id] = String(ev.dataTransfer.getData('text/plain') || '').split('|');
+        const S = ST[kind]; const tt = TT[S.tt]; if (!tt || !canTT(tt)) return;
+        if (type === 'off') { S.sel = id; openPlace(kind, { off: id, a, i }); }
+        if (type === 'ent') { const e = (tt.entries || {})[id]; if (e) openPlace(kind, { id, a, i, move: true }); }
+    };
+    window.AXcell = (kind, a, i) => {
+        const S = ST[kind]; const tt = TT[S.tt]; if (!tt || !canTT(tt)) return;
+        if (!S.sel) { toast('Pick a module on the left first (or drag it onto the grid).', 'info'); return; }
+        openPlace(kind, { off: S.sel, a, i });
+    };
+    window.AXentClick = (kind, id, ttId) => {
+        const S = ST[kind]; const tt = TT[ttId || S.tt] || TT[S.tt];
+        if (!tt) return;
+        if (tt.id !== S.tt) { toast(`This class belongs to another timetable (${tt.title || tt.faculty}).`, 'info'); return; }
+        if (!canTT(tt)) { showEntryInfo(tt, id); return; }
+        openPlace(kind, { id });
+    };
+
+    // ------------------------------------------------------------------ WEEK DASHBOARD (all batches / lecturers / venues × days)
+    const rowsFor = (tt, by, ents) => {
+        const rows = {};
+        const add = (k, label, sub, e) => { (rows[k] = rows[k] || { k, label, sub, ents: [] }).ents.push(e); };
+        ents.forEach(e => {
+            if (by === 'lect') (e.lects && e.lects.length ? e.lects : ['']).forEach(l => add('L' + l, l ? lname(l) : 'No lecturer', l ? (window.getFaculty(window.getLecturerById(l) || {}) || '') : '', e));
+            else if (by === 'venue') add('V' + (e.venue || ''), vname(e.venue), (venueById(e.venue) || {}).campus || '', e);
+            else if (by === 'date') add('D' + e.date, fmtDW(e.date), '', e);
+            else (e.cohorts || [{ k: K(e.course, e.batch), course: e.course, batch: e.batch }]).forEach(c => add(c.k, c.batch || c.course, c.batch ? c.course : '', e));
+        });
+        return Object.values(rows).sort((a, b) => String(a.sub).localeCompare(String(b.sub)) || String(a.label).localeCompare(String(b.label), undefined, { numeric: true }));
+    };
+    const filterEnts = (tt, S, list) => list.filter(e =>
+        (!S.fCourse || nrm(e.course) === nrm(S.fCourse)) && (!S.fLect || (e.lects || []).includes(S.fLect)) &&
+        (!S.fVenue || e.venue === S.fVenue || (e.venues || []).some(v => v.id === S.fVenue)) &&
+        (!S.fSess || (slotsOf(tt.faculty).find(s => s.start === e.start) || {}).sid === S.fSess));
+    const filterBar = (kind, tt, S, withSess) => {
+        const ents = entsOf(tt);
+        const courses = [...new Set(ents.map(e => e.course).filter(Boolean))].sort();
+        const lects = [...new Set(ents.flatMap(e => e.lects || []))].sort((a, b) => lname(a).localeCompare(lname(b)));
+        const vens = [...new Set(ents.flatMap(e => e.venue ? [e.venue] : (e.venues || []).map(v => v.id)))];
+        return `<div class="ax-filters">
+            <select onchange="window.AXf('${kind}','fCourse',this.value)"><option value="">All courses</option>${courses.map(c => `<option ${c === S.fCourse ? 'selected' : ''}>${E(c)}</option>`).join('')}</select>
+            ${kind === 'CLASS' ? `<select onchange="window.AXf('${kind}','fLect',this.value)"><option value="">All lecturers</option>${lects.map(l => `<option value="${l}" ${l === S.fLect ? 'selected' : ''}>${E(lname(l))}</option>`).join('')}</select>` : ''}
+            <select onchange="window.AXf('${kind}','fVenue',this.value)"><option value="">All venues</option>${vens.map(v => `<option value="${v}" ${v === S.fVenue ? 'selected' : ''}>${E(vname(v))}</option>`).join('')}</select>
+            ${withSess ? `<select onchange="window.AXf('${kind}','fSess',this.value)"><option value="">All sessions</option>${sessList(tt.faculty).map(s => `<option value="${s.id}" ${s.id === S.fSess ? 'selected' : ''}>${E(s.name)}</option>`).join('')}</select>` : ''}
+        </div>`;
+    };
+    window.AXf = (kind, k, v) => { ST[kind][k] = v; renderStudio(kind); };
+    const rowsBySel = (kind, S, opts) => `<div class="ax-seg">${opts.map(([v, l]) => `<button class="${S.rowsBy === v ? 'on' : ''}" onclick="window.AXf('${kind}','rowsBy','${v}')">${l}</button>`).join('')}</div>`;
+
+    const weekHtml = (tt, S) => {
+        if (!['cohort', 'lect', 'venue'].includes(S.rowsBy)) S.rowsBy = 'cohort';
+        const days = sessCfg(tt.faculty).days;
+        const cl = clashSet(tt);
+        const ents = filterEnts(tt, S, entsOf(tt));
+        const rows = rowsFor(tt, S.rowsBy, ents);
+        const sess = sessList(tt.faculty);
+        const sc = (e) => { const s = slotsOf(tt.faculty).find(x => ovl(toMin(x.start), toMin(x.end), toMin(e.start), toMin(e.end))); return s ? s.color : '#64748b'; };
+        const hrs = ents.reduce((a, e) => a + hrsOf(e), 0);
+        return `<div class="ax-toolbar">${rowsBySel('CLASS', S, [['cohort', '🎓 Batches'], ['lect', '👤 Lecturers'], ['venue', '🏫 Venues']])}${filterBar('CLASS', tt, S, true)}
+            <span class="ax-kpi">${ents.length} classes · ${hrs} h/week · ${rows.length} rows${cl.list.length ? ` · <b class="text-red-700">${cl.list.length} clash</b>` : ''}</span></div>
+            <div class="ax-legend">${sess.map(s => `<span><i class="lg" style="background:${s.color}"></i>${E(s.name)} ${s.start}–${s.end}</span>`).join('')}</div>
+            <div class="ax-wk" data-keep-scroll="wk"><table class="ax-wkt"><thead><tr><th>${S.rowsBy === 'lect' ? 'Lecturer' : S.rowsBy === 'venue' ? 'Venue' : 'Course / Batch'}</th>${days.map(d => `<th>${d}<span>${DV_DAYS[d]}</span></th>`).join('')}<th>Hrs</th></tr></thead><tbody>
+            ${rows.map(r => `<tr><th><b>${E(r.label)}</b>${r.sub ? `<span>${E(r.sub)}</span>` : ''}</th>${days.map(d => `<td>${r.ents.filter(e => e.day === d).sort((a, b) => toMin(a.start) - toMin(b.start)).map(e => `<div class="ax-chip ${cl.set.has(e.id) ? 'clash' : ''}" style="--c:${sc(e)}" onclick="window.AXentClick('CLASS','${e.id}','')" title="${E(e.name)}"><span class="t">${e.start}–${e.end}</span> <b>${E(e.code)}</b>${S.rowsBy !== 'cohort' ? ` · ${E(e.batch)}` : ''}${S.rowsBy !== 'lect' ? ` · ${E(lnames(e.lects) || 'TBA')}` : ''}${S.rowsBy !== 'venue' ? ` · 📍${E(vname(e.venue))}` : ''}${e.mode === 'Online' ? ' 🌐' : e.mode === 'Hybrid' ? ' 🔀' : ''}</div>`).join('')}</td>`).join('')}<td class="text-center font-black">${r.ents.reduce((a, e) => a + hrsOf(e), 0)}</td></tr>`).join('') || `<tr><td colspan="${days.length + 2}" class="ax-empty">No classes yet.</td></tr>`}
+            </tbody></table></div>`;
+    };
+
+    // ------------------------------------------------------------------ DAY DASHBOARD (one day, timeline rows)
+    const dayHtml = (tt, S) => {
+        if (!['cohort', 'lect', 'venue'].includes(S.rowsBy)) S.rowsBy = 'cohort';
+        const days = sessCfg(tt.faculty).days;
+        const todayName = DAYS_ALL[new Date().getDay()];
+        if (!S.day || !days.includes(S.day)) S.day = days.includes(todayName) ? todayName : days[0];
+        const slots = slotsOf(tt.faculty);
+        const cl = clashSet(tt);
+        const ents = filterEnts(tt, S, entsOf(tt).filter(e => e.day === S.day));
+        let rows = rowsFor(tt, S.rowsBy, ents);
+        if (S.rowsBy === 'venue' && !S.fVenue) { const have = new Set(rows.map(r => r.k)); venuesArr().forEach(v => { if (!have.has('V' + v.id)) rows.push({ k: 'V' + v.id, label: v.name, sub: `${v.campus || ''} · free all day`, ents: [] }); }); }
+        const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+        return `<div class="ax-toolbar"><div class="ax-seg">${days.map(d => `<button class="${d === S.day ? 'on' : ''}" onclick="window.AXf('CLASS','day','${d}')">${DSH[d]}${d === todayName ? ' •' : ''}</button>`).join('')}</div>
+            ${rowsBySel('CLASS', S, [['cohort', '🎓 Batches'], ['lect', '👤 Lecturers'], ['venue', '🏫 Venues']])}${filterBar('CLASS', tt, S, false)}
+            <span class="ax-kpi">${S.day} · ${ents.length} classes${S.day === todayName ? ` · now ${toHM(nowM)}` : ''}</span></div>
+            <div class="ax-grid" data-keep-scroll="day">${headTrack(slots, S.rowsBy === 'lect' ? 'Lecturer' : S.rowsBy === 'venue' ? 'Venue' : 'Batch')}
+            ${rows.map(r => `<div class="ax-row"><div class="ax-lab"><b>${E(r.label)}</b><span>${E(r.sub || '')}</span></div>${track(slots, r.ents, { kind: 'CLASS', clash: cl.set, ent: (e) => classEntHtml(e, S.rowsBy), style: modStyle, hi: (e) => S.day === todayName && ovl(nowM, nowM + 1, toMin(e.start), toMin(e.end)) })}</div>`).join('') || '<div class="ax-empty">No classes on this day.</div>'}
+            </div>`;
+    };
+
+
+    // ------------------------------------------------------------------ BUILDER – examination timetable
+    const examOffs = (tt, S) => offList(tt.faculty).filter(o => nrm(o.exam) !== 'no' && (!tt.course || nrm(o.course) === nrm(tt.course)) && (!S.cohort || o.cohorts.some(c => c.k === S.cohort)));
+    const exSlots = (fac) => examSlotList(fac).map((s, i) => ({ i, sid: s.id, sname: s.name, start: s.start, end: s.end, color: '#065f46' }));
+    const freeSeats = (tt, date, start, end, P, exceptId) => {
+        const s1 = toMin(start), e1 = toMin(end); const used = {};
+        P.forEach(e => { if (e.id !== exceptId && e.date === date && ovl(s1, e1, toMin(e.start), toMin(e.end))) (e.venues || []).forEach(v => { used[v.id] = (used[v.id] || 0) + num(v.n); }); });
+        return venuesArr().filter(v => !isVirtual(v) && examCap(v) > 0).map(v => ({ v, free: examCap(v) - (used[v.id] || 0) })).filter(x => x.free > 0).sort((a, b) => b.free - a.free);
+    };
+    const examAvail = (tt, o, P, exceptId) => {
+        const res = {}; const slots = exSlots(tt.faculty); const n = stuCount(o);
+        examDays(tt).forEach(d => {
+            res[d] = {};
+            slots.forEach((s, i) => {
+                const c = { id: exceptId, off: o.key, cohorts: o.cohorts, date: d, start: s.start, end: s.end, venues: [], invig: [] };
+                const r = checkExam(tt, c, P);
+                const hard = r.hard.filter(x => x.t !== 'venue');
+                if (hard.length) { res[d][i] = { st: 'bad', tip: hard.map(x => x.m).join('\n') }; return; }
+                const soft = r.soft.filter(x => ['cohort', 'stu'].includes(x.t));
+                const seats = freeSeats(tt, d, s.start, s.end, P, exceptId).reduce((a, x) => a + x.free, 0);
+                if (venuesArr().length && seats < n) soft.push({ m: `Only ${seats} free exam seats at this time (${n} needed)` });
+                res[d][i] = { st: soft.length ? 'warn' : 'ok', tip: soft.length ? soft.map(x => x.m).join('\n') : `Free · ${seats} exam seats available` };
+            });
+        });
+        return res;
+    };
+    const examEntHtml = (tt, e, mode = 'date') => {
+        const col = cohortColor(tt, e);
+        return `<div class="ax-xe" style="--c:${col}"><div class="ax-e-top"><b>${E(e.code)}</b><span class="ax-cn">${E(colorName(col))}</span></div><div class="ax-e-n">${E(e.name || '')}</div><div class="ax-e-l">🎓 ${E(e.batch || e.course)} · 👥 ${num(e.students)}</div><div class="ax-e-l">🚪 ${E((e.venues || []).map(v => `${vname(v.id)}${(e.venues || []).length > 1 ? ' (' + v.n + ')' : ''}`).join(', ') || 'TBA')}</div>${(e.invig || []).length ? `<div class="ax-e-l">🛡 ${E(lnames(e.invig))}</div>` : ''}${mode !== 'date' ? `<div class="ax-e-t">${fmtD(e.date)} ${e.start}–${e.end}</div>` : ''}</div>`;
+    };
+    const buildExamHtml = (tt, S) => {
+        const days = examDays(tt);
+        const slots = exSlots(tt.faculty);
+        const cohorts = cohortsOf(tt.faculty).filter(c => !tt.course || nrm(c.course) === nrm(tt.course));
+        const offs = examOffs(tt, S);
+        const sel = offerings()[S.sel];
+        const P = pool(tt);
+        const av = sel && canTT(tt) ? examAvail(tt, sel, P) : null;
+        const cl = clashSet(tt);
+        const ents = entsOf(tt).filter(e => !S.cohort || (e.cohorts || []).some(c => c.k === S.cohort));
+        const set = offs.filter(o => entsOf(tt).some(e => e.off === o.key)).length;
+        return `<div class="ax-build">
+            <aside class="ax-side">
+                <label class="ax-lbl">Course / Batch</label>
+                <select class="ax-in" onchange="window.AXset('EXAM','cohort',this.value)"><option value="">All batches (${cohorts.length})</option>${cohorts.map(c => `<option value="${c.k}" ${c.k === S.cohort ? 'selected' : ''}>${E(cohortLabel(c))}</option>`).join('')}</select>
+                <input id="ax-q-EXAM" class="ax-in mt-1" placeholder="🔍 search module" value="${E(S.q)}" oninput="window.AXq('EXAM',this.value)">
+                <div class="ax-prog"><div style="width:${offs.length ? Math.round(set / offs.length * 100) : 0}%"></div></div>
+                <div class="text-[9px] font-bold text-slate-500 mb-1">${set}/${offs.length} exams scheduled</div>
+                ${canTT(tt) ? `<button class="ax-b ax-b-sm w-full mb-2" onclick="window.AXauto('EXAM','${S.cohort ? 'cohort' : 'all'}')">⚡ Auto-schedule ${S.cohort ? 'this batch' : 'all'} (halls + invigilators)</button>` : ''}
+                <div id="ax-offlist-EXAM" class="ax-offlist" data-keep-scroll="offl">${offListHtml('EXAM', tt, S, offs)}</div>
+            </aside>
+            <section class="ax-main">
+                <div class="ax-legend">${sel ? `<span class="ax-selinfo">Selected: <b>${E(sel.code)}</b> · ${E(sel.batch)} · 👥 ${stuCount(sel)} – click a free cell <a onclick="window.AXsel('EXAM','')">✕</a></span>` : '<span>👈 Pick a module – free exam slots light up green.</span>'}<span class="ml-auto flex gap-2"><i class="lg ok"></i>free <i class="lg warn"></i>same-day / few seats <i class="lg bad"></i>clash</span></div>
+                ${!days.length ? `<div class="ax-empty">Set the <b>exam period</b> (from / to dates) in ⚙️ Settings first.${canTT(tt) ? ` <button class="ax-b ax-b-sm" onclick="window.AXttSettings('EXAM')">⚙️ Settings</button>` : ''}</div>` : `
+                <div class="ax-grid ax-grid-exam" data-keep-scroll="grid">
+                    ${headTrack(slots, 'Date')}
+                    ${days.map(d => `<div class="ax-row"><div class="ax-lab"><b>${fmtD(d)}</b><span>${dayOfDate(d)} · ${DV_DAYS[dayOfDate(d)] || ''}</span></div>${track(slots, ents.filter(e => e.date === d), { kind: 'EXAM', drop: canTT(tt) ? { kind: 'EXAM', a: d } : null, hl: av ? av[d] : null, clash: cl.set, drag: canTT(tt), ent: (e) => examEntHtml(tt, e), style: () => '', hi: (e) => sel && e.off === sel.key })}</div>`).join('')}
+                </div>`}
+            </section>
+        </div>`;
+    };
+
+    // ------------------------------------------------------------------ EXAM DASHBOARD & HALL SHEETS
+    const examBoardHtml = (tt, S) => {
+        if (!['date', 'cohort', 'venue'].includes(S.rowsBy)) S.rowsBy = 'date';
+        const slots = exSlots(tt.faculty);
+        const cl = clashSet(tt);
+        const ents = filterEnts(tt, S, entsOf(tt)).sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start));
+        const legend = colorLegend(tt, ents);
+        let body = '';
+        if (S.rowsBy === 'date') {
+            const dates = [...new Set([...examDays(tt), ...ents.map(e => e.date)])].sort();
+            body = `<table class="ax-wkt ax-ext"><thead><tr><th>Date</th>${slots.map(s => `<th>${E(s.sname)}<span>${s.start}–${s.end}</span></th>`).join('')}<th>Other</th></tr></thead><tbody>${dates.map(d => {
+                const de = ents.filter(e => e.date === d); if (!de.length && S.fCourse) return '';
+                const inSlot = (s) => de.filter(e => e.start === s.start);
+                const other = de.filter(e => !slots.some(s => s.start === e.start));
+                return `<tr><th><b>${fmtD(d)}</b><span>${dayOfDate(d)}</span></th>${slots.map(s => `<td>${inSlot(s).map(e => exChip(tt, e, cl)).join('')}</td>`).join('')}<td>${other.map(e => exChip(tt, e, cl, true)).join('')}</td></tr>`;
+            }).join('')}</tbody></table>`;
+        } else {
+            const rows = rowsFor(tt, S.rowsBy === 'venue' ? 'venue' : 'cohort', S.rowsBy === 'venue' ? ents.flatMap(e => (e.venues || []).map(v => ({ ...e, venue: v.id, _n: v.n }))) : ents);
+            body = `<table class="ax-wkt ax-ext"><thead><tr><th>${S.rowsBy === 'venue' ? 'Hall / Venue' : 'Course / Batch'}</th><th>Exams (date · time · module · students)</th></tr></thead><tbody>${rows.map(r => `<tr><th><b>${E(r.label)}</b><span>${E(r.sub || '')}</span></th><td>${r.ents.map(e => exChip(tt, e, cl, true)).join('')}</td></tr>`).join('')}</tbody></table>`;
+        }
+        const n = ents.reduce((a, e) => a + num(e.students), 0);
+        return `<div class="ax-toolbar">${rowsBySel('EXAM', S, [['date', '📅 By date'], ['cohort', '🎓 By batch'], ['venue', '🚪 By hall']])}${filterBar('EXAM', tt, S, false)}<span class="ax-kpi">${ents.length} exams · ${n} candidate seats${cl.list.length ? ` · <b class="text-red-700">${cl.list.length} clash</b>` : ''}</span></div>
+            <div class="ax-legend ax-legend-col">${legend}</div>
+            <div class="ax-wk" data-keep-scroll="wk">${body || '<div class="ax-empty">No exams yet.</div>'}</div>`;
+    };
+    const exChip = (tt, e, cl, withDate) => { const c = cohortColor(tt, e); return `<div class="ax-xchip ${cl && cl.set.has(e.id) ? 'clash' : ''}" style="--c:${c}" onclick="window.AXentClick('EXAM','${e.id}','')"><i></i><div><b>${E(e.code)}</b> · ${E(e.batch || e.course)} · 👥${num(e._n || e.students)}${withDate ? ` · ${fmtD(e.date)} ${e.start}` : ` · ${e.start}–${e.end}`}<div class="s">${E(e.name || '')} · 🚪 ${E((e.venues || []).map(v => vname(v.id)).join(', ') || 'TBA')}</div></div></div>`; };
+    const colorLegend = (tt, ents) => {
+        const m = {};
+        ents.forEach(e => { const key = tt.colorBy === 'cohort' ? `${e.course} · ${e.batch}` : e.course; m[key] = cohortColor(tt, e); });
+        return Object.entries(m).sort().map(([k, c]) => `<span class="ax-lg-c"><i style="background:${c}"></i><b>${E(colorName(c))}</b> ${E(k)}</span>`).join('');
+    };
+    const hallsHtml = (tt, S) => {
+        const ents = entsOf(tt);
+        const byV = {};
+        ents.forEach(e => (e.venues || []).forEach(v => { (byV[v.id] = byV[v.id] || []).push({ ...e, _n: v.n }); }));
+        const vs = Object.keys(byV).sort((a, b) => vname(a).localeCompare(vname(b), undefined, { numeric: true }));
+        return `<div class="ax-toolbar"><span class="ax-kpi">Hall door sheets – students line up by their colour. ${vs.length} halls.</span><button class="ax-b ax-b-sm ml-auto" onclick="window.AXquickExport('EXAM','hall','pdf')">📕 Hall sheets PDF</button></div>
+        <div class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${vs.map(id => {
+            const V = venueById(id) || {}; const list = byV[id].sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start));
+            const groups = {}; list.forEach(e => { const g = e.date + '|' + e.start + '|' + e.end; (groups[g] = groups[g] || []).push(e); });
+            return `<div class="ax-hall"><div class="ax-hall-h">🚪 ${E(vname(id))}<span>${E(V.campus || '')} · exam seats ${examCap(V) || '?'}</span></div>${Object.entries(groups).map(([g, es]) => { const [d, s, en] = g.split('|'); const tot = es.reduce((a, e) => a + num(e._n), 0); return `<div class="ax-hall-s"><div class="ax-hall-d">${fmtDW(d)} · ${s}–${en} <b class="${tot > examCap(V) && examCap(V) ? 'text-red-700' : ''}">${tot}/${examCap(V) || '?'}</b></div>${es.map(e => { const c = cohortColor(tt, e); return `<div class="ax-hall-b" style="--c:${c}"><div class="ax-hall-cn">${E(colorName(c))}</div><div><b>${E(e.course)} · ${E(e.batch)}</b><div>${E(e.code)} – ${E(e.name)} · ${num(e._n)} students</div></div></div>`; }).join('')}</div>`; }).join('')}</div>`;
+        }).join('') || '<div class="ax-empty">No halls allocated yet.</div>'}</div>`;
+    };
+
+    // ------------------------------------------------------------------ PLACEMENT / EDIT MODAL (class + exam)
+    const MOD = { open: false, kind: '', ttId: '', c: null, isNew: true, orig: null };
+    const modalShell = () => {
+        if (document.getElementById('ax-mod')) return;
+        document.body.insertAdjacentHTML('beforeend', `<div id="ax-mod" class="ax-ov" onclick="if(event.target===this)window.AXclose()"><div class="ax-box" id="ax-mod-box"></div></div>
+            <div id="ax-pv" class="ax-ov" onclick="if(event.target===this)window.AXpvClose()"><div class="ax-box ax-box-xl" id="ax-pv-box"></div></div>
+            <div id="ax-dlg" class="ax-ov" onclick="if(event.target===this)window.AXdlgClose()"><div class="ax-box" id="ax-dlg-box"></div></div>`);
+    };
+    window.AXclose = () => { MOD.open = false; const m = document.getElementById('ax-mod'); if (m) m.classList.remove('open'); };
+    const dlg = (html, wide) => { modalShell(); const b = document.getElementById('ax-dlg-box'); b.className = 'ax-box' + (wide ? ' ax-box-xl' : ''); b.innerHTML = html; document.getElementById('ax-dlg').classList.add('open'); };
+    window.AXdlgClose = () => { const m = document.getElementById('ax-dlg'); if (m) m.classList.remove('open'); };
+    const boxHead = (kick, title, sub, close = 'window.AXclose()') => `<div class="ax-mh"><div class="ax-hero-pat"></div><div class="relative flex justify-between items-start gap-2"><div class="min-w-0"><div class="ax-kick">${kick}</div><h3>${title}</h3>${sub ? `<div class="text-[11px] font-bold opacity-90">${sub}</div>` : ''}</div><button class="ax-x" onclick="${close}">&times;</button></div></div>`;
+
+    const openPlace = (kind, a) => {
+        modalShell();
+        const S = ST[kind]; const tt = TT[S.tt]; if (!tt) return;
+        let c, isNew = true, orig = null;
+        if (a.id && (tt.entries || {})[a.id]) { orig = (tt.entries || {})[a.id]; c = clone(orig); isNew = false; }
+        else {
+            const o = offerings()[a.off]; if (!o) return toast('Module not found.', 'warning');
+            c = kind === 'CLASS'
+                ? { off: o.key, code: o.code, name: o.name, fac: o.fac, course: o.course, batch: o.batch, cohorts: o.cohorts, lects: o.lects.slice(), mode: o.mode, venue: '', day: '', start: '', end: '', note: '' }
+                : { off: o.key, code: o.code, name: o.name, fac: o.fac, course: o.course, batch: o.batch, cohorts: o.cohorts, lects: o.lects.slice(), students: stuCount(o), date: '', start: '', end: '', venues: [], invig: [], note: '' };
+        }
+        if (a.a != null && a.i != null) {
+            if (kind === 'CLASS') {
+                const slots = slotsOf(tt.faculty); const s = slots[a.i];
+                const o = offerings()[c.off];
+                const L = a.move && orig ? Math.max(1, (spanOf(slots, orig) || [0, 0]).reduce((x, y) => y - x + 1)) : (o ? blockLen(tt, o) : 1);
+                let last = s; for (let j = 1; j < L; j++) { const n = slots[a.i + j]; if (n && n.sid === s.sid) last = n; }
+                c.day = a.a; c.start = s.start; c.end = last.end;
+                if (!c.venue || (a.move && !c.venue)) { const rv = recVenues(tt, c).find(x => x.free && x.fit >= 0); if (rv) c.venue = rv.v.id; }
+                else { const busy = checkClass(tt, c).hard.some(x => x.t === 'venue'); if (busy) { const rv = recVenues(tt, c).find(x => x.free && x.fit >= 0); if (rv) c.venue = rv.v.id; } }
+            } else {
+                const s = exSlots(tt.faculty)[a.i];
+                c.date = a.a; c.start = s.start; c.end = s.end;
+                if (!(c.venues || []).length || a.move) autoSeats(tt, c);
+            }
+        }
+        MOD.open = true; MOD.kind = kind; MOD.ttId = tt.id; MOD.c = c; MOD.isNew = isNew; MOD.orig = orig;
+        renderModal();
+        document.getElementById('ax-mod').classList.add('open');
+    };
+    const autoSeats = (tt, c) => {
+        const o = offerings()[c.off]; let need = o ? stuCount(o) : num(c.students);
+        const fs = freeSeats(tt, c.date, c.start, c.end, pool(tt), c.id);
+        c.venues = [];
+        const fit = fs.filter(x => x.free >= need).sort((a, b) => a.free - b.free)[0];
+        if (fit) { c.venues.push({ id: fit.v.id, n: need }); return; }
+        for (const x of fs) { if (need <= 0) break; const take = Math.min(need, x.free); c.venues.push({ id: x.v.id, n: take }); need -= take; }
+    };
+    const lectPool = (tt, c) => {
+        const set = new Set([...(c.lects || []), ...(c.invig || [])]);
+        localDB.lecturers.forEach(l => { if (window.getFaculty(l) === tt.faculty) set.add(window.lecIdOf(l)); });
+        const on = new Set([...(c.lects || []), ...(c.invig || [])]);
+        return [...set].filter(Boolean).sort((a, b) => (on.has(b) - on.has(a)) || lname(a).localeCompare(lname(b)));
+    };
+    const renderModal = () => {
+        const tt = TT[MOD.ttId]; const c = MOD.c; const kind = MOD.kind; if (!tt || !c) return;
+        const o = offerings()[c.off] || {};
+        const box = document.getElementById('ax-mod-box');
+        const head = boxHead(`${AX.app} · ${kind === 'CLASS' ? 'Place / edit class' : 'Schedule / edit exam'}`, `${E(c.code)} — ${E(c.name || '')}`, `🎓 ${E(c.course)} · ${E(c.batch)} · 👥 ${stuCount(o) || num(c.students)} students${kind === 'CLASS' ? ` · ${schedHrs(tt, c.off)}/${o.wch || '?'} h placed · ${E(o.modality || o.mode || '')}` : ''}`);
+        let form = '';
+        if (kind === 'CLASS') {
+            const slots = slotsOf(tt.faculty); const days = sessCfg(tt.faculty).days;
+            const starts = [...new Set([...slots.map(s => s.start), c.start].filter(Boolean))].sort((a, b) => toMin(a) - toMin(b));
+            const ends = [...new Set([...slots.map(s => s.end), c.end].filter(Boolean))].sort((a, b) => toMin(a) - toMin(b));
+            form = `<div class="ax-fgrid">
+                <label>Day<select id="axm-day" onchange="window.AXmodIn()">${days.concat(days.includes(c.day) || !c.day ? [] : [c.day]).map(d => `<option ${d === c.day ? 'selected' : ''}>${d}</option>`).join('')}</select></label>
+                <label>Start<select id="axm-start" onchange="window.AXmodIn('start')">${starts.map(t => `<option ${t === c.start ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+                <label>End<select id="axm-end" onchange="window.AXmodIn()">${ends.map(t => `<option ${t === c.end ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+                <label>Mode<select id="axm-mode" onchange="window.AXmodIn()">${[['F2F', 'Face to face'], ['Online', 'Online'], ['Hybrid', 'Hybrid / blended']].map(([v, l]) => `<option value="${v}" ${v === c.mode ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+                <label class="col-span-2">Venue / classroom <span id="axm-vhint" class="ax-hint"></span><select id="axm-venue" onchange="window.AXmodIn()"></select></label>
+                <label class="col-span-2">Note<input id="axm-note" value="${E(c.note || '')}" placeholder="e.g. Group A / lab week only" oninput="window.AXmodIn()"></label>
+            </div>
+            <div class="ax-lbl mt-2">Recommended rooms</div><div id="axm-rec" class="flex flex-wrap gap-1"></div>
+            <div class="ax-lbl mt-2">Lecturer(s)</div><div class="ax-chkl" id="axm-lects">${lectPool(tt, c).map(l => `<label><input type="checkbox" value="${l}" ${(c.lects || []).includes(l) ? 'checked' : ''} onchange="window.AXmodIn()"> ${E(lname(l))}</label>`).join('') || '<i>No lecturers in this faculty</i>'}</div>`;
+        } else {
+            const days = [...new Set([...examDays(tt), c.date].filter(Boolean))].sort();
+            const xs = exSlots(tt.faculty);
+            form = `<div class="ax-fgrid">
+                <label>Date<select id="axm-date" onchange="window.AXmodIn()">${days.map(d => `<option value="${d}" ${d === c.date ? 'selected' : ''}>${fmtDW(d)}</option>`).join('')}</select></label>
+                <label>Exam slot<select id="axm-slot" onchange="window.AXmodIn('slot')"><option value="">custom</option>${xs.map(s => `<option value="${s.start}|${s.end}" ${s.start === c.start && s.end === c.end ? 'selected' : ''}>${E(s.sname)} ${s.start}–${s.end}</option>`).join('')}</select></label>
+                <label>Start<input type="time" id="axm-start" value="${c.start}" onchange="window.AXmodIn()"></label>
+                <label>End<input type="time" id="axm-end" value="${c.end}" onchange="window.AXmodIn()"></label>
+                <label>Students<input type="number" id="axm-stu" value="${num(c.students, stuCount(o))}" oninput="window.AXmodIn()"></label>
+                <label>Colour (${tt.colorBy === 'cohort' ? 'batch' : 'course'})<select id="axm-color" onchange="window.AXmodIn()">${PALETTE.map(([n, h]) => `<option value="${h}" ${h === (c._color || cohortColor(tt, c)) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+                <label class="col-span-2">Note<input id="axm-note" value="${E(c.note || '')}" oninput="window.AXmodIn()" placeholder="e.g. bring calculators"></label>
+            </div>
+            <div class="ax-lbl mt-2 flex items-center gap-2">Halls / venues & seats <button class="ax-b ax-b-sm" onclick="window.AXseatAuto()">⚡ Auto-allocate seats</button><button class="ax-b ax-b-sm" onclick="window.AXseatAdd()">＋ hall</button></div>
+            <div id="axm-seats"></div>
+            <div class="ax-lbl mt-2">Invigilators</div><div class="ax-chkl" id="axm-invig">${lectPool(tt, c).map(l => `<label><input type="checkbox" value="${l}" ${(c.invig || []).includes(l) ? 'checked' : ''} onchange="window.AXmodIn()"> ${E(lname(l))}</label>`).join('')}</div>`;
+        }
+        box.innerHTML = `${head}<div class="ax-mb">${form}
+            <div id="axm-chk" class="mt-3"></div>
+            <div class="ax-lbl mt-2">Other free slots for this module</div><div id="axm-sug" class="flex flex-wrap gap-1"></div>
+        </div>
+        <div class="ax-mf">
+            ${!MOD.isNew ? `<button class="ax-b ax-b-red" onclick="window.AXmodDel()">🗑 Remove</button>` : ''}
+            <label id="axm-ovw" class="hidden text-[10px] font-bold text-red-800 flex items-center gap-1"><input type="checkbox" id="axm-ov" onchange="window.AXmodIn()"> Override – keep this clash (approved)</label>
+            <span class="ml-auto"></span>
+            <button class="ax-b" onclick="window.AXclose()">Cancel</button>
+            <button class="ax-b ax-b-green" id="axm-save" onclick="window.AXmodSave()">💾 Save</button>
+        </div>`;
+        refreshModalChecks();
+    };
+    const readModal = () => {
+        const c = MOD.c; const tt = TT[MOD.ttId]; const v = (id) => (document.getElementById(id) || {}).value;
+        if (MOD.kind === 'CLASS') {
+            c.day = v('axm-day') || c.day; c.start = v('axm-start') || c.start; c.end = v('axm-end') || c.end; c.mode = v('axm-mode') || c.mode;
+            const ve = document.getElementById('axm-venue'); if (ve) c.venue = ve.value;
+            c.note = v('axm-note') || '';
+            c.lects = [...document.querySelectorAll('#axm-lects input:checked')].map(x => x.value);
+        } else {
+            c.date = v('axm-date') || c.date; c.start = v('axm-start') || c.start; c.end = v('axm-end') || c.end;
+            c.students = num(v('axm-stu'), c.students); c.note = v('axm-note') || ''; c._color = v('axm-color') || c._color;
+            c.invig = [...document.querySelectorAll('#axm-invig input:checked')].map(x => x.value);
+            const rows = [...document.querySelectorAll('#axm-seats .ax-seat')];
+            if (rows.length) c.venues = rows.map(r => ({ id: r.querySelector('select').value, n: num(r.querySelector('input').value) })).filter(x => x.id);
+        }
+        c.override = !!(document.getElementById('axm-ov') || {}).checked;
+        return c;
+    };
+    window.AXmodIn = (what) => {
+        const c = MOD.c; const tt = TT[MOD.ttId];
+        if (what === 'start' && MOD.kind === 'CLASS') {
+            // keep the same length when the start moves
+            const slots = slotsOf(tt.faculty); const len = Math.max(1, (spanOf(slots, c) || [0, 0]).reduce((x, y) => y - x + 1));
+            const ns = document.getElementById('axm-start').value; const i = slots.findIndex(s => s.start === ns);
+            if (i >= 0) { let last = slots[i]; for (let j = 1; j < len; j++) { const n = slots[i + j]; if (n && n.sid === slots[i].sid) last = n; } document.getElementById('axm-end').value = last.end; }
+        }
+        if (what === 'slot') { const s = document.getElementById('axm-slot').value; if (s) { const [a, b] = s.split('|'); document.getElementById('axm-start').value = a; document.getElementById('axm-end').value = b; } }
+        readModal(); refreshModalChecks();
+    };
+    const refreshModalChecks = () => {
+        if (!MOD.open) return;
+        const tt = TT[MOD.ttId]; const c = MOD.c; if (!tt || !c) return;
+        const P = pool(tt);
+        const slots = slotsOf(tt.faculty);
+        c.hrs = MOD.kind === 'CLASS' ? ((spanOf(slots, c) || null) ? spanOf(slots, c).reduce((x, y) => y - x + 1) : Math.round((toMin(c.end) - toMin(c.start)) / 30) / 2) : 0;
+        const r = MOD.kind === 'CLASS' ? checkClass(tt, c, P) : checkExam(tt, c, P);
+        if (MOD.kind === 'CLASS') {
+            const rv = recVenues(tt, c, P);
+            const sel = document.getElementById('axm-venue');
+            if (sel) {
+                sel.innerHTML = `<option value="">— TBA —</option>` + rv.map((x, i) => `<option value="${x.v.id}" ${x.v.id === c.venue ? 'selected' : ''}>${x.free ? (i === 0 && x.fit >= 0 ? '★ ' : '') : '⛔ busy – '}${E(x.v.name)}${x.v.campus ? ' · ' + E(x.v.campus) : ''}${num(x.v.capacity) && !isVirtual(x.v) ? ' · ' + x.v.capacity + ' seats' : ''}${x.v.hybrid ? ' · hybrid' : ''}</option>`).join('');
+                if (c.venue && !rv.some(x => x.v.id === c.venue)) sel.insertAdjacentHTML('beforeend', `<option value="${E(c.venue)}" selected>${E(vname(c.venue))}</option>`);
+            }
+            const rec = document.getElementById('axm-rec');
+            if (rec) rec.innerHTML = rv.filter(x => x.free && x.fit >= 0).slice(0, 6).map(x => `<button class="ax-rec ${x.v.id === c.venue ? 'on' : ''}" onclick="document.getElementById('axm-venue').value='${x.v.id}';window.AXmodIn()">${E(x.v.name)} <span>${x.tags.join(' ')}</span></button>`).join('') || '<i class="text-[10px] text-slate-500">No free suitable room – add venues in 🏫 Classrooms / Venues.</i>';
+            const vh = document.getElementById('axm-vhint'); const o = offerings()[c.off];
+            if (vh) vh.textContent = o ? (o.mode === 'Online' ? 'online module → online venue recommended' : o.mode === 'Hybrid' ? 'hybrid module → hybrid room recommended' : `${stuCount(o)} students → smallest room that fits`) : '';
+        } else {
+            const box = document.getElementById('axm-seats');
+            if (box) {
+                const fs = freeSeats(tt, c.date, c.start, c.end, P, c.id);
+                const opts = (sel) => `<option value="">— hall —</option>` + venuesArr().filter(v => !isVirtual(v)).map(v => { const f = fs.find(x => x.v.id === v.id); return `<option value="${v.id}" ${v.id === sel ? 'selected' : ''}>${E(v.name)} · free ${f ? f.free : 0}/${examCap(v)}</option>`; }).join('');
+                if (!box.dataset.built || box.dataset.built !== JSON.stringify(c.venues)) {
+                    box.innerHTML = (c.venues || []).map((v, i) => `<div class="ax-seat"><select onchange="window.AXmodIn()">${opts(v.id)}</select><input type="number" min="0" value="${num(v.n)}" oninput="window.AXmodIn()"><button onclick="window.AXseatDel(${i})">×</button></div>`).join('') || '<i class="text-[10px] text-slate-500">No hall yet – press ⚡ Auto-allocate.</i>';
+                    box.dataset.built = JSON.stringify(c.venues);
+                }
+            }
+        }
+        const chk = document.getElementById('axm-chk');
+        if (chk) chk.innerHTML = r.hard.length || r.soft.length
+            ? `${r.hard.map(x => `<div class="ax-alert bad">⛔ ${E(x.m)}</div>`).join('')}${r.soft.map(x => `<div class="ax-alert warn">⚠️ ${E(x.m)}</div>`).join('')}`
+            : `<div class="ax-alert ok">✅ No clash – lecturer, venue, batch and every registered student are free.</div>`;
+        const ovw = document.getElementById('axm-ovw'); if (ovw) ovw.classList.toggle('hidden', !r.hard.length || r.hard.every(x => x.t === 'time'));
+        const save = document.getElementById('axm-save');
+        if (save) { const blocked = r.hard.length && (!c.override || r.hard.some(x => x.t === 'time')); save.disabled = !!blocked; save.title = blocked ? 'Resolve the clash (or tick Override) first' : ''; }
+        // suggestions
+        const sug = document.getElementById('axm-sug');
+        if (sug) {
+            const o = offerings()[c.off]; let items = [];
+            if (o) {
+                if (MOD.kind === 'CLASS') {
+                    const sp = spanOf(slots, c);
+                    const av = classAvail(tt, o, P.filter(e => e.id !== c.id), sp ? sp[1] - sp[0] + 1 : 0);
+                    Object.entries(av).forEach(([d, m]) => Object.entries(m).forEach(([i, h]) => { if (h.st === 'ok') items.push({ d, i: +i, lab: `${DSH[d]} ${slots[i].start}–${h.end}`, v: h.v, end: h.end, st: slots[i].start }); }));
+                    items = items.slice(0, 10);
+                    sug.innerHTML = items.map(x => `<button class="ax-rec" onclick="window.AXmodJump('${x.d}','${x.st}','${x.end}','${x.v || ''}')">${x.lab}${x.v ? ` <span>📍${E(vname(x.v))}</span>` : ''}</button>`).join('') || '<i class="text-[10px] text-slate-500">No fully free slot this week – consider another lecturer, fewer hours per block, or the Night session.</i>';
+                } else {
+                    const av = examAvail(tt, o, P, c.id); const xs = exSlots(tt.faculty);
+                    Object.entries(av).forEach(([d, m]) => Object.entries(m).forEach(([i, h]) => { if (h.st === 'ok') items.push({ d, s: xs[i] }); }));
+                    sug.innerHTML = items.slice(0, 10).map(x => `<button class="ax-rec" onclick="window.AXmodJumpX('${x.d}','${x.s.start}','${x.s.end}')">${fmtD(x.d)} ${x.s.start}</button>`).join('') || '<i class="text-[10px] text-slate-500">No fully free exam slot.</i>';
+                }
+            }
+        }
+    };
+    window.AXmodJump = (d, s, e, v) => { const c = MOD.c; c.day = d; c.start = s; c.end = e; if (v) c.venue = v; renderModal(); };
+    window.AXmodJumpX = (d, s, e) => { const c = MOD.c; c.date = d; c.start = s; c.end = e; autoSeats(TT[MOD.ttId], c); renderModal(); };
+    window.AXseatAuto = () => { readModal(); autoSeats(TT[MOD.ttId], MOD.c); const b = document.getElementById('axm-seats'); if (b) b.dataset.built = ''; refreshModalChecks(); };
+    window.AXseatAdd = () => { readModal(); MOD.c.venues = (MOD.c.venues || []).concat([{ id: '', n: 0 }]); const b = document.getElementById('axm-seats'); if (b) b.dataset.built = ''; refreshModalChecks(); };
+    window.AXseatDel = (i) => { readModal(); MOD.c.venues.splice(i, 1); const b = document.getElementById('axm-seats'); if (b) b.dataset.built = ''; refreshModalChecks(); };
+    window.AXmodSave = async () => {
+        const tt = TT[MOD.ttId]; const c = readModal(); if (!tt || !canTT(tt)) return;
+        const r = MOD.kind === 'CLASS' ? checkClass(tt, c, pool(tt)) : checkExam(tt, c, pool(tt));
+        if (r.hard.length && !c.override) { alert('⛔ CLASH – cannot save:\n\n' + r.hard.map(x => '• ' + x.m).join('\n') + '\n\nChoose one of the free slots suggested, another venue / lecturer, or tick "Override".'); return; }
+        const id = c.id || uid('e');
+        const e = { ...c, id, by: meE(), at: Date.now() };
+        if (r.hard.length) e.clashNote = r.hard.map(x => x.m).join(' | ').slice(0, 500); else delete e.clashNote;
+        const changes = [];
+        if (MOD.kind === 'EXAM') {
+            const key = tt.colorBy === 'cohort' ? K(c.course, c.batch) : K(c.course);
+            if (c._color && (tt.colors || {})[key] !== c._color) changes.push([['colors', key], c._color]);
+            else if (!(tt.colors || {})[key]) changes.push([['colors', key], cohortColor(tt, c)]);
+            delete e._color; e.students = num(c.students);
+        } else {
+            const slots = slotsOf(tt.faculty); const sp = spanOf(slots, e); e.hrs = sp ? sp[1] - sp[0] + 1 : Math.round((toMin(e.end) - toMin(e.start)) / 30) / 2;
+        }
+        Object.keys(e).forEach(k => { if (k.startsWith('_') || e[k] === undefined) delete e[k]; });
+        changes.push([['entries', id], e]);
+        const ok = await axPaths(tt.id, changes);
+        if (!ok) return;
+        log(MOD.isNew ? 'Timetable entry added' : 'Timetable entry changed', `${tt.title}: ${e.code} ${e.batch} ${e.day || e.date} ${e.start}-${e.end}`);
+        toast(`${e.code} ${MOD.isNew ? 'placed' : 'updated'} ✓${tt.published && tt.published.version ? ' – press 📢 Publish Amendment to send it to lecturers & students' : ''}`, 'success');
+        window.AXclose();
+        if (MOD.kind === 'CLASS') { const o = offerings()[c.off]; if (o && schedHrs(TT[tt.id], o.key) >= o.wch) ST.CLASS.sel = ''; }
+        else ST.EXAM.sel = '';
+    };
+    window.AXmodDel = async () => {
+        const tt = TT[MOD.ttId]; const c = MOD.c; if (!tt || !c.id) return;
+        if (!confirm(`Remove ${c.code} (${c.batch}) ${c.day || fmtD(c.date)} ${c.start}–${c.end} from the timetable?`)) return;
+        if (await axPaths(tt.id, [[['entries', c.id], null]])) { log('Timetable entry removed', `${tt.title}: ${c.code} ${c.batch}`); toast('Removed', 'success'); window.AXclose(); }
+    };
+    const showEntryInfo = (tt, id) => {
+        const e = entsOf(tt, !canTT(tt) && tt.published).find(x => x.id === id) || entsOf(tt).find(x => x.id === id); if (!e) return;
+        dlg(`${boxHead(AX.app, `${E(e.code)} — ${E(e.name || '')}`, `${E(e.course)} · ${E(e.batch)}`, 'window.AXdlgClose()')}<div class="ax-mb text-sm space-y-1">
+            ${tt.kind === 'CLASS' ? `<div>🗓 <b>${e.day}</b> ${e.start}–${e.end} (${t12(e.start)} – ${t12(e.end)})</div><div>📍 ${E(vname(e.venue))} · ${E(e.mode || '')}</div><div>👤 ${E(lnames(e.lects) || 'TBA')}</div>`
+            : `<div>🗓 <b>${fmtDW(e.date)}</b> ${e.start}–${e.end}</div><div>🚪 ${E((e.venues || []).map(v => `${vname(v.id)} (${v.n})`).join(', ') || 'TBA')}</div><div>🛡 ${E(lnames(e.invig) || '—')}</div><div>🎨 ${E(colorName(cohortColor(tt, e)))}</div>`}
+            ${e.note ? `<div>📝 ${E(e.note)}</div>` : ''}</div>`);
+    };
+
+    // ------------------------------------------------------------------ AUTO-SCHEDULE (greedy, clash-free)
+    window.AXauto = async (kind, scope) => {
+        const S = ST[kind]; const tt = TT[S.tt]; if (!tt || !canTT(tt)) return;
+        let offs;
+        if (kind === 'CLASS') {
+            const cohorts = cohortsOf(tt.faculty).filter(c => !tt.course || nrm(c.course) === nrm(tt.course));
+            const keys = scope === 'cohort' ? ((cohorts.find(c => c.k === S.cohort) || {}).offs || []) : [...new Set(cohorts.flatMap(c => c.offs))];
+            offs = keys.map(k => offerings()[k]).filter(o => o && o.wch - schedHrs(tt, o.key) > 0);
+        } else offs = examOffs(tt, scope === 'cohort' ? S : { cohort: '' }).filter(o => !entsOf(tt).some(e => e.off === o.key));
+        if (!offs.length) return toast('Nothing left to schedule here ✓', 'success');
+        if (!confirm(`⚡ Auto-schedule ${offs.length} module(s)?\n\nThe software places each one in the best free slot – no lecturer, venue, batch or student clash – and picks the best-fitting ${kind === 'CLASS' ? 'room' : 'halls & invigilators'}.\nYou can move / edit anything afterwards.`)) return;
+        loader(true, 'Auto-scheduling…');
+        await new Promise(r => setTimeout(r, 30));
+        const P = pool(tt).slice(); const added = []; const failed = [];
+        try {
+            if (kind === 'CLASS') {
+                const slots = slotsOf(tt.faculty); const days = sessCfg(tt.faculty).days; const venues = venuesArr();
+                offs.sort((a, b) => stuCount(b) - stuCount(a) || b.wch - a.wch);
+                offs.forEach(o => {
+                    let rem = o.wch - schedHrs(tt, o.key); let guard = 0; const usedDays = new Set(entsOf(tt).filter(e => e.off === o.key).map(e => e.day));
+                    while (rem > 0.01 && guard++ < 12) {
+                        const L = Math.max(1, Math.round(Math.min(o.classLen || 2, rem)));
+                        const cohHrs = (d) => P.filter(e => e.day === d && (e.cohorts || []).some(c => o.cohorts.some(x => x.k === c.k))).reduce((a, e) => a + hrsOf(e), 0);
+                        const dOrder = days.slice().sort((a, b) => (usedDays.has(a) - usedDays.has(b)) || (cohHrs(a) - cohHrs(b)));
+                        let placed = null;
+                        for (const pass of [1, 2]) {
+                            for (const d of dOrder) {
+                                for (let i = 0; i < slots.length && !placed; i++) {
+                                    const s = slots[i], last = slots[i + L - 1];
+                                    if (!last || last.sid !== s.sid) continue;
+                                    if (pass === 1 && !sessMatch(o.session, s.sname, s.start)) continue;
+                                    const c = { id: '__auto', off: o.key, cohorts: o.cohorts, lects: o.lects.slice(), day: d, start: s.start, end: last.end, hrs: L, mode: o.mode, venue: '' };
+                                    if (checkClass(tt, c, P).hard.some(x => x.t !== 'venue')) continue;
+                                    const rv = recVenues(tt, c, P, venues).find(x => x.free && x.fit >= 0 && (o.mode === 'Online' || !isVirtual(x.v)));
+                                    if (!rv && o.mode !== 'Online' && venues.length) continue;
+                                    c.venue = rv ? rv.v.id : (o.mode === 'Online' ? 'ONLINE' : '');
+                                    placed = c;
+                                }
+                                if (placed) break;
+                            }
+                            if (placed) break;
+                        }
+                        if (!placed) { failed.push(`${o.code} · ${o.batch} (${rem} h left)`); break; }
+                        const e = { ...placed, id: uid('e'), code: o.code, name: o.name, fac: o.fac, course: o.course, batch: o.batch, note: '', by: meE(), at: Date.now(), auto: true };
+                        P.push({ ...e, _tt: tt.id, _fac: tt.faculty }); added.push(e); usedDays.add(e.day); rem -= L;
+                    }
+                });
+            } else {
+                const days = examDays(tt); const xs = exSlots(tt.faculty);
+                if (!days.length) { loader(false); return alert('Set the exam period in ⚙️ Settings first.'); }
+                const duty = {}; P.forEach(e => (e.invig || []).forEach(l => { duty[l] = (duty[l] || 0) + 1; }));
+                const lects = localDB.lecturers.filter(l => window.getFaculty(l) === tt.faculty).map(l => window.lecIdOf(l));
+                offs.sort((a, b) => stuCount(b) - stuCount(a));
+                offs.forEach(o => {
+                    const n = stuCount(o); let placed = null;
+                    // spread the exams: least-busy date/slot first, and keep a gap after the batch's previous exam
+                    const cohDates = P.filter(e => (e.cohorts || []).some(c => o.cohorts.some(x => x.k === c.k))).map(e => e.date);
+                    const gap = (d) => cohDates.length ? Math.min(...cohDates.map(x => Math.abs((new Date(d) - new Date(x)) / 864e5))) : 9;
+                    const cands = []; days.forEach((d, di) => xs.forEach(s => cands.push({ d, s, di, load: P.filter(e => e.date === d && e.start === s.start).length })));
+                    cands.sort((a, b) => (Math.min(gap(a.d), 2) > Math.min(gap(b.d), 2) ? -1 : Math.min(gap(a.d), 2) < Math.min(gap(b.d), 2) ? 1 : 0) || a.load - b.load || a.di - b.di);
+                    for (const pass of [1, 2]) {
+                        for (const { d, s } of cands) {
+                            {
+                                const c = { id: '__auto', off: o.key, cohorts: o.cohorts, lects: o.lects.slice(), students: n, date: d, start: s.start, end: s.end, venues: [], invig: [] };
+                                const r = checkExam(tt, c, P);
+                                if (r.hard.some(x => x.t !== 'venue')) continue;
+                                if (pass === 1 && r.soft.some(x => ['cohort', 'stu'].includes(x.t))) continue;
+                                // free exam seats at this time, counting what was already placed in this run
+                                const fs = freeSeats(tt, d, s.start, s.end, P, null);
+                                if (venuesArr().length && fs.reduce((a, x) => a + x.free, 0) < n) continue;
+                                c.venues = []; let need = n; const fit = fs.filter(x => x.free >= need).sort((a, b) => a.free - b.free)[0];
+                                if (fit) c.venues.push({ id: fit.v.id, n: need }); else for (const x of fs) { if (need <= 0) break; const t = Math.min(need, x.free); c.venues.push({ id: x.v.id, n: t }); need -= t; }
+                                const busy = new Set(P.filter(e => e.date === d && ovl(toMin(s.start), toMin(s.end), toMin(e.start), toMin(e.end))).flatMap(e => e.invig || []));
+                                const want = Math.max(1, c.venues.length);
+                                c.invig = lects.filter(l => !busy.has(l) && !o.lects.includes(l)).sort((a, b) => (duty[a] || 0) - (duty[b] || 0)).slice(0, want);
+                                c.invig.forEach(l => { duty[l] = (duty[l] || 0) + 1; });
+                                placed = c;
+                            }
+                            if (placed) break;
+                        }
+                        if (placed) break;
+                    }
+                    if (!placed) { failed.push(`${o.code} · ${o.batch}`); return; }
+                    const e = { ...placed, id: uid('x'), code: o.code, name: o.name, fac: o.fac, course: o.course, batch: o.batch, note: '', by: meE(), at: Date.now(), auto: true };
+                    P.push({ ...e, _tt: tt.id, _fac: tt.faculty }); added.push(e);
+                });
+            }
+            const ch = added.map(e => [['entries', e.id], e]);
+            if (kind === 'EXAM') {
+                const cols = { ...(tt.colors || {}) }; const used = new Set(Object.values(cols));
+                added.forEach(e => { const key = tt.colorBy === 'cohort' ? K(e.course, e.batch) : K(e.course); if (!cols[key]) { const free = PALETTE.find(p => !used.has(p[1])) || PALETTE[Object.keys(cols).length % PALETTE.length]; cols[key] = free[1]; used.add(free[1]); ch.push([['colors', key], free[1]]); } });
+            }
+            if (ch.length) await axPaths(tt.id, ch);
+            log('Auto-schedule', `${tt.title}: ${added.length} placed, ${failed.length} not placed`);
+        } finally { loader(false); }
+        alert(`⚡ Auto-schedule finished\n\n✅ Placed: ${added.length}\n${failed.length ? `⚠️ Could not place (no clash-free slot): ${failed.length}\n• ${failed.slice(0, 25).join('\n• ')}${failed.length > 25 ? '\n…' : ''}\n\nTip: add more venues, another session, or check the lecturer's other classes.` : 'Everything fitted without a clash.'}`);
+    };
+
+
+    // ------------------------------------------------------------------ CLASHES view (+ individual-student conflicts with ways to resolve)
+    const sameTime = (a, b) => (a.day ? a.day === b.day : a.date === b.date) && ovl(toMin(a.start), toMin(a.end), toMin(b.start), toMin(b.end));
+    const whenOf = (e) => `${e.day ? DSH[e.day] : fmtD(e.date)} ${e.start}–${e.end}`;
+    const studentConflicts = (tt, sid, P) => {
+        P = P || pool(tt);
+        const offs = stuIndex().stuOffs[sid] || new Set();
+        const mine = P.filter(e => offs.has(e.off));
+        const out = [];
+        for (let i = 0; i < mine.length; i++) for (let j = i + 1; j < mine.length; j++) if (mine[i].off !== mine[j].off && sameTime(mine[i], mine[j])) out.push([mine[i], mine[j]]);
+        return out;
+    };
+    const resolveHtml = (tt, sid, a, b, P) => {
+        P = P || pool(tt);
+        const ix = stuIndex();
+        const extra = (ix.regsOf[sid] || []).filter(r => r.type !== 'SKIP').map(r => r._off);
+        const target = extra.includes(a.off) ? a : (extra.includes(b.off) ? b : a);
+        const myOffs = ix.stuOffs[sid] || new Set();
+        const others = P.filter(e => myOffs.has(e.off) && e.off !== target.off);
+        const sug = [];
+        Object.values(offerings()).filter(o => o.code.toUpperCase() === String(target.code).toUpperCase() && o.key !== target.off).forEach(o => {
+            const es = P.filter(e => e.off === o.key); if (!es.length) return;
+            if (!es.some(x => others.some(y => sameTime(x, y)))) sug.push(`<div class="ax-sug">🔁 Register <b>${E(o.code)}</b> with batch <b>${E(o.batch)}</b> (${E(o.course)}) instead – ${es.map(whenOf).join(', ')} – <b class="text-emerald-700">no clash</b></div>`);
+        });
+        const o = offerings()[target.off];
+        if (o && target._tt === tt.id) {
+            const rest = P.filter(e => e.id !== target.id);
+            let cnt = 0;
+            if (tt.kind === 'CLASS') {
+                const slots = slotsOf(tt.faculty); const sp = spanOf(slots, target); const L = sp ? sp[1] - sp[0] + 1 : 1;
+                const av = classAvail(tt, o, rest, L);
+                const cells = []; Object.entries(av).forEach(([d, m]) => Object.entries(m).forEach(([i, h]) => { if (h.st === 'ok' || h.st === 'warn') cells.push([d, i, h]); }));
+                cells.sort((x, y) => (x[2].st === 'ok' ? 0 : 1) - (y[2].st === 'ok' ? 0 : 1));
+                cells.forEach(([d, i, h]) => {
+                    if (cnt >= 4) return;
+                    const c = { off: target.off, day: d, start: slots[i].start, end: h.end };
+                    if (others.some(y => sameTime(c, y))) return;
+                    cnt++; sug.push(`<div class="ax-sug">➡️ Move <b>${E(target.code)} · ${E(target.batch)}</b> to <b>${DSH[d]} ${slots[i].start}–${h.end}</b>${h.v ? ` (📍${E(vname(h.v))})` : ''} – free for the lecturer, the batch and all its students${h.st === 'warn' ? ` <i class="text-amber-700">(${E(h.tip.split('\n')[0])})</i>` : ''} ${canTT(tt) ? `<button class="ax-b ax-b-sm" onclick="window.AXmoveTo('${tt.id}','${target.id}','${d}','${slots[i].start}','${h.end}','${h.v || ''}')">Move</button>` : ''}</div>`);
+                });
+            } else {
+                const xs = exSlots(tt.faculty); const av = examAvail(tt, o, rest, target.id);
+                Object.entries(av).forEach(([d, m]) => Object.entries(m).forEach(([i, h]) => {
+                    if (h.st !== 'ok' || cnt >= 4) return; const c = { date: d, start: xs[i].start, end: xs[i].end };
+                    if (others.some(y => sameTime(c, y))) return;
+                    cnt++; sug.push(`<div class="ax-sug">➡️ Move exam <b>${E(target.code)}</b> to <b>${fmtD(d)} ${xs[i].start}</b> ${canTT(tt) ? `<button class="ax-b ax-b-sm" onclick="window.AXmoveTo('${tt.id}','${target.id}','${d}','${xs[i].start}','${xs[i].end}','')">Move</button>` : ''}</div>`);
+                }));
+            }
+        }
+        if (!sug.length) sug.push(`<div class="ax-sug">💡 No automatic fix found – the student may attend ${E(target.code)} in a later semester, or the faculty can open an extra section / online session for ${E(target.code)}.</div>`);
+        return sug.join('');
+    };
+    window.AXmoveTo = async (ttId, id, dOrDate, start, end, venue) => {
+        const tt = TT[ttId]; const e = clone((tt.entries || {})[id]); if (!e || !canTT(tt)) return;
+        if (tt.kind === 'CLASS') { e.day = dOrDate; if (venue) e.venue = venue; } else { e.date = dOrDate; }
+        e.start = start; e.end = end;
+        if (tt.kind === 'EXAM') autoSeats(tt, e);
+        const r = tt.kind === 'CLASS' ? checkClass(tt, e) : checkExam(tt, e);
+        if (r.hard.length) return alert('⛔ Cannot move – ' + r.hard.map(x => x.m).join('\n'));
+        if (!confirm(`Move ${e.code} (${e.batch}) to ${tt.kind === 'CLASS' ? dOrDate : fmtD(dOrDate)} ${start}–${end}?`)) return;
+        e.at = Date.now(); e.by = meE();
+        if (await axPaths(tt.id, [[['entries', id], e]])) { toast('Moved ✓', 'success'); log('Timetable entry moved', `${e.code} ${e.batch} → ${dOrDate} ${start}`); }
+    };
+    const clashHtml = (kind, tt, S) => {
+        const P = pool(tt);
+        const cl = clashSet(tt);
+        const groups = { cohort: [], lect: [], venue: [], stu: [], invig: [], time: [] };
+        cl.list.forEach(({ e, r }) => r.hard.forEach(h => (groups[h.t] || (groups[h.t] = [])).push({ e, h })));
+        const titles = { cohort: '🎓 Batch clashes', lect: '👤 Lecturer clashes', venue: '🏫 Venue clashes', stu: '👩‍🎓 Student clashes', invig: '🛡 Invigilator clashes', time: '⏱ Time errors' };
+        const ix = stuIndex();
+        const indiv = Object.keys(ix.regsOf).filter(id => (ix.regsOf[id] || []).some(r => r.fac === tt.faculty || (r._off && (offerings()[r._off] || {}).fac === tt.faculty)));
+        const stuRows = [];
+        indiv.forEach(sid => studentConflicts(tt, sid, P).forEach(([a, b]) => { if (a._tt === tt.id || b._tt === tt.id) stuRows.push({ sid, a, b }); }));
+        const warn = []; entsOf(tt).forEach(e => { const r = kind === 'CLASS' ? checkClass(tt, e, P) : checkExam(tt, e, P); r.soft.filter(x => ['cap', 'mode', 'hrs', 'seat'].includes(x.t)).forEach(x => warn.push({ e, m: x.m })); });
+        return `<div class="grid lg:grid-cols-2 gap-3">
+            <div class="ax-card"><div class="ax-card-h">⚠️ Clashes in “${E(tt.title)}” <span class="ml-auto ${cl.list.length ? 'text-red-700' : 'text-emerald-700'}">${cl.list.length ? cl.list.length + ' entries' : '✓ none'}</span></div>
+                ${Object.entries(groups).filter(([, l]) => l.length).map(([t, l]) => `<div class="ax-lbl mt-2">${titles[t] || t} (${l.length})</div>${l.map(({ e, h }) => `<div class="ax-alert bad">${E(e.code)} · ${E(e.batch)} · ${whenOf(e)} — ${E(h.m)} ${e.override ? '<b>(approved override)</b>' : ''} <a onclick="window.AXentClick('${kind}','${e.id}','')">edit</a></div>`).join('')}`).join('') || '<div class="ax-alert ok">✅ This timetable has no lecturer, venue, batch or student clash.</div>'}
+            </div>
+            <div class="ax-card"><div class="ax-card-h">👩‍🎓 Students with individual modules (repeat / failed / carry-over) <span class="ml-auto">${indiv.length}</span></div>
+                <p class="text-[10px] text-slate-500 mb-1">These students study outside their batch's normal outline, so the software checks their own personal timetable.</p>
+                ${stuRows.length ? stuRows.slice(0, 60).map(({ sid, a, b }) => `<div class="ax-stuclash"><div><b class="clickable" onclick="window.AXpersonal('stu','${sid}','${kind}')">${E(stuName(sid))}</b> <span class="text-slate-500">${E(sid)}</span></div><div class="text-red-800 font-bold">⛔ ${E(a.code)} (${E(a.batch)}) and ${E(b.code)} (${E(b.batch)}) both at ${whenOf(a)}</div>${resolveHtml(tt, sid, a, b, P)}</div>`).join('') : `<div class="ax-alert ok">✅ ${indiv.length ? 'Every individually-registered student has a clash-free personal timetable.' : 'No individual registrations yet (👩‍🎓 Individual Students tab).'}</div>`}
+            </div>
+            <div class="ax-card lg:col-span-2"><div class="ax-card-h">💡 Warnings (capacity, mode, hours, seats) <span class="ml-auto">${warn.length}</span></div>${warn.slice(0, 80).map(w => `<div class="ax-alert warn">${E(w.e.code)} · ${E(w.e.batch)} · ${whenOf(w.e)} — ${E(w.m)} <a onclick="window.AXentClick('${kind}','${w.e.id}','')">edit</a></div>`).join('') || '<div class="ax-alert ok">No warnings.</div>'}</div>
+        </div>`;
+    };
+
+    // ------------------------------------------------------------------ INDIVIDUAL STUDENTS (registrations outside the normal outline)
+    const REASONS = ['Repeat – failed before', 'Carry-over / deferred', 'Re-registered after withdrawal', 'Elective from another course', 'Exempted / already passed', 'Dropped', 'Other'];
+    const currentTT = (kind, fac) => { const S = ST[kind]; if (S.fac === fac && TT[S.tt]) return TT[S.tt]; return ttList(kind, fac).find(t => t.published && t.published.version) || ttList(kind, fac)[0]; };
+    const studentsHtml = (kind, S) => {
+        const fac = S.fac; const ix = stuIndex();
+        const regs = ix.regs.filter(r => r.fac === fac || (r._off && (offerings()[r._off] || {}).fac === fac));
+        const offs = offList(fac);
+        const tC = currentTT('CLASS', fac), tE = currentTT('EXAM', fac);
+        const clashN = (sid) => (tC ? studentConflicts(tC, sid).length : 0) + (tE ? studentConflicts(tE, sid).length : 0);
+        const q = nrm(S.stuQ || '');
+        const shown = regs.filter(r => !q || nrm(`${r.stu} ${stuName(window.makeSafeId(r.stu))} ${r.code}`).includes(q));
+        return `<div class="grid lg:grid-cols-3 gap-3">
+            <div class="ax-card">
+                <div class="ax-card-h">➕ Register a student for a module outside the normal outline</div>
+                ${canFac(fac) ? `<datalist id="ax-stu-dl">${(localDB.students || []).slice(0, 4000).map(s => `<option value="${E(window.getSafeVal(s, ['StudentID']))}">${E(window.getSafeVal(s, ['FullName']))} · ${E(window.getSafeVal(s, ['Batch']))}</option>`).join('')}</datalist>
+                <label class="ax-lbl">Student ID</label><input id="ax-r-stu" class="ax-in" list="ax-stu-dl" placeholder="type ID or pick">
+                <label class="ax-lbl mt-1">Module (with batch)</label><select id="ax-r-off" class="ax-in">${offs.map(o => `<option value="${o.key}">${E(o.code)} – ${E(o.name)} · ${E(o.batch)}</option>`).join('')}</select>
+                <label class="ax-lbl mt-1">Type</label><select id="ax-r-type" class="ax-in"><option value="EXTRA">Takes this module with this batch (repeat / failed / carry-over)</option><option value="SKIP">Does NOT take it with own batch (passed / exempted / dropped)</option></select>
+                <label class="ax-lbl mt-1">Reason</label><select id="ax-r-reason" class="ax-in">${REASONS.map(r => `<option>${r}</option>`).join('')}</select>
+                <button class="ax-b ax-b-green w-full mt-2" onclick="window.AXregSave('${fac}')">💾 Save & check clashes</button>
+                <p class="text-[10px] text-slate-500 mt-2">Tip: many at once → 📥 Excel Data → sheet “StudentModules”.</p>` : '<p class="text-xs text-slate-500">View only.</p>'}
+                <div class="ax-lbl mt-3">🔎 Any student's personal timetable</div>
+                <div class="flex gap-1"><input id="ax-pv-stu" class="ax-in" list="ax-stu-dl" placeholder="Student ID"><button class="ax-b ax-b-sm" onclick="window.AXpersonal('stu', window.makeSafeId(document.getElementById('ax-pv-stu').value), '${kind}')">Open</button></div>
+            </div>
+            <div class="ax-card lg:col-span-2">
+                <div class="ax-card-h">👩‍🎓 Individual registrations – ${E(fac)} <span class="ml-auto">${regs.length}</span></div>
+                <input id="ax-stuq" class="ax-in mb-2" placeholder="🔍 search student / module" value="${E(S.stuQ || '')}" oninput="window.AXf('${kind}','stuQ',this.value)">
+                <div class="overflow-auto max-h-[60vh]"><table class="ax-tbl"><thead><tr><th>Student</th><th>Own course / batch</th><th>Module</th><th>With batch</th><th>Type</th><th>Reason</th><th>Clashes</th><th></th></tr></thead><tbody>
+                ${shown.map(r => { const sid = window.makeSafeId(r.stu); const s = ix.byId[sid]; const n = clashN(sid); return `<tr><td><b class="clickable" onclick="window.AXpersonal('stu','${sid}','${kind}')">${E(stuName(sid))}</b><div class="text-[9px] text-slate-500">${E(r.stu)}</div></td><td>${s ? E(window.getSafeVal(s, ['EnrolledProgram'])) + ' · ' + E(window.getSafeVal(s, ['Batch'])) : '<i class="text-orange-600">not in Students data</i>'}</td><td><b>${E(r.code)}</b></td><td>${E(r.batch || '')}${r.type !== 'SKIP' && !r._off ? ' <span class="text-orange-600" title="No such module + batch offering">⚠</span>' : ''}</td><td>${r.type === 'SKIP' ? '<span class="ax-tag gray">not taking</span>' : '<span class="ax-tag blue">extra</span>'}</td><td>${E(r.reason || '')}</td><td>${n ? `<span class="ax-tag red">⛔ ${n}</span>` : '<span class="ax-tag green">✓</span>'}</td><td>${canFac(r.fac) ? `<button class="ax-x-sm" onclick="window.AXregDel('${r._doc.slice(9)}','${r.id}')">🗑</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="8" class="ax-empty">No individual registrations.</td></tr>'}
+                </tbody></table></div>
+            </div>
+        </div>`;
+    };
+    window.AXregSave = async (fac) => {
+        const v = (id) => (document.getElementById(id) || {}).value || '';
+        const stu = v('ax-r-stu').trim(); const o = offerings()[v('ax-r-off')];
+        if (!stu || !o) return alert('Enter the student ID and choose the module.');
+        const sid = window.makeSafeId(stu);
+        if (!stuIndex().byId[sid] && !confirm(`${stu} is not in the Students data. Save anyway?`)) return;
+        const id = uid('r');
+        const reg = { id, stu, code: o.code, batch: o.batch, fac: o.fac, type: v('ax-r-type'), reason: v('ax-r-reason'), at: Date.now(), by: meE() };
+        if (await axSet('cfg_data_' + o.fac, { faculty: o.fac, regs: { [id]: reg } })) {
+            log('Student module registration', `${stu} ${reg.type} ${o.code} ${o.batch}`);
+            setTimeout(() => {
+                const tC = currentTT('CLASS', o.fac), tE = currentTT('EXAM', o.fac);
+                const cf = [...(tC ? studentConflicts(tC, sid) : []), ...(tE ? studentConflicts(tE, sid) : [])];
+                if (cf.length) { toast(`⛔ ${stuName(sid)} now has ${cf.length} clash(es) – opening the personal timetable with suggestions.`, 'warning'); window.AXpersonal('stu', sid, 'CLASS'); }
+                else toast(`✓ ${stuName(sid)} – no clash with ${o.code}.`, 'success');
+            }, 600);
+        }
+    };
+    window.AXregDel = async (fac, id) => { if (!confirm('Remove this registration?')) return; if (await axPaths('cfg_data_' + fac, [[['regs', id], null]])) toast('Removed', 'success'); };
+
+    // ------------------------------------------------------------------ MODULES & LECTURERS (timetable settings of each offering)
+    const offerHtml = (kind, S) => {
+        const fac = S.fac; const q = nrm(S.offQ || '');
+        const tC = currentTT('CLASS', fac), tE = currentTT('EXAM', fac);
+        const list = offList(fac).concat(Object.values(offerings()).filter(o => o.fac === fac && o.hidden)).filter(o => !q || nrm(`${o.code} ${o.name} ${o.course} ${o.batch} ${lnames(o.lects)}`).includes(q));
+        return `<div class="ax-toolbar"><input id="ax-offq" class="ax-in" style="max-width:320px" placeholder="🔍 search module / course / lecturer" value="${E(S.offQ || '')}" oninput="window.AXf('${kind}','offQ',this.value)">
+            ${canFac(fac) ? `<button class="ax-b ax-b-gold" onclick="window.AXoffEdit('${fac}','')">＋ Add module offering</button>` : ''}
+            <span class="ax-kpi">${list.length} module offerings · data comes from 📚 Modules, 👨‍💼 Lecturers, 🎓 Students, the Coordinator Checklist and the Excel data template</span></div>
+            <div class="overflow-auto"><table class="ax-tbl"><thead><tr><th>Code</th><th>Module</th><th>Course · Batch</th><th>Lecturer(s)</th><th>Coordinator</th><th>Students</th><th>WCH</th><th>Block</th><th>Mode</th><th>Session</th><th>Exam</th><th>Placed</th><th></th></tr></thead><tbody>
+            ${list.map(o => { const n = offStudents(o.key).size; const h = tC ? schedHrs(tC, o.key) : 0; const x = tE ? entsOf(tE).some(e => e.off === o.key) : false; return `<tr class="${o.hidden ? 'opacity-40' : ''}"><td><b style="color:${modFg(o.code)}">${E(o.code)}</b></td><td>${E(o.name)}</td><td>${E(o.course)}<div class="text-[9px] text-slate-500">${E(o.batch)}${o.combined.length ? ' + ' + E(o.combined.join(', ')) : ''}</div></td><td>${E(lnames(o.lects) || '—')}</td><td>${E(lname(o.coordId) || '—')}</td><td title="${n ? 'counted from Students data' : 'manual number'}">${stuCount(o)}${n ? '' : '*'}</td><td>${o.wch}</td><td>${o.classLen}</td><td>${o.mode}</td><td>${E(o.session || '')}</td><td>${nrm(o.exam) === 'no' ? '—' : o.examHrs + ' h'}</td><td>${h >= o.wch ? '<span class="ax-tag green">✓</span>' : `<span class="ax-tag ${h ? 'amber' : 'red'}">${h}/${o.wch}</span>`} ${x ? '📝' : ''}</td><td>${canFac(fac) ? `<button class="ax-x-sm" onclick="window.AXoffEdit('${fac}','${o.key}')">✏️</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="13" class="ax-empty">No modules for this faculty yet.</td></tr>'}
+            </tbody></table></div><p class="text-[10px] text-slate-500 mt-1">* number typed in (no matching students in the Students data yet).</p>`;
+    };
+    window.AXoffEdit = (fac, key) => {
+        const o = key ? offerings()[key] : { fac, code: '', name: '', course: '', batch: '', lects: [], coordId: '', students: 0, wch: 3, classLen: 2, modality: 'Face to Face', session: '', exam: 'Yes', examHrs: 2, venueType: '', campus: '', combined: [] };
+        const lects = localDB.lecturers.slice().sort((a, b) => (window.getFaculty(a) === fac ? 0 : 1) - (window.getFaculty(b) === fac ? 0 : 1) || window.getLecturerName(a).localeCompare(window.getLecturerName(b)));
+        const courses = [...new Set(offList(fac).map(x => x.course).filter(Boolean))];
+        dlg(`${boxHead(AX.app + ' · Module offering', key ? `${E(o.code)} · ${E(o.batch)}` : 'New module offering', 'Settings used when building the lecture & exam timetables', 'window.AXdlgClose()')}
+        <div class="ax-mb"><datalist id="ax-crs-dl">${courses.map(c => `<option value="${E(c)}">`).join('')}</datalist><div class="ax-fgrid">
+            <label>Module code<input id="ao-code" value="${E(o.code)}" ${key ? 'readonly' : ''}></label>
+            <label>Batch<input id="ao-batch" value="${E(o.batch)}" ${key ? 'readonly' : ''}></label>
+            <label class="col-span-2">Module name<input id="ao-name" value="${E(o.name)}"></label>
+            <label class="col-span-2">Course / programme<input id="ao-course" list="ax-crs-dl" value="${E(o.course)}"></label>
+            <label>Students (0 = count from Students data)<input type="number" id="ao-stu" value="${num(o.students)}"></label>
+            <label>Weekly contact hours<input type="number" step="0.5" id="ao-wch" value="${o.wch}"></label>
+            <label>Hours per class (block)<input type="number" step="1" id="ao-len" value="${o.classLen}"></label>
+            <label>Modality<select id="ao-mod">${['Face to Face', 'Online', 'Blended'].map(m => `<option ${nrm(o.modality) === nrm(m) || (m === 'Blended' && o.mode === 'Hybrid') ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+            <label>Preferred session<select id="ao-sess"><option value="">any</option>${sessList(fac).map(s => `<option ${nrm(o.session) === nrm(s.name) ? 'selected' : ''}>${E(s.name)}</option>`).join('')}${o.session && !sessList(fac).some(s => nrm(s.name) === nrm(o.session)) ? `<option selected>${E(o.session)}</option>` : ''}</select></label>
+            <label>Room type<select id="ao-vt"><option value="">any</option>${['Classroom', 'Lab', 'Hall', 'Seminar room', 'Online'].map(t => `<option ${nrm(o.venueType) === nrm(t) ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            <label>Final exam?<select id="ao-exam"><option ${nrm(o.exam) !== 'no' ? 'selected' : ''}>Yes</option><option ${nrm(o.exam) === 'no' ? 'selected' : ''}>No</option></select></label>
+            <label>Exam duration (h)<input type="number" step="0.5" id="ao-exh" value="${o.examHrs}"></label>
+            <label class="col-span-2">Combined with batches (comma)<input id="ao-comb" value="${E((o.combined || []).join(', '))}"></label>
+            <label class="col-span-2">Coordinator<select id="ao-coord"><option value="">—</option>${lects.map(l => `<option value="${window.lecIdOf(l)}" ${window.lecIdOf(l) === o.coordId ? 'selected' : ''}>${E(window.getLecturerName(l))} · ${E(window.getFaculty(l))}</option>`).join('')}</select></label>
+        </div>
+        <div class="ax-lbl mt-2">Lecturer(s) teaching this module – <input id="ao-lq" class="ax-in inline-block" style="width:200px" placeholder="filter" oninput="document.querySelectorAll('#ao-lects label').forEach(l=>l.style.display=l.textContent.toLowerCase().includes(this.value.toLowerCase())?'':'none')"></div>
+        <div class="ax-chkl" id="ao-lects" style="max-height:180px">${lects.map(l => { const id = window.lecIdOf(l); return `<label><input type="checkbox" value="${id}" ${o.lects.includes(id) ? 'checked' : ''}> ${E(window.getLecturerName(l))} <span class="text-slate-400">${E(window.getFaculty(l))}</span></label>`; }).join('')}</div>
+        </div><div class="ax-mf">${key && o.custom ? `<button class="ax-b ax-b-red" onclick="window.AXoffSave('${fac}','${key}','hide')">${o.hidden ? '👁 Show again' : '🙈 Hide from timetable'}</button>` : key ? `<button class="ax-b ax-b-red" onclick="window.AXoffSave('${fac}','${key}','hide')">🙈 Hide from timetable</button>` : ''}<span class="ml-auto"></span><button class="ax-b" onclick="window.AXdlgClose()">Cancel</button><button class="ax-b ax-b-green" onclick="window.AXoffSave('${fac}','${key}')">💾 Save</button></div>`, true);
+    };
+    window.AXoffSave = async (fac, key, action) => {
+        const v = (id) => (document.getElementById(id) || {}).value || '';
+        const code = v('ao-code').trim(), batch = v('ao-batch').trim();
+        if (!code) return alert('Module code is required.');
+        const cur = key ? offerings()[key] : null;
+        const k = K(fac, code, batch);
+        const rec = { code, batch, course: v('ao-course').trim(), name: v('ao-name').trim(), students: num(v('ao-stu')), wch: num(v('ao-wch'), 3), classLen: num(v('ao-len'), 2), modality: v('ao-mod'), session: v('ao-sess'), venueType: v('ao-vt'), exam: v('ao-exam'), examHrs: num(v('ao-exh'), 2), combined: splitList(v('ao-comb')), coordId: v('ao-coord'), lects: [...document.querySelectorAll('#ao-lects input:checked')].map(x => x.value), at: Date.now(), by: meE() };
+        if (action === 'hide') rec.hidden = !(cur && cur.hidden);
+        else if (cur && cur.hidden) rec.hidden = true;
+        if (await axSet('cfg_data_' + fac, { faculty: fac, offerings: { [k]: rec } })) { toast('Module offering saved ✓', 'success'); log('Module offering saved', `${fac} ${code} ${batch}`); window.AXdlgClose(); }
+    };
+
+    // ------------------------------------------------------------------ VENUES (classrooms, labs, halls, online / hybrid rooms)
+    const venuesHtml = (kind, S) => {
+        const vs = venuesArr();
+        const tC = currentTT('CLASS', S.fac), tE = currentTT('EXAM', S.fac);
+        const slotsN = tC ? slotsOf(tC.faculty).length * sessCfg(tC.faculty).days.length : 0;
+        const allC = tC ? pool(tC) : [];
+        const use = (id) => allC.filter(e => e.venue === id).reduce((a, e) => a + hrsOf(e), 0);
+        const exUse = (id) => tE ? pool(tE).filter(e => (e.venues || []).some(v => v.id === id)).length : 0;
+        return `<div class="ax-toolbar">${canVenues() ? `<button class="ax-b ax-b-gold" onclick="window.AXvenueEdit('')">＋ Add venue</button>${!vs.length ? `<button class="ax-b" onclick="window.AXvenueSamples()">⚡ Add sample venues</button>` : ''}` : ''}
+            <span class="ax-kpi">${vs.length} venues (shared by all faculties) · the software recommends rooms by class size, and online / hybrid rooms for online & blended modules</span></div>
+            <div class="overflow-auto"><table class="ax-tbl"><thead><tr><th>Venue</th><th>Building</th><th>Campus</th><th>Type</th><th>Seats</th><th>Exam seats</th><th>Online</th><th>Hybrid</th><th>Owner</th><th>Use this week</th><th>Exams</th><th>Notes</th><th></th></tr></thead><tbody>
+            ${vs.map(v => { const u = use(v.id); const pct = slotsN ? Math.round(u / slotsN * 100) : 0; return `<tr><td><b>${E(v.name)}</b></td><td>${E(v.building || '')}</td><td>${E(v.campus || '')}</td><td>${E(v.type || '')}</td><td>${num(v.capacity) || ''}</td><td>${num(v.examCap) || ''}</td><td>${v.online ? '🌐' : ''}</td><td>${v.hybrid ? '🔀' : ''}</td><td>${E(v.faculty || 'SHARED')}</td><td><div class="ax-bar"><div style="width:${Math.min(100, pct)}%"></div></div><span class="text-[9px]">${u} h · ${pct}%</span></td><td>${exUse(v.id) || ''}</td><td class="text-[10px]">${E(v.notes || '')}</td><td>${canVenues() ? `<button class="ax-x-sm" onclick="window.AXvenueEdit('${v.id}')">✏️</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="13" class="ax-empty">No venues yet – add the classrooms / halls with their capacity.</td></tr>'}
+            </tbody></table></div>`;
+    };
+    window.AXvenueEdit = (id) => {
+        const v = id ? venueById(id) : { name: '', building: '', campus: "Male'", type: 'Classroom', capacity: 30, examCap: 0, online: false, hybrid: false, multi: false, faculty: 'SHARED', notes: '' };
+        dlg(`${boxHead(AX.app + ' · Venue', id ? E(v.name) : 'New venue', 'Classroom / lab / hall / online room', 'window.AXdlgClose()')}<div class="ax-mb"><div class="ax-fgrid">
+            <label class="col-span-2">Name<input id="av-name" value="${E(v.name)}" placeholder="e.g. CR-201 / Main Hall / Zoom Room 1"></label>
+            <label>Building<input id="av-bld" value="${E(v.building || '')}"></label>
+            <label>Campus<input id="av-camp" value="${E(v.campus || '')}"></label>
+            <label>Type<select id="av-type">${['Classroom', 'Lab', 'Hall', 'Seminar room', 'Online'].map(t => `<option ${t === v.type ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            <label>Owner faculty<select id="av-fac"><option>SHARED</option>${FACULTIES.map(f => `<option ${f === v.faculty ? 'selected' : ''}>${f}</option>`).join('')}</select></label>
+            <label>Seats (class capacity)<input type="number" id="av-cap" value="${num(v.capacity)}"></label>
+            <label>Exam seats (spaced)<input type="number" id="av-ecap" value="${num(v.examCap)}" placeholder="0 = same as seats"></label>
+            <label class="ax-cb"><input type="checkbox" id="av-onl" ${v.online ? 'checked' : ''}> 🌐 Online / virtual room</label>
+            <label class="ax-cb"><input type="checkbox" id="av-hyb" ${v.hybrid ? 'checked' : ''}> 🔀 Hybrid-equipped (camera + mic)</label>
+            <label class="ax-cb col-span-2"><input type="checkbox" id="av-multi" ${v.multi ? 'checked' : ''}> Can host several classes at the same time (no venue clash check)</label>
+            <label class="col-span-2">Notes<input id="av-notes" value="${E(v.notes || '')}"></label>
+        </div></div><div class="ax-mf">${id ? `<button class="ax-b ax-b-red" onclick="window.AXvenueDel('${id}')">🗑 Delete</button>` : ''}<span class="ml-auto"></span><button class="ax-b" onclick="window.AXdlgClose()">Cancel</button><button class="ax-b ax-b-green" onclick="window.AXvenueSave('${id}')">💾 Save</button></div>`);
+    };
+    window.AXvenueSave = async (id) => {
+        const g = (x) => document.getElementById(x); const name = g('av-name').value.trim(); if (!name) return alert('Enter the venue name.');
+        const dup = venuesArr().find(v => nrm(v.name) === nrm(name) && v.id !== id); if (dup) return alert('A venue with this name already exists.');
+        const vid = id || ('v_' + K(name).toLowerCase().slice(0, 30) + '_' + Math.random().toString(36).slice(2, 5));
+        const rec = { id: vid, name, building: g('av-bld').value.trim(), campus: g('av-camp').value.trim(), type: g('av-type').value, faculty: g('av-fac').value, capacity: num(g('av-cap').value), examCap: num(g('av-ecap').value), online: g('av-onl').checked || g('av-type').value === 'Online', hybrid: g('av-hyb').checked, multi: g('av-multi').checked, notes: g('av-notes').value.trim(), at: Date.now(), by: meE() };
+        if (await axSet('cfg_venues', { faculty: 'SHARED', venues: { [vid]: rec } })) { toast('Venue saved ✓', 'success'); log('Venue saved', name); window.AXdlgClose(); }
+    };
+    window.AXvenueDel = async (id) => {
+        const used = Object.values(TT).filter(d => d.id && d.id.startsWith('tt_')).reduce((a, d) => a + entsOf(d).filter(e => e.venue === id || (e.venues || []).some(v => v.id === id)).length, 0);
+        if (!confirm(`Delete ${vname(id)}?${used ? `\n\n⚠️ It is used by ${used} timetable entries – they will show "TBA".` : ''}`)) return;
+        if (await axPaths('cfg_venues', [[['venues', id], null]])) { toast('Deleted', 'success'); window.AXdlgClose(); }
+    };
+    window.AXvenueSamples = async () => {
+        const s = [['Main Hall', 'Hall', 200, 120, false, true], ['Lecture Theatre 1', 'Hall', 120, 60, false, true], ['CR-101', 'Classroom', 40, 25], ['CR-102', 'Classroom', 40, 25], ['CR-201', 'Classroom', 30, 20], ['CR-202', 'Classroom', 30, 20], ['Seminar Room', 'Seminar room', 20, 12, false, true], ['Computer Lab 1', 'Lab', 30, 0], ['Online Room 1 (Google Meet)', 'Online', 300, 0, true], ['Online Room 2 (Zoom)', 'Online', 300, 0, true]];
+        const venues = {}; s.forEach(([n, t, c, e, o, h]) => { const id = 'v_' + K(n).toLowerCase().slice(0, 30); venues[id] = { id, name: n, type: t, capacity: c, examCap: e, online: !!o, hybrid: !!h, multi: false, campus: "Male'", building: '', faculty: 'SHARED', notes: 'sample – edit me' }; });
+        if (await axSet('cfg_venues', { faculty: 'SHARED', venues })) toast('Sample venues added – edit names & capacities.', 'success');
+    };
+
+    // ------------------------------------------------------------------ SESSIONS & TIMES (set by the faculty) + exam slots
+    const sessionsHtml = (kind, S) => {
+        const fac = S.fac; const cfg = sessCfg(fac); const ed = canFac(fac);
+        const sl = sessList(fac); const xs = examSlotList(fac); const slots = slotsOf(fac);
+        const dis = ed ? '' : 'disabled';
+        return `<div class="grid lg:grid-cols-2 gap-3">
+        <div class="ax-card"><div class="ax-card-h">⏱️ Teaching sessions – ${E(fac)} ${cfg.saved ? '' : '<span class="ax-tag amber ml-2">default – not saved yet</span>'}</div>
+            <div class="ax-lbl">Working days</div><div class="flex flex-wrap gap-2 mb-2" id="as-days">${DAYS_ALL.map(d => `<label class="ax-cb"><input type="checkbox" value="${d}" ${cfg.days.includes(d) ? 'checked' : ''} ${dis}> ${d}</label>`).join('')}</div>
+            <div class="overflow-x-auto"><table class="ax-tbl" id="as-sess"><thead><tr><th>Session</th><th>Start</th><th>End</th><th>Class min</th><th>Break min</th><th>Colour</th><th>Custom slots (optional)</th><th></th></tr></thead><tbody>
+            ${sl.map(s => sessRow(s, dis)).join('')}</tbody></table></div>
+            ${ed ? `<button class="ax-b ax-b-sm mt-1" onclick="document.querySelector('#as-sess tbody').insertAdjacentHTML('beforeend', window.AXsessRow())">＋ session</button>` : ''}
+            <div class="ax-lbl mt-3">Time slots produced (${slots.length})</div>
+            <div class="flex flex-wrap gap-1">${slots.map(s => `<span class="ax-slot" style="--c:${s.color}">${s.start}–${s.end}</span>`).join('')}</div>
+            <p class="text-[10px] text-slate-500 mt-2">Example: Morning 08:10–12:00 with 50-min classes + 10-min breaks → 08:10, 09:10, 10:10, 11:10. Use "Custom slots" for irregular times, e.g. <code>08:10-09:00, 09:00-10:00</code>.</p>
+        </div>
+        <div class="ax-card"><div class="ax-card-h">📝 Exam slots – ${E(fac)}</div>
+            <table class="ax-tbl" id="as-ex"><thead><tr><th>Slot</th><th>Start</th><th>End</th><th></th></tr></thead><tbody>${xs.map(s => exRow(s, dis)).join('')}</tbody></table>
+            ${ed ? `<button class="ax-b ax-b-sm mt-1" onclick="document.querySelector('#as-ex tbody').insertAdjacentHTML('beforeend', window.AXexRow())">＋ exam slot</button>` : ''}
+            <p class="text-[10px] text-slate-500 mt-2">The exam period (dates), excluded weekdays and holidays are set per exam timetable (⚙️ Settings).</p>
+            ${ed ? `<div class="mt-4 flex gap-2"><button class="ax-b ax-b-green" onclick="window.AXsessSave('${fac}')">💾 Save sessions & exam slots</button>${cfg.saved ? `<button class="ax-b" onclick="window.AXsessReset('${fac}')">↺ Reset to default</button>` : ''}</div>` : '<p class="text-xs font-bold text-slate-500 mt-3">Only the faculty (Dean / HOD / Secretary / faculty office) or Academic Affairs can change these.</p>'}
+        </div></div>`;
+    };
+    const sessRow = (s = {}, dis = '') => `<tr data-id="${E(s.id || uid('S'))}"><td><input class="ax-in" style="min-width:110px" value="${E(s.name || '')}" placeholder="Morning" ${dis}></td><td><input class="ax-in" type="time" value="${E(s.start || '')}" ${dis}></td><td><input class="ax-in" type="time" value="${E(s.end || '')}" ${dis}></td><td><input class="ax-in" type="number" value="${num(s.slot, 50)}" style="width:62px" ${dis}></td><td><input class="ax-in" type="number" value="${num(s.brk, 10)}" style="width:56px" ${dis}></td><td><input type="color" value="${E(s.color || '#0284c7')}" ${dis}></td><td><input class="ax-in" style="min-width:170px" value="${E(s.custom || '')}" placeholder="08:10-09:00, 09:00-10:00" ${dis}></td><td>${dis ? '' : '<button class="ax-x-sm" onclick="this.closest(\'tr\').remove()">×</button>'}</td></tr>`;
+    const exRow = (s = {}, dis = '') => `<tr data-id="${E(s.id || uid('E'))}"><td><input class="ax-in" value="${E(s.name || '')}" placeholder="Morning" ${dis}></td><td><input class="ax-in" type="time" value="${E(s.start || '')}" ${dis}></td><td><input class="ax-in" type="time" value="${E(s.end || '')}" ${dis}></td><td>${dis ? '' : '<button class="ax-x-sm" onclick="this.closest(\'tr\').remove()">×</button>'}</td></tr>`;
+    window.AXsessRow = () => sessRow({}); window.AXexRow = () => exRow({});
+    window.AXsessSave = async (fac) => {
+        const days = [...document.querySelectorAll('#as-days input:checked')].map(x => x.value);
+        const sessions = {}; let bad = '';
+        [...document.querySelectorAll('#as-sess tbody tr')].forEach((tr, i) => {
+            const f = tr.querySelectorAll('input'); const s = { id: tr.dataset.id, name: f[0].value.trim() || `Session ${i + 1}`, start: f[1].value, end: f[2].value, slot: num(f[3].value, 50), brk: num(f[4].value, 0), color: f[5].value, custom: f[6].value.trim() };
+            if (!s.custom && !(toMin(s.end) > toMin(s.start))) bad += `\n• ${s.name}: end must be after start`;
+            sessions[s.id] = s;
+        });
+        const examSlots = {};
+        [...document.querySelectorAll('#as-ex tbody tr')].forEach((tr, i) => { const f = tr.querySelectorAll('input'); const s = { id: tr.dataset.id, name: f[0].value.trim() || `Slot ${i + 1}`, start: f[1].value, end: f[2].value }; if (!(toMin(s.end) > toMin(s.start))) bad += `\n• exam ${s.name}: end must be after start`; examSlots[s.id] = s; });
+        if (bad) return alert('Please fix:' + bad);
+        if (!days.length || !Object.keys(sessions).length) return alert('Choose at least one working day and one session.');
+        const used = ttList('CLASS', fac).reduce((a, t) => a + entsOf(t).length, 0);
+        if (used && !confirm(`Save the new sessions for ${fac}?\n\n${used} classes already placed keep their times; if a class no longer matches a slot it is listed under "other times".`)) return;
+        const data = { faculty: fac, days, sessions, examSlots, updatedAt: Date.now(), updatedBy: meE() };
+        if (!cloudOn()) { TT['cfg_sessions_' + fac] = { id: 'cfg_sessions_' + fac, ...data }; localChanged(); }
+        else { try { await setDoc(ttRef('cfg_sessions_' + fac), data); } catch (e) { return axErr(e); } }
+        toast('Sessions saved ✓', 'success'); log('Sessions saved', `${fac}: ${Object.values(sessions).map(s => `${s.name} ${s.start}-${s.end}`).join(', ')}`);
+    };
+    window.AXsessReset = async (fac) => { if (!confirm('Reset to the default sessions?')) return; if (await axDeleteDoc('cfg_sessions_' + fac)) toast('Reset', 'success'); };
+
+    // ------------------------------------------------------------------ TIMETABLE settings (new / edit / delete)
+    window.AXnewTT = (kind) => ttSettings(kind, null);
+    window.AXttSettings = (kind) => ttSettings(kind, TT[ST[kind].tt]);
+    const ttSettings = (kind, tt) => {
+        const S = ST[kind]; const fac = tt ? tt.faculty : S.fac;
+        const y = new Date().getFullYear();
+        const t = tt || { title: `${fac} ${kind === 'CLASS' ? 'Lecture' : 'Examination'} Timetable – Semester ${new Date().getMonth() < 6 ? 1 : 2}, ${y}`, year: String(y), semester: `Semester ${new Date().getMonth() < 6 ? 1 : 2}`, course: '', from: '', to: '', skipDays: ['Friday'], holidays: '', colorBy: 'course', notes: '', academicYear: '' };
+        const courses = [...new Set(offList(fac).map(o => o.course).filter(Boolean))].sort();
+        const others = Object.values(TT).filter(d => d.id && d.id.startsWith('tt_') && d.kind === kind && (!tt || d.id !== tt.id));
+        dlg(`${boxHead(AX.app + ' · ' + (kind === 'CLASS' ? 'Lecture' : 'Examination') + ' timetable', tt ? 'Timetable settings' : 'Create a new timetable', `Faculty: ${E(fac)}`, 'window.AXdlgClose()')}<div class="ax-mb"><div class="ax-fgrid">
+            <label class="col-span-2">Title (shows on every table)<input id="at-title" value="${E(t.title)}"></label>
+            <label>Year<input id="at-year" value="${E(t.year || '')}"></label>
+            <label>Semester<input id="at-sem" value="${E(t.semester || '')}" placeholder="Semester 2"></label>
+            <label>Academic year (optional)<input id="at-ay" value="${E(t.academicYear || '')}" placeholder="2026/2027"></label>
+            <label>Course scope<select id="at-course"><option value="">All courses of ${E(fac)}</option>${courses.map(c => `<option ${c === t.course ? 'selected' : ''}>${E(c)}</option>`).join('')}</select></label>
+            <label>${kind === 'CLASS' ? 'Semester starts' : 'Exam period – from'}<input type="date" id="at-from" value="${E(t.from || '')}"></label>
+            <label>${kind === 'CLASS' ? 'Semester ends' : 'Exam period – to'}<input type="date" id="at-to" value="${E(t.to || '')}"></label>
+            ${kind === 'EXAM' ? `<label class="col-span-2">No exams on<div class="flex flex-wrap gap-2 mt-1" id="at-skip">${DAYS_ALL.map(d => `<label class="ax-cb"><input type="checkbox" value="${d}" ${(t.skipDays || []).includes(d) ? 'checked' : ''}> ${DSH[d]}</label>`).join('')}</div></label>
+            <label class="col-span-2">Holidays (dates, comma separated)<input id="at-hol" value="${E(t.holidays || '')}" placeholder="2026-12-10, 2026-12-11"></label>
+            <label class="col-span-2">Colour code by<select id="at-cb"><option value="course" ${t.colorBy !== 'cohort' ? 'selected' : ''}>Course (one colour per course)</option><option value="cohort" ${t.colorBy === 'cohort' ? 'selected' : ''}>Course + batch (one colour per batch)</option></select></label>` : ''}
+            <label class="col-span-2">Notes (printed under the table)<input id="at-notes" value="${E(t.notes || '')}"></label>
+            ${!tt && others.length ? `<label class="col-span-2">Start from a copy of<select id="at-copy"><option value="">— empty timetable —</option>${others.map(o => `<option value="${o.id}">${E(o.title)} (${o.faculty}, ${entsOf(o).length} entries)</option>`).join('')}</select></label>` : ''}
+        </div></div><div class="ax-mf">${tt ? `<button class="ax-b ax-b-red" onclick="window.AXttDelete('${tt.id}')">🗑 Delete timetable</button>` : ''}<span class="ml-auto"></span><button class="ax-b" onclick="window.AXdlgClose()">Cancel</button><button class="ax-b ax-b-green" onclick="window.AXttSave('${kind}','${tt ? tt.id : ''}','${fac}')">💾 ${tt ? 'Save' : 'Create'}</button></div>`, true);
+    };
+    window.AXttSave = async (kind, id, fac) => {
+        const g = (x) => (document.getElementById(x) || {}).value || '';
+        const data = { kind, faculty: fac, title: g('at-title').trim() || `${fac} ${kind} timetable`, year: g('at-year').trim(), semester: g('at-sem').trim(), academicYear: g('at-ay').trim(), course: g('at-course'), from: g('at-from'), to: g('at-to'), notes: g('at-notes').trim() };
+        if (data.from && data.to && data.to < data.from) return alert('The end date is before the start date.');
+        if (kind === 'EXAM') { data.skipDays = [...document.querySelectorAll('#at-skip input:checked')].map(x => x.value); data.holidays = g('at-hol'); data.colorBy = g('at-cb') || 'course'; }
+        let tid = id;
+        if (!id) {
+            tid = uid('tt');
+            Object.assign(data, { createdAt: Date.now(), createdBy: meE(), entries: {}, status: 'DRAFT' });
+            const cp = g('at-copy');
+            if (cp && TT[cp]) { const src = entsOf(TT[cp]); data.entries = {}; src.forEach(e => { const n = { ...clone(e), id: uid('e') }; data.entries[n.id] = n; }); if (TT[cp].colors) data.colors = clone(TT[cp].colors); }
+        }
+        if (await axSet(tid, data)) { ST[kind].tt = tid; ST[kind].fac = fac; toast(id ? 'Settings saved ✓' : 'Timetable created ✓ – now place the modules', 'success'); log(id ? 'Timetable settings' : 'Timetable created', data.title); window.AXdlgClose(); renderStudio(kind); }
+    };
+    window.AXttDelete = (id) => {
+        const tt = TT[id]; if (!tt) return;
+        if (!confirm(`Delete the whole timetable "${tt.title}" (${entsOf(tt).length} entries)?\nLecturers and students will no longer see it.`)) return;
+        window.requireVerification(`Delete timetable: ${tt.title}`, async () => { if (await axDeleteDoc(id)) { toast('Timetable deleted', 'success'); log('Timetable deleted', tt.title); window.AXdlgClose(); } });
+    };
+
+    // ------------------------------------------------------------------ PUBLISH / AMEND (version · last amended · effective date · live to lecturers & students)
+    const SIGF = ['day', 'date', 'start', 'end', 'venue', 'venues', 'lects', 'invig', 'mode', 'note', 'students'];
+    const sig = (e) => JSON.stringify(SIGF.map(k => e[k] ?? ''));
+    const diffOf = (tt) => {
+        const cur = tt.entries || {}, pub = (tt.published || {}).entries || {};
+        const added = [], removed = [], changed = [];
+        Object.keys(cur).forEach(id => { if (!pub[id]) added.push(cur[id]); else if (sig(cur[id]) !== sig(pub[id])) changed.push([pub[id], cur[id]]); });
+        Object.keys(pub).forEach(id => { if (!cur[id]) removed.push(pub[id]); });
+        return { added, removed, changed, n: added.length + removed.length + changed.length };
+    };
+    let DIRTY = {};
+    const isDirty = (tt) => { const k = tt.id + '|' + DV; if (DIRTY[k] === undefined) { if (Object.keys(DIRTY).length > 50) DIRTY = {}; DIRTY[k] = diffOf(tt).n > 0; } return DIRTY[k]; };
+    const descE = (e) => `${e.code} · ${e.batch} · ${e.day ? DSH[e.day] : fmtD(e.date)} ${e.start}–${e.end} · ${e.day ? vname(e.venue) : (e.venues || []).map(v => vname(v.id)).join('/')}`;
+    const diffLines = (d) => [...d.added.map(e => `＋ ${descE(e)}`), ...d.removed.map(e => `－ ${descE(e)}`), ...d.changed.map(([a, b]) => `✎ ${a.code} · ${a.batch}: ${a.day ? DSH[a.day] : fmtD(a.date)} ${a.start} ${a.day ? vname(a.venue) : ''} → ${b.day ? DSH[b.day] : fmtD(b.date)} ${b.start} ${b.day ? vname(b.venue) : ''}${sig({ ...a, day: 0, date: 0, start: 0, venue: 0 }) !== sig({ ...b, day: 0, date: 0, start: 0, venue: 0 }) ? ' (details changed)' : ''}`)];
+    window.AXpublish = (kind) => {
+        const tt = TT[ST[kind].tt]; if (!tt || !canTT(tt)) return;
+        const d = diffOf(tt); const pub = tt.published || {}; const v = (pub.version || 0) + 1;
+        const cl = clashSet(tt).list.filter(x => !x.e.override).length;
+        const lines = diffLines(d);
+        const lects = new Set(); [...d.added, ...d.removed, ...d.changed.flat()].forEach(e => [...(e.lects || []), ...(e.invig || [])].forEach(l => lects.add(l)));
+        if (pub.version && !d.n) return alert('No changes since the last publication (v' + pub.version + ').');
+        dlg(`${boxHead(AX.app + ' · Publish', pub.version ? `Publish amendment – version ${v}` : 'Publish timetable – version 1', E(tt.title), 'window.AXdlgClose()')}<div class="ax-mb">
+            ${cl ? `<div class="ax-alert bad">⛔ ${cl} unresolved clash(es) – publishing is allowed but lecturers/students will see conflicting classes. Fix them in ⚠️ Clashes first if possible.</div>` : '<div class="ax-alert ok">✅ No clashes.</div>'}
+            <div class="grid grid-cols-3 gap-2 my-2 text-center"><div class="ax-kbox"><b>${d.added.length}</b>added</div><div class="ax-kbox"><b>${d.changed.length}</b>changed</div><div class="ax-kbox"><b>${d.removed.length}</b>removed</div></div>
+            <div class="ax-fgrid"><label>Effective from<input type="date" id="ap-eff" value="${ymd()}"></label><label>Lecturers affected<input value="${lects.size}" readonly></label>
+            <label class="col-span-2">${pub.version ? 'Reason for the amendment (shown to everyone)' : 'Message (optional)'}<input id="ap-note" placeholder="${pub.version ? 'e.g. CR-201 under maintenance – classes moved to CR-202' : 'e.g. Official timetable for Semester 2'}"></label></div>
+            ${pub.version ? `<div class="ax-lbl mt-2">Changes</div><div class="ax-diff">${lines.slice(0, 120).map(l => `<div>${E(l)}</div>`).join('')}${lines.length > 120 ? `<div>… ${lines.length - 120} more</div>` : ''}</div>` : ''}
+        </div><div class="ax-mf"><span class="ml-auto"></span><button class="ax-b" onclick="window.AXdlgClose()">Cancel</button><button class="ax-b ax-b-green" onclick="window.AXdoPublish('${kind}')">📢 Publish v${v}</button></div>`, true);
+    };
+    window.AXdoPublish = async (kind) => {
+        const tt = TT[ST[kind].tt]; if (!tt) return;
+        const eff = (document.getElementById('ap-eff') || {}).value || ymd(); const note = ((document.getElementById('ap-note') || {}).value || '').trim();
+        const pub = tt.published || {}; const d = diffOf(tt); const v = (pub.version || 0) + 1;
+        if (pub.version && !note) return alert('Please write the reason for the amendment.');
+        const lects = new Set(); const cohorts = new Set();
+        [...d.added, ...d.removed, ...d.changed.flat()].forEach(e => { [...(e.lects || []), ...(e.invig || [])].forEach(l => lects.add(l)); (e.cohorts || []).forEach(c => cohorts.add(c.k)); });
+        const h = { v, at: Date.now(), by: meE(), eff, note, add: d.added.length, rem: d.removed.length, chg: d.changed.length, lines: pub.version ? diffLines(d).slice(0, 80) : [], lects: [...lects].slice(0, 300), cohorts: [...cohorts].slice(0, 300), offs: [...new Set([...d.added, ...d.removed, ...d.changed.flat()].map(e => e.off))].slice(0, 400) };
+        const history = [...(tt.history || []), h].slice(-40);
+        const ok = await axPaths(tt.id, [[['published'], { entries: clone(tt.entries || {}), version: v, publishedAt: h.at, by: h.by, effectiveFrom: eff, note, colors: clone(tt.colors || {}) }], [['history'], history]], { status: 'PUBLISHED' });
+        if (!ok) return;
+        log(pub.version ? 'Timetable amendment published' : 'Timetable published', `${tt.title} v${v} effective ${eff}${note ? ' – ' + note : ''}`);
+        window.simulateEmail(`Lecturers & students of ${tt.faculty}${lects.size ? ` (${lects.size} lecturers affected)` : ''}`, `[${tt.kind === 'CLASS' ? 'Lecture' : 'Exam'} timetable] ${pub.version ? 'Amended' : 'Published'}: ${tt.title}`, `Version ${v}, effective ${eff}. ${note}`);
+        toast(`📢 Published v${v} – lecturers & students see it live now.`, 'success');
+        window.AXdlgClose();
+    };
+    const historyHtml = (tt) => {
+        const h = (tt.history || []).slice().reverse();
+        const d = diffOf(tt); const lines = diffLines(d);
+        return `<div class="grid lg:grid-cols-2 gap-3">
+            <div class="ax-card"><div class="ax-card-h">✎ Changes not yet published <span class="ml-auto">${d.n}</span></div>${lines.length ? `<div class="ax-diff">${lines.slice(0, 150).map(l => `<div>${E(l)}</div>`).join('')}</div>${canTT(tt) ? `<button class="ax-b ax-b-green mt-2" onclick="window.AXpublish('${tt.kind}')">📢 Publish amendment</button>` : ''}` : '<div class="ax-alert ok">Everything is published.</div>'}</div>
+            <div class="ax-card"><div class="ax-card-h">🕘 Published versions <span class="ml-auto">${h.length}</span></div>${h.map(x => `<div class="ax-hist"><div class="flex justify-between"><b>Version ${x.v}</b><span>${fmtDT(x.at)}</span></div><div class="text-[10px]">Effective from <b>${fmtD(x.eff)}</b> · by ${E(x.by)} · ＋${x.add} ✎${x.chg} －${x.rem}</div>${x.note ? `<div class="text-[11px] font-bold text-slate-700">“${E(x.note)}”</div>` : ''}${(x.lines || []).length ? `<details><summary class="text-[10px] cursor-pointer text-blue-800">show changes</summary><div class="ax-diff">${x.lines.map(l => `<div>${E(l)}</div>`).join('')}</div></details>` : ''}</div>`).join('') || '<div class="ax-empty">Not published yet.</div>'}</div>
+        </div>`;
+    };
+
+
+    // ------------------------------------------------------------------ EXPORT ENGINE (PDF · HTML for the website · Excel · Print)
+    const XCSS = `
+    .axp-page{font-family:Inter,Arial,sans-serif;color:#0f172a;background:#fff;padding:22px 26px;box-sizing:border-box;width:100%}
+    .axp-h{border:3px double #b8860b;border-radius:12px;padding:10px 14px;margin-bottom:10px;background:linear-gradient(135deg,#f8fafc,#fffbeb)}
+    .axp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .axp-inst{font-size:10px;letter-spacing:.35em;font-weight:900;color:#004d40;text-transform:uppercase}
+    .axp-app{font-size:8px;letter-spacing:.3em;font-weight:800;color:#b8860b;text-transform:uppercase}
+    .axp-title{font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:900;color:#0d47a1;margin:2px 0}
+    .axp-subj{font-size:13px;font-weight:900;color:#004d40}
+    .axp-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:9.5px;color:#334155;margin-top:5px}
+    .axp-meta b{color:#0f172a}
+    .axp-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:900;background:#004d40;color:#fff}
+    .axp-draft{background:#b91c1c}
+    .axp-amend{margin-top:5px;font-size:9.5px;background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:3px 8px;color:#78350f}
+    table.axp-g{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9px}
+    table.axp-g th,table.axp-g td{border:1px solid #94a3b8;padding:3px;vertical-align:top}
+    table.axp-g thead th{background:#0f3d3a;color:#fff;text-align:center;font-size:8.5px}
+    table.axp-g thead th.sess{background:#b8860b;font-size:8px;letter-spacing:.15em;text-transform:uppercase}
+    table.axp-g tbody th{background:#f1f5f9;width:78px;text-align:left;font-size:10px}
+    table.axp-g tbody td,table.axp-g tbody th{height:44px}
+    table.axp-g td.e{border-radius:4px;border-left-width:4px}
+    .axp-code{font-weight:900;font-size:10px}.axp-n{font-size:8px;opacity:.85;line-height:1.15}.axp-l{font-size:8.5px;font-weight:700;margin-top:1px}
+    table.axp-t{width:100%;border-collapse:collapse;font-size:9.5px}
+    table.axp-t th{background:#0f3d3a;color:#fff;padding:5px;text-align:left;font-size:9px}
+    table.axp-t td{border-bottom:1px solid #e2e8f0;padding:4px 5px;vertical-align:top}
+    table.axp-t tr.grp td{background:#e2e8f0;font-weight:900;color:#0f3d3a;font-size:10px}
+    .axp-sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,.2)}
+    .axp-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:9px}
+    .axp-foot{margin-top:10px;font-size:8px;color:#64748b;display:flex;justify-content:space-between;border-top:1px solid #e2e8f0;padding-top:4px}
+    .axp-note{font-size:9px;color:#334155;margin-top:6px}
+    .axp-hall{display:grid;grid-template-columns:1fr;gap:8px}
+    .axp-hs{border:1px solid #cbd5e1;border-radius:10px;overflow:hidden}
+    .axp-hs-h{background:#0f3d3a;color:#fff;font-weight:900;padding:6px 10px;font-size:12px;display:flex;justify-content:space-between}
+    .axp-hb{display:flex;align-items:stretch;border-top:1px solid #e2e8f0}
+    .axp-hb .c{width:150px;color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;letter-spacing:.05em}
+    .axp-hb .d{padding:8px 12px;font-size:12px}
+    .axp-hb .d b{font-size:14px}
+    .axp-mx td{font-size:8.5px}
+    .axp-chip{border-left:3px solid #64748b;padding:1px 4px;margin:1px 0;background:#f8fafc;border-radius:3px}
+    .axp-empty{text-align:center;color:#94a3b8;padding:18px;font-style:italic}
+    `;
+    const pageHead = (tt, title, subject, src) => {
+        const p = (src === 'pub' && tt.published) ? tt.published : null;
+        const draft = !p;
+        const h = (tt.history || [])[(tt.history || []).length - 1];
+        return `<div class="axp-h"><div class="axp-top"><div><div class="axp-inst">${E(AX.inst)}</div><div class="axp-app">${AX.app} · ${E(AX.long)}</div>
+            <div class="axp-title">${E(title)}</div><div class="axp-subj">${subject}</div></div>
+            <div style="text-align:right"><span class="axp-badge ${draft ? 'axp-draft' : ''}">${draft ? 'DRAFT – not final' : 'OFFICIAL · Version ' + p.version}</span><div style="font-size:9px;margin-top:4px;font-weight:800">Faculty: ${E(tt.faculty)}</div></div></div>
+            <div class="axp-meta">${[tt.semester && `<span>Semester: <b>${E(tt.semester)}</b></span>`, tt.year && `<span>Year: <b>${E(tt.year)}</b></span>`, tt.academicYear && `<span>Academic year: <b>${E(tt.academicYear)}</b></span>`, tt.course && `<span>Course: <b>${E(tt.course)}</b></span>`,
+                tt.from ? `<span>${tt.kind === 'EXAM' ? 'Exam period' : 'Semester dates'}: <b>${fmtD(tt.from)} – ${fmtD(tt.to)}</b></span>` : '',
+                p ? `<span>Last amended: <b>${fmtDT(p.publishedAt)}</b></span>` : `<span>Last edited: <b>${fmtDT(tt.updatedAt)}</b></span>`,
+                p && p.effectiveFrom ? `<span>Effective from: <b>${fmtD(p.effectiveFrom)}</b></span>` : ''].filter(Boolean).join('')}</div>
+            ${p && p.version > 1 && p.note ? `<div class="axp-amend">✎ Amendment v${p.version}: ${E(p.note)}</div>` : ''}</div>`;
+    };
+    const pageFoot = (tt) => `${tt.notes ? `<div class="axp-note">📝 ${E(tt.notes)}</div>` : ''}<div class="axp-foot"><span>${AX.app} – ${E(AX.long)} · ${E(AX.inst)}</span><span>Generated ${fmtDT(Date.now())}</span></div>`;
+    const lanesOf = (slots, ents) => {
+        const lanes = [];
+        ents.slice().sort((a, b) => toMin(a.start) - toMin(b.start)).forEach(e => {
+            const sp = spanOf(slots, e); if (!sp) return;
+            let lane = lanes.find(l => !l.some(x => x.sp[0] <= sp[1] && sp[0] <= x.sp[1]));
+            if (!lane) { lane = []; lanes.push(lane); }
+            lane.push({ e, sp });
+        });
+        return lanes;
+    };
+    const entText = (e, mode) => [`${e.code}${e.mode && e.mode !== 'F2F' ? ` (${e.mode})` : ''}`, e.name || '', mode !== 'lect' ? lnames(e.lects) || 'TBA' : '', mode !== 'cohort' ? `${e.course} · ${e.batch}` : '', mode !== 'venue' ? vname(e.venue) : ''].filter(Boolean);
+    // week grid (days × time slots) – returns {html, aoa, merges}
+    const gridExport = (slots, days, ents, mode, headRows) => {
+        const N = slots.length;
+        const groups = []; slots.forEach((s, i) => { const g = groups[groups.length - 1]; if (g && g.sid === s.sid) g.n++; else groups.push({ sid: s.sid, name: s.sname, n: 1, i }); });
+        let html = `<table class="axp-g"><thead><tr><th class="sess" rowspan="2">Day</th>${groups.map(g => `<th class="sess" colspan="${g.n}">${E(g.name || '')}</th>`).join('')}</tr><tr>${slots.map(s => `<th>${s.start}<br><span style="font-weight:400">${s.end}</span></th>`).join('')}</tr></thead><tbody>`;
+        const aoa = [...headRows, ['Day', ...slots.map(s => `${s.start}-${s.end}`)]];
+        const merges = []; const r0 = aoa.length;
+        const off = [];
+        days.forEach(d => {
+            const de = ents.filter(e => e.day === d);
+            de.forEach(e => { if (!spanOf(slots, e)) off.push(e); });
+            const lanes = lanesOf(slots, de); if (!lanes.length) lanes.push([]);
+            lanes.forEach((lane, li) => {
+                html += `<tr>${li === 0 ? `<th rowspan="${lanes.length}">${d}</th>` : ''}`;
+                const row = [li === 0 ? d : ''];
+                for (let i = 0; i < N;) {
+                    const x = lane.find(z => z.sp[0] === i);
+                    if (x) {
+                        const len = x.sp[1] - x.sp[0] + 1; const e = x.e; const t = entText(e, mode);
+                        html += `<td class="e" colspan="${len}" style="background:${modBg(e.code)};border-left-color:${modFg(e.code)};color:${modFg(e.code)}"><div class="axp-code">${E(t[0])}</div><div class="axp-n">${E(t[1])}</div>${t.slice(2).map(l => `<div class="axp-l">${E(l)}</div>`).join('')}<div class="axp-n">${e.start}–${e.end}</div></td>`;
+                        row.push(t.join('\n') + `\n${e.start}-${e.end}`); for (let j = 1; j < len; j++) row.push('');
+                        if (len > 1) merges.push({ s: { r: aoa.length, c: i + 1 }, e: { r: aoa.length, c: i + len } });
+                        i += len;
+                    } else { html += '<td></td>'; row.push(''); i++; }
+                }
+                html += '</tr>'; aoa.push(row);
+            });
+            const n = lanes.length; if (n > 1) merges.push({ s: { r: aoa.length - n, c: 0 }, e: { r: aoa.length - 1, c: 0 } });
+        });
+        html += '</tbody></table>';
+        if (off.length) { html += `<div class="axp-note">Other times: ${off.map(e => `${e.day} ${e.start}–${e.end} ${E(e.code)} (${E(e.batch)})`).join(' · ')}</div>`; off.forEach(e => aoa.push([e.day, `${e.start}-${e.end}`, ...entText(e, mode)])); }
+        return { html, aoa, merges, r0 };
+    };
+    const listExportClass = (ents, headRows) => {
+        const cols = ['Day', 'Time', 'Course', 'Batch', 'Code', 'Module', 'Lecturer(s)', 'Venue', 'Mode'];
+        const sorted = ents.slice().sort((a, b) => DAYS_ALL.indexOf(a.day) - DAYS_ALL.indexOf(b.day) || toMin(a.start) - toMin(b.start) || String(a.batch).localeCompare(String(b.batch)));
+        let html = `<table class="axp-t"><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`; let last = '';
+        const aoa = [...headRows, cols];
+        sorted.forEach(e => { if (e.day !== last) { html += `<tr class="grp"><td colspan="${cols.length}">${e.day}</td></tr>`; last = e.day; }
+            const r = [e.day, `${e.start}–${e.end}`, e.course, e.batch, e.code, e.name, lnames(e.lects) || 'TBA', vname(e.venue), e.mode || ''];
+            html += `<tr>${r.map((v, i) => `<td ${i === 4 ? `style="font-weight:900;color:${modFg(e.code)}"` : ''}>${E(v)}</td>`).join('')}</tr>`; aoa.push(r); });
+        html += `</tbody></table>${sorted.length ? '' : '<div class="axp-empty">No classes.</div>'}`;
+        return { html, aoa, merges: [] };
+    };
+    const listExportExam = (tt, ents, headRows, mode) => {
+        const cols = ['Date', 'Day', 'Time', 'Code', 'Module', 'Course · Batch', 'Students', 'Hall(s) / seats', 'Invigilator(s)', 'Colour'];
+        const sorted = ents.slice().sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start) || String(a.course).localeCompare(String(b.course)));
+        let html = `<table class="axp-t"><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`; let last = '';
+        const aoa = [...headRows, cols];
+        sorted.forEach(e => {
+            const c = cohortColor(tt, e);
+            if (e.date !== last) { html += `<tr class="grp"><td colspan="${cols.length}">${fmtDW(e.date)}</td></tr>`; last = e.date; }
+            const r = [fmtD(e.date), dayOfDate(e.date), `${e.start}–${e.end}`, e.code, e.name, `${e.course} · ${e.batch}`, num(e.students), (e.venues || []).map(v => `${vname(v.id)} (${v.n})`).join(', ') || 'TBA', lnames(e.invig) || '', colorName(c)];
+            html += `<tr style="background:${c}14"><td style="border-left:6px solid ${c}">${E(r[0])}</td>${r.slice(1, 9).map((v, i) => `<td ${i === 2 ? 'style="font-weight:900"' : ''}>${E(v)}</td>`).join('')}<td><span class="axp-sw" style="background:${c}"></span><b>${E(r[9])}</b></td></tr>`;
+            aoa.push(r);
+        });
+        html += `</tbody></table>${sorted.length ? '' : '<div class="axp-empty">No exams.</div>'}`;
+        const m = {}; sorted.forEach(e => { const key = tt.colorBy === 'cohort' ? `${e.course} · ${e.batch}` : e.course; m[key] = cohortColor(tt, e); });
+        html += `<div class="axp-legend">${Object.entries(m).sort().map(([k, c]) => `<span><span class="axp-sw" style="background:${c}"></span><b>${E(colorName(c))}</b> – ${E(k)}</span>`).join('')}</div>`;
+        return { html, aoa, merges: [] };
+    };
+    const hallExport = (tt, vid, ents, headRows) => {
+        const list = ents.flatMap(e => (e.venues || []).filter(v => v.id === vid).map(v => ({ ...e, _n: v.n }))).sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start));
+        const groups = {}; list.forEach(e => { const g = `${e.date}|${e.start}|${e.end}`; (groups[g] = groups[g] || []).push(e); });
+        const V = venueById(vid) || {};
+        const aoa = [...headRows, ['Date', 'Time', 'Colour', 'Course', 'Batch', 'Code', 'Module', 'Seats']];
+        const html = `<div class="axp-hall">${Object.entries(groups).map(([g, es]) => { const [d, s, en] = g.split('|'); return `<div class="axp-hs"><div class="axp-hs-h"><span>${fmtDW(d)} · ${s} – ${en}</span><span>${es.reduce((a, e) => a + num(e._n), 0)} / ${examCap(V) || '?'} seats</span></div>${es.map(e => { const c = cohortColor(tt, e); aoa.push([fmtD(d), `${s}-${en}`, colorName(c), e.course, e.batch, e.code, e.name, num(e._n)]); return `<div class="axp-hb"><div class="c" style="background:${c}">${E(colorName(c)).toUpperCase()}</div><div class="d"><b>${E(e.course)} · ${E(e.batch)}</b><div>${E(e.code)} – ${E(e.name)}</div><div>${num(e._n)} students${(e.invig || []).length ? ' · Invigilator: ' + E(lnames(e.invig)) : ''}</div></div></div>`; }).join('')}</div>`; }).join('') || '<div class="axp-empty">No exams in this hall.</div>'}</div>`;
+        return { html, aoa, merges: [] };
+    };
+    const matrixExport = (tt, ents, headRows) => {
+        const days = sessCfg(tt.faculty).days; const rows = rowsFor(tt, 'cohort', ents);
+        const aoa = [...headRows, ['Course / Batch', ...days]];
+        let html = `<table class="axp-g axp-mx"><thead><tr><th style="width:130px">Course / Batch</th>${days.map(d => `<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+        rows.forEach(r => { const row = [`${r.sub ? r.sub + ' · ' : ''}${r.label}`];
+            html += `<tr><th>${E(r.label)}<div style="font-weight:400;font-size:8px">${E(r.sub || '')}</div></th>${days.map(d => { const de = r.ents.filter(e => e.day === d).sort((a, b) => toMin(a.start) - toMin(b.start)); row.push(de.map(e => `${e.start}-${e.end} ${e.code} · ${lnames(e.lects)} · ${vname(e.venue)}`).join('\n')); return `<td>${de.map(e => `<div class="axp-chip" style="border-left-color:${modFg(e.code)}"><b>${e.start}–${e.end} ${E(e.code)}</b><br>${E(lnames(e.lects) || 'TBA')} · ${E(vname(e.venue))}</div>`).join('')}</td>`; }).join('')}</tr>`; aoa.push(row); });
+        html += `</tbody></table>`;
+        return { html, aoa, merges: [] };
+    };
+    const headAoa = (tt, title, subject, src) => { const p = src === 'pub' ? tt.published : null; return [[AX.inst.toUpperCase()], [`${title} – ${subject}`], [`Faculty: ${tt.faculty}  |  Semester: ${tt.semester || ''}  |  Year: ${tt.year || ''}  |  ${p ? 'Version ' + p.version + '  |  Last amended: ' + fmtDT(p.publishedAt) + '  |  Effective from: ' + fmtD(p.effectiveFrom) : 'DRAFT'}`], []]; };
+    // build the pages of an export
+    const unionSlots = (facs) => { const m = {}; facs.forEach(f => slotsOf(f).forEach(s => { m[s.start + '|' + s.end] = m[s.start + '|' + s.end] || { ...s }; })); const out = Object.values(m).sort((a, b) => toMin(a.start) - toMin(b.start)); out.forEach((s, i) => s.i = i); return out; };
+    const unionDays = (facs) => DAYS_ALL.filter(d => facs.some(f => sessCfg(f).days.includes(d)));
+    const itemsFor = (tt, scope, src) => {
+        const ents = entsOf(tt, src === 'pub');
+        if (scope === 'batch') return [...new Map(ents.flatMap(e => e.cohorts || []).map(c => [c.k, { id: c.k, label: cohortLabel(c), short: c.batch || c.course }])).values()].sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }));
+        if (scope === 'course') return [...new Set(ents.map(e => e.course))].sort().map(c => ({ id: c, label: c }));
+        if (scope === 'lect') return [...new Set(ents.flatMap(e => [...(e.lects || []), ...(e.invig || [])]))].map(l => ({ id: l, label: lname(l) })).sort((a, b) => a.label.localeCompare(b.label));
+        if (scope === 'venue' || scope === 'hall') return [...new Set(ents.flatMap(e => e.venue ? [e.venue] : (e.venues || []).map(v => v.id)))].map(v => ({ id: v, label: vname(v) })).sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }));
+        return [{ id: 'ALL', label: 'Whole timetable' }];
+    };
+    const buildPages = (tt, scope, ids, src) => {
+        const ents = entsOf(tt, src === 'pub');
+        const title = tt.kind === 'CLASS' ? 'Lecture Timetable' : 'Examination Timetable';
+        const slots = slotsOf(tt.faculty), days = sessCfg(tt.faculty).days;
+        const items = itemsFor(tt, scope, src).filter(x => !ids || !ids.length || ids.includes(x.id));
+        const mk = (name, subject, body) => ({ name, html: pageHead(tt, title, subject, src) + body.html + pageFoot(tt), aoa: body.aoa, merges: body.merges });
+        const hr = (subject) => headAoa(tt, title, subject.replace(/<[^>]+>/g, ''), src);
+        if (tt.kind === 'CLASS') {
+            if (scope === 'master') { const s = `All courses & batches – ${E(tt.faculty)}`; return [mk('Master', s, matrixExport(tt, ents, hr(s)))]; }
+            return items.map(it => {
+                if (scope === 'batch') { const es = ents.filter(e => (e.cohorts || []).some(c => c.k === it.id)); const s = `Course / Batch: ${E(it.label)}`; return mk(it.short || it.label, s, gridExport(slots, days, es, 'cohort', hr(s))); }
+                if (scope === 'lect') { const es = ents.filter(e => (e.lects || []).includes(it.id)); const l = window.getLecturerById(it.id); const s = `Lecturer: ${E(it.label)}${l ? ' · ' + E(window.getSafeVal(l, ['LecturerID'])) : ''} · ${es.reduce((a, e) => a + hrsOf(e), 0)} h / week`; return mk(it.label, s, gridExport(slots, days, es, 'lect', hr(s))); }
+                if (scope === 'venue') { const es = ents.filter(e => e.venue === it.id); const s = `Venue: ${E(it.label)}`; return mk(it.label, s, gridExport(slots, days, es, 'venue', hr(s))); }
+                const es = ents.filter(e => e.course === it.id); const s = `Course: ${E(it.label)} (all batches)`; return mk(it.label, s, listExportClass(es, hr(s)));
+            });
+        }
+        if (scope === 'master') { const s = `All courses – ${E(tt.faculty)}`; return [mk('Master', s, listExportExam(tt, ents, hr(s)))]; }
+        return items.map(it => {
+            if (scope === 'batch') { const es = ents.filter(e => (e.cohorts || []).some(c => c.k === it.id)); const s = `Course / Batch: ${E(it.label)}`; return mk(it.short || it.label, s, listExportExam(tt, es, hr(s))); }
+            if (scope === 'course') { const es = ents.filter(e => e.course === it.id); const s = `Course: ${E(it.label)}`; return mk(it.label, s, listExportExam(tt, es, hr(s))); }
+            if (scope === 'lect') { const es = ents.filter(e => (e.invig || []).includes(it.id) || (e.lects || []).includes(it.id)); const s = `Lecturer: ${E(it.label)} – invigilation duties & own module exams`; return mk(it.label, s, listExportExam(tt, es, hr(s))); }
+            const s = `Hall door sheet: ${E(it.label)} – line up by your colour`; return mk(it.label, s, hallExport(tt, it.id, ents, hr(s)));
+        });
+    };
+    const fileSafe = (s) => String(s || 'timetable').replace(/[^a-z0-9\-_. ]+/gi, '_').replace(/\s+/g, '_').slice(0, 80);
+    const download = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60000); };
+    const htmlDoc = (pages, title) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${E(title)}</title>
+        <style>body{margin:0;background:#e2e8f0;font-family:Inter,Arial,sans-serif}${XCSS}.axp-page{max-width:1180px;margin:14px auto;box-shadow:0 6px 24px rgba(0,0,0,.12);border-radius:10px}
+        nav.axp-nav{position:sticky;top:0;z-index:5;background:#0f3d3a;color:#fff;padding:8px 14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px}nav.axp-nav a{color:#fde68a;text-decoration:none;background:rgba(255,255,255,.08);padding:3px 8px;border-radius:999px}nav.axp-nav b{margin-right:8px;letter-spacing:.1em}
+        nav.axp-nav input{margin-left:auto;padding:4px 8px;border-radius:6px;border:0;font-size:12px}
+        @media print{body{background:#fff}nav.axp-nav{display:none}.axp-page{box-shadow:none;margin:0;max-width:none;page-break-after:always;border-radius:0}}
+        @page{size:A4 landscape;margin:8mm}</style></head><body>
+        ${pages.length > 1 ? `<nav class="axp-nav"><b>${E(title)}</b>${pages.map((p, i) => `<a href="#p${i}">${E(p.name)}</a>`).join('')}<input placeholder="Filter…" oninput="var q=this.value.toLowerCase();document.querySelectorAll('section.axp-page').forEach(function(s){s.style.display=s.textContent.toLowerCase().indexOf(q)>=0?'':'none'})"></nav>` : ''}
+        ${pages.map((p, i) => `<section class="axp-page" id="p${i}">${p.html}</section>`).join('')}</body></html>`;
+    const renderPdf = async (pages, filename, orient = 'l') => {
+        if (!window.jspdf || !window.html2canvas) return alert('PDF library not loaded – check the internet connection.');
+        const W = orient === 'p' ? 820 : 1160;
+        const stage = document.createElement('div');
+        stage.style.cssText = `position:absolute;left:0;top:0;width:${W}px;background:#fff;z-index:1;`;
+        document.body.appendChild(stage);
+        const pdf = new window.jspdf.jsPDF(orient, 'mm', 'a4');
+        const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), m = 6;
+        try {
+            for (let i = 0; i < pages.length; i++) {
+                loader(true, `Creating PDF… page ${i + 1} / ${pages.length}`);
+                stage.innerHTML = `<style>${XCSS}</style><div class="axp-page">${pages[i].html}</div>`;
+                await new Promise(r => setTimeout(r, 40));
+                const cv = await window.html2canvas(stage, { scale: 1.7, backgroundColor: '#ffffff', useCORS: true, windowWidth: W, scrollX: -window.scrollX, scrollY: -window.scrollY });
+                const aw = pw - 2 * m, ah = ph - 2 * m;
+                const imgH = cv.height * aw / cv.width;
+                if (i) pdf.addPage();
+                if (imgH <= ah * 1.25) {
+                    const sc = Math.min(1, ah / imgH); const w = aw * sc, h = imgH * sc;
+                    pdf.addImage(cv.toDataURL('image/jpeg', 0.86), 'JPEG', m + (aw - w) / 2, m, w, h);
+                } else {
+                    const pagePx = Math.floor(cv.width * ah / aw);
+                    for (let y = 0, k = 0; y < cv.height; y += pagePx, k++) {
+                        const sl = document.createElement('canvas'); sl.width = cv.width; sl.height = Math.min(pagePx, cv.height - y);
+                        sl.getContext('2d').drawImage(cv, 0, y, cv.width, sl.height, 0, 0, cv.width, sl.height);
+                        if (k) pdf.addPage();
+                        pdf.addImage(sl.toDataURL('image/jpeg', 0.92), 'JPEG', m, m, aw, sl.height * aw / cv.width);
+                    }
+                }
+            }
+            pdf.save(filename);
+            toast('PDF downloaded 👑', 'success');
+        } catch (e) { console.error(e); alert('PDF failed: ' + e.message); }
+        finally { stage.remove(); loader(false); }
+    };
+    const toExcel = (pages, filename, flat) => {
+        if (!window.XLSX) return alert('Excel library not loaded.');
+        const wb = XLSX.utils.book_new(); const used = new Set();
+        const sheetName = (n) => { let b = String(n || 'Sheet').replace(/[\\\/\?\*\[\]:]/g, ' ').slice(0, 28).trim() || 'Sheet'; let s = b, i = 2; while (used.has(s.toLowerCase())) s = `${b.slice(0, 25)} ${i++}`; used.add(s.toLowerCase()); return s; };
+        if (flat) { const ws = XLSX.utils.aoa_to_sheet(flat); ws['!cols'] = flat[0].map(() => ({ wch: 18 })); XLSX.utils.book_append_sheet(wb, ws, sheetName('All entries')); }
+        pages.forEach(p => { const ws = XLSX.utils.aoa_to_sheet(p.aoa); if (p.merges && p.merges.length) ws['!merges'] = p.merges; const w = Math.max(...p.aoa.map(r => r.length)); ws['!cols'] = Array.from({ length: w }, (_, i) => ({ wch: i === 0 ? 14 : 22 })); XLSX.utils.book_append_sheet(wb, ws, sheetName(p.name)); });
+        XLSX.writeFile(wb, filename);
+        toast('Excel downloaded 📗', 'success');
+    };
+    const flatRows = (tt, src) => {
+        const ents = entsOf(tt, src === 'pub');
+        if (tt.kind === 'CLASS') return [['Day', 'Start', 'End', 'Hours', 'Course', 'Batch', 'Module code', 'Module', 'Lecturer IDs', 'Lecturer(s)', 'Venue', 'Mode', 'Note'], ...ents.sort((a, b) => DAYS_ALL.indexOf(a.day) - DAYS_ALL.indexOf(b.day) || toMin(a.start) - toMin(b.start)).map(e => [e.day, e.start, e.end, hrsOf(e), e.course, e.batch, e.code, e.name, (e.lects || []).join(';'), lnames(e.lects), vname(e.venue), e.mode, e.note || ''])];
+        return [['Date', 'Day', 'Start', 'End', 'Course', 'Batch', 'Module code', 'Module', 'Students', 'Halls (seats)', 'Invigilators', 'Colour', 'Colour hex', 'Note'], ...ents.sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start)).map(e => [e.date, dayOfDate(e.date), e.start, e.end, e.course, e.batch, e.code, e.name, num(e.students), (e.venues || []).map(v => `${vname(v.id)} (${v.n})`).join(', '), lnames(e.invig), colorName(cohortColor(tt, e)), cohortColor(tt, e), e.note || ''])];
+    };
+    const doExport = async (tt, pages, fmt, base, src, orient) => {
+        if (!pages.length) return alert('Nothing to export – choose at least one item.');
+        const name = fileSafe(base);
+        if (fmt === 'pdf') await renderPdf(pages, name + '.pdf', orient);
+        else if (fmt === 'html') { download(new Blob([htmlDoc(pages, `${tt.title} – ${AX.inst}`)], { type: 'text/html;charset=utf-8' }), name + '.html'); toast('HTML downloaded – upload it to the website as it is.', 'success'); }
+        else if (fmt === 'xlsx') toExcel(pages, name + '.xlsx', flatRows(tt, src));
+        else if (fmt === 'print') { const w = window.open('', '_blank'); if (!w) { download(new Blob([htmlDoc(pages, tt.title)], { type: 'text/html' }), name + '.html'); return alert('Pop-up blocked – the HTML file was downloaded instead; open it and print.'); } w.document.write(htmlDoc(pages, tt.title)); w.document.close(); setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 700); }
+        log('Timetable exported', `${tt.title} · ${fmt} · ${pages.length} page(s)`);
+    };
+    const EXS = { scope: { CLASS: 'batch', EXAM: 'master' }, src: 'pub', ids: [], orient: 'l' };
+    const exportHtml = (kind, tt, S) => {
+        const hasPub = !!(tt.published && tt.published.version);
+        if (!hasPub) EXS.src = 'work'; else if (RO()) EXS.src = 'pub';
+        const scopes = kind === 'CLASS' ? [['batch', '🎓 Batch-wise (week grid)'], ['course', '📚 Course-wise (list)'], ['lect', '👤 Lecturer-wise'], ['venue', '🏫 Venue-wise'], ['master', '🗂 Whole faculty (one page)']]
+            : [['master', '🗂 Master exam timetable'], ['batch', '🎓 Batch-wise'], ['course', '📚 Course-wise'], ['lect', '👤 Lecturer (invigilation)'], ['hall', '🚪 Hall door sheets (colours)']];
+        const sc = EXS.scope[kind];
+        const items = itemsFor(tt, sc, EXS.src);
+        return `<div class="grid lg:grid-cols-3 gap-3"><div class="ax-card">
+            <div class="ax-card-h">📤 What to download</div>
+            <div class="ax-lbl">Version</div><div class="ax-seg mb-2"><button class="${EXS.src === 'pub' ? 'on' : ''}" ${hasPub ? '' : 'disabled'} onclick="window.AXex('src','pub')">✅ Published ${hasPub ? 'v' + tt.published.version : '(none)'}</button>${RO() ? '' : `<button class="${EXS.src === 'work' ? 'on' : ''}" onclick="window.AXex('src','work')">✎ Working draft</button>`}</div>
+            <div class="ax-lbl">Filter / layout</div>${scopes.map(([v, l]) => `<label class="ax-radio"><input type="radio" name="axsc" ${v === sc ? 'checked' : ''} onchange="window.AXex('scope','${v}','${kind}')"> ${l}</label>`).join('')}
+            <div class="ax-lbl mt-2">Page</div><div class="ax-seg"><button class="${EXS.orient === 'l' ? 'on' : ''}" onclick="window.AXex('orient','l')">Landscape</button><button class="${EXS.orient === 'p' ? 'on' : ''}" onclick="window.AXex('orient','p')">Portrait</button></div>
+            <p class="text-[10px] text-slate-500 mt-2">Every page carries the semester, year, course / batch, version, <b>last amended</b> date and <b>effective from</b> date.</p>
+        </div>
+        <div class="ax-card"><div class="ax-card-h">☑ Choose (${items.length}) <span class="ml-auto"><a class="text-blue-800" onclick="document.querySelectorAll('#ax-exi input').forEach(x=>x.checked=true)">all</a> · <a class="text-blue-800" onclick="document.querySelectorAll('#ax-exi input').forEach(x=>x.checked=false)">none</a></span></div>
+            <div class="ax-chkl" id="ax-exi" style="max-height:48vh">${items.map(it => `<label><input type="checkbox" value="${E(it.id)}" checked> ${E(it.label)}</label>`).join('') || '<i>Nothing yet.</i>'}</div></div>
+        <div class="ax-card"><div class="ax-card-h">⬇ Download</div>
+            <div class="grid gap-2">
+                <button class="ax-b ax-b-red ax-b-lg" onclick="window.AXexGo('${kind}','pdf')">📕 PDF (one page each)</button>
+                <button class="ax-b ax-b-blue ax-b-lg" onclick="window.AXexGo('${kind}','html')">🌐 HTML – for the website</button>
+                <button class="ax-b ax-b-green ax-b-lg" onclick="window.AXexGo('${kind}','xlsx')">📗 Excel (sheet each + all entries)</button>
+                <button class="ax-b ax-b-lg" onclick="window.AXexGo('${kind}','print')">🖨 Print</button>
+            </div>
+            ${!RO() && canTT(tt) ? `<div class="ax-lbl mt-3">Publish</div><button class="ax-b ax-b-gold w-full" onclick="window.AXpublish('${kind}')">📢 ${hasPub ? 'Publish amendment' : 'Publish'} – lecturers & students see it live</button>` : ''}
+        </div></div>`;
+    };
+    window.AXex = (k, v, kind) => { if (k === 'scope') EXS.scope[kind] = v; else EXS[k] = v; const a = document.querySelector('.tab-content.active'); renderStudio(kind || (a && a.id === 'tab-exam-tt' ? 'EXAM' : 'CLASS')); };
+    window.AXexGo = async (kind, fmt) => {
+        const tt = TT[ST[kind].tt]; if (!tt) return;
+        const ids = [...document.querySelectorAll('#ax-exi input:checked')].map(x => x.value);
+        const sc = EXS.scope[kind];
+        const pages = buildPages(tt, sc, sc === 'master' ? [] : ids, EXS.src);
+        await doExport(tt, pages, fmt, `${tt.title}_${sc}${EXS.src === 'work' ? '_DRAFT' : '_v' + ((tt.published || {}).version || '')}`, EXS.src, EXS.orient);
+    };
+    window.AXquickExport = async (kind, scope, fmt) => {
+        const tt = TT[ST[kind].tt]; if (!tt) return;
+        const src = tt.published && tt.published.version && RO() ? 'pub' : 'work';
+        await doExport(tt, buildPages(tt, scope, [], src), fmt, `${tt.title}_${scope}`, src, 'l');
+    };
+
+
+    // ------------------------------------------------------------------ PERSONAL TIMETABLES (lecturer · student · batch · venue) – live
+    const coordScope = (lid) => {
+        const cc = (localDB.settings || {}).courseCoordinators || {};
+        const offs = new Set(Object.values(offerings()).filter(o => o.coordId === lid || ((cc[window.ccKey(o.fac, o.course, o.batch)] || {}).coordinatorId === lid)).map(o => o.key));
+        (localDB.checklist || []).forEach(r => { if (r.coordinatorId === lid || window.courseCoordOf(r) === lid) offs.add(K(r.faculty, r.code, r.batch)); });
+        const team = new Set(window.teamOf ? window.teamOf(lid) : []);
+        return { offs, team };
+    };
+    const personal = (who, id, kind, pub, term) => {
+        const tts = Object.values(TT).filter(d => d && d.id && d.id.startsWith('tt_') && d.kind === kind && !d.deleted && (!pub || (d.published && d.published.version)));
+        const so = who === 'stu' ? (stuIndex().stuOffs[id] || new Set()) : null;
+        const cs = who === 'team' ? coordScope(id) : null;
+        const match = (e) => who === 'lect' ? ((e.lects || []).includes(id) || (kind === 'EXAM' && (e.invig || []).includes(id)))
+            : who === 'stu' ? so.has(e.off) : who === 'cohort' ? (e.cohorts || []).some(c => c.k === id)
+            : who === 'venue' ? (e.venue === id || (e.venues || []).some(v => v.id === id))
+            : who === 'team' ? (cs.offs.has(e.off) || (e.lects || []).some(l => cs.team.has(l))) : false;
+        const all = [];
+        tts.forEach(d => entsOf(d, pub).forEach(e => { if (match(e)) all.push({ ...e, _tt: d.id, _fac: d.faculty, _term: termKey(d), _tl: [d.semester, d.year].filter(Boolean).join(' ') }); }));
+        const terms = [...new Map(all.map(e => [e._term, e._tl || e._term])).entries()];
+        let t = term && terms.some(x => x[0] === term) ? term : '';
+        if (!t) { const lat = tts.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).find(d => terms.some(x => x[0] === termKey(d))); t = lat ? termKey(lat) : ''; }
+        const ents = all.filter(e => e._term === t);
+        return { ents, terms, term: t, tts: tts.filter(d => termKey(d) === t && ents.some(e => e._tt === d.id)) };
+    };
+    const personalClash = (ents) => { const s = new Set(); for (let i = 0; i < ents.length; i++) for (let j = i + 1; j < ents.length; j++) if (ents[i].id !== ents[j].id && sameTime(ents[i], ents[j])) { s.add(ents[i].id); s.add(ents[j].id); } return s; };
+    const personalGrid = (d, mode) => {
+        const facs = [...new Set(d.ents.map(e => e._fac))];
+        const F = facs.length ? facs : [myFac() || userFaculty || FACULTIES[0]];
+        const slots = unionSlots(F), days = unionDays(F);
+        const cs = personalClash(d.ents);
+        if (!d.ents.length) return '<div class="ax-empty">No classes in the published timetable yet.</div>';
+        return `<div class="ax-grid">${headTrack(slots)}${days.map(dy => `<div class="ax-row"><div class="ax-lab"><b>${dy}</b><span>${DV_DAYS[dy] || ''}</span></div>${track(slots, d.ents.filter(e => e.day === dy), { kind: 'CLASS', clash: cs, ent: (e) => classEntHtml(e, mode), style: modStyle, click: 'window.AXinfo' })}</div>`).join('')}</div>`;
+    };
+    const personalExams = (d) => {
+        if (!d.ents.length) return '<div class="ax-empty">No exams in the published timetable yet.</div>';
+        const cs = personalClash(d.ents);
+        return `<div class="grid gap-1">${d.ents.slice().sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start)).map(e => { const tt = TT[e._tt]; return exChip(tt, e, { set: cs }, true).replace(`window.AXentClick('EXAM','${e.id}','')`, `window.AXinfo('EXAM','${e.id}','${e._tt}')`); }).join('')}</div>`;
+    };
+    window.AXinfo = (kind, id, ttId) => { const tt = TT[ttId]; if (tt) showEntryInfo(tt, id); };
+    const whoLabel = (who, id) => {
+        if (who === 'lect' || who === 'team') { const l = window.getLecturerById(id); return { t: lname(id), s: l ? `${window.getFaculty(l)} · ${window.getSafeVal(l, ['LecturerID'])}${who === 'team' ? ' · coordination team' : ''}` : '' }; }
+        if (who === 'stu') { const s = stuIndex().byId[id]; return { t: stuName(id), s: s ? `${id} · ${window.getSafeVal(s, ['EnrolledProgram'])} · ${window.getSafeVal(s, ['Batch'])}` : id }; }
+        if (who === 'venue') return { t: vname(id), s: 'Venue' };
+        const c = Object.values(offerings()).flatMap(o => o.cohorts).find(c => c.k === id); return { t: c ? cohortLabel(c) : id, s: 'Course / batch' };
+    };
+    const PV = { who: '', id: '', kind: 'CLASS', pub: true, term: '' };
+    window.AXpersonal = (who, id, kind) => {
+        if (!id || String(id).startsWith('UNKNOWN')) return alert('Choose a person first.');
+        modalShell(); if (!ttUnsub && !ttReady) startTT();
+        Object.assign(PV, { who, id, kind: kind || 'CLASS', pub: RO() || who === 'stu' && activeRole === 'STUDENT', term: '' });
+        document.getElementById('ax-pv').classList.add('open'); renderPersonal();
+    };
+    window.AXpvClose = () => { const m = document.getElementById('ax-pv'); if (m) m.classList.remove('open'); PV.who = ''; };
+    window.AXpvSet = (k, v) => { PV[k] = v; if (k === 'kind') PV.term = ''; renderPersonal(); };
+    const renderPersonal = () => {
+        const box = document.getElementById('ax-pv-box'); if (!box || !PV.who) return;
+        const d = personal(PV.who, PV.id, PV.kind, PV.pub, PV.term); PV.term = d.term;
+        const w = whoLabel(PV.who, PV.id);
+        const mode = PV.who === 'lect' || PV.who === 'team' ? 'lect' : PV.who === 'venue' ? 'venue' : 'cohort';
+        let extra = '';
+        if (PV.who === 'stu') {
+            const regs = stuIndex().regsOf[PV.id] || [];
+            const cf = []; const seen = new Set();
+            ['CLASS', 'EXAM'].forEach(k => { const dd = k === PV.kind ? d : personal('stu', PV.id, k, PV.pub, ''); for (let i = 0; i < dd.ents.length; i++) for (let j = i + 1; j < dd.ents.length; j++) { const a = dd.ents[i], b = dd.ents[j]; if (a.off !== b.off && sameTime(a, b)) { const key = [a.id, b.id].sort().join(); if (!seen.has(key)) { seen.add(key); cf.push([a, b]); } } } });
+            extra = `${regs.length ? `<div class="ax-card mb-2"><div class="ax-card-h">Individual modules (outside the normal outline)</div>${regs.map(r => `<span class="ax-tag ${r.type === 'SKIP' ? 'gray' : 'blue'}">${r.type === 'SKIP' ? 'not taking' : 'takes'} ${E(r.code)}${r.batch ? ' · ' + E(r.batch) : ''} – ${E(r.reason || '')}</span>`).join(' ')}</div>` : ''}
+                ${cf.length ? `<div class="ax-card mb-2 border-red-300"><div class="ax-card-h text-red-800">⛔ ${cf.length} clash(es) in this student's timetable – how to fix</div>${cf.map(([a, b]) => `<div class="ax-stuclash"><div class="text-red-800 font-bold">${E(a.code)} (${E(a.batch)}) × ${E(b.code)} (${E(b.batch)}) · ${whenOf(a)}</div>${resolveHtml(TT[a._tt] || TT[b._tt], PV.id, a, b, pool(TT[a._tt] || TT[b._tt]))}</div>`).join('')}</div>` : (regs.length ? '<div class="ax-alert ok mb-2">✅ No clash in this student\'s personal timetable.</div>' : '')}`;
+        }
+        const pubInfo = d.tts.filter(t => t.published && t.published.version).map(t => `<span class="ax-tag green">${E(t.title)} · v${t.published.version} · amended ${fmtD(t.published.publishedAt)} · effective ${fmtD(t.published.effectiveFrom)}</span>`).join(' ');
+        box.innerHTML = `${boxHead(`${AX.app} · Personal ${PV.kind === 'CLASS' ? 'lecture' : 'exam'} timetable · live`, E(w.t), E(w.s), 'window.AXpvClose()')}
+        <div class="ax-mb">
+            <div class="ax-toolbar"><div class="ax-seg"><button class="${PV.kind === 'CLASS' ? 'on' : ''}" onclick="window.AXpvSet('kind','CLASS')">🗓️ Lectures</button><button class="${PV.kind === 'EXAM' ? 'on' : ''}" onclick="window.AXpvSet('kind','EXAM')">📝 Exams</button></div>
+                ${d.terms.length > 1 ? `<select class="ax-in" style="width:auto" onchange="window.AXpvSet('term',this.value)">${d.terms.map(([k, l]) => `<option value="${k}" ${k === d.term ? 'selected' : ''}>${E(l)}</option>`).join('')}</select>` : ''}
+                ${!RO() && activeRole !== 'STUDENT' ? `<div class="ax-seg"><button class="${PV.pub ? 'on' : ''}" onclick="window.AXpvSet('pub',true)">✅ Published</button><button class="${!PV.pub ? 'on' : ''}" onclick="window.AXpvSet('pub',false)">✎ Draft</button></div>` : ''}
+                <span class="ax-kpi">${d.ents.length} ${PV.kind === 'CLASS' ? `classes · ${d.ents.reduce((a, e) => a + hrsOf(e), 0)} h / week` : 'exams'}</span>
+                <span class="ml-auto flex gap-1"><button class="ax-b ax-b-sm ax-b-red" onclick="window.AXpvDl('pdf')">📕 PDF</button><button class="ax-b ax-b-sm ax-b-blue" onclick="window.AXpvDl('html')">🌐 HTML</button><button class="ax-b ax-b-sm ax-b-green" onclick="window.AXpvDl('xlsx')">📗 Excel</button></span></div>
+            ${pubInfo ? `<div class="mb-2">${pubInfo}</div>` : ''}${extra}
+            ${PV.kind === 'CLASS' ? personalGrid(d, mode) : personalExams(d)}
+        </div>`;
+    };
+    const personalPages = (who, id, kind, pub, term) => {
+        const d = personal(who, id, kind, pub, term); const w = whoLabel(who, id);
+        const tt0 = d.tts[0] || { faculty: myFac() || '', kind, semester: '', year: '', title: '' };
+        const src = pub ? 'pub' : 'work';
+        const title = kind === 'CLASS' ? 'Personal Lecture Timetable' : 'Personal Examination Timetable';
+        const subject = `${E(w.t)}${w.s ? ' · ' + E(w.s) : ''}`;
+        const hr = headAoa(tt0, title, `${w.t} ${w.s}`, src);
+        const mode = who === 'lect' || who === 'team' ? 'lect' : who === 'venue' ? 'venue' : 'cohort';
+        let body;
+        if (kind === 'CLASS') { const F = [...new Set(d.ents.map(e => e._fac))]; const facs = F.length ? F : [tt0.faculty]; body = gridExport(unionSlots(facs), unionDays(facs), d.ents, mode, hr); }
+        else body = listExportExam(tt0, d.ents, hr);
+        return { tt0, pages: [{ name: w.t, html: pageHead(tt0, title, subject, src) + body.html + pageFoot(tt0), aoa: body.aoa, merges: body.merges }], w };
+    };
+    window.AXpvDl = async (fmt, who, id, kind) => {
+        const r = personalPages(who || PV.who, id || PV.id, kind || PV.kind, who ? true : PV.pub, who ? '' : PV.term);
+        const tt = { ...r.tt0, title: r.w.t };
+        await doExport(tt, r.pages, fmt, `${kind || PV.kind}_${r.w.t}`, 'pub', 'l');
+    };
+
+    // ------------------------------------------------------------------ amendment notices (live) for lecturers & students
+    const seenV = (id) => { try { return +localStorage.getItem('aims_seen_' + id) || 0; } catch (e) { return 0; } };
+    const myNotices = () => {
+        const lid = currentLecturerId; const sid = activeRole === 'STUDENT' ? currentStudentId : '';
+        if (!lid && !sid) return [];
+        const so = sid ? (stuIndex().stuOffs[sid] || new Set()) : null;
+        return Object.values(TT).filter(d => d && d.id && d.id.startsWith('tt_') && d.published && d.published.version && !d.deleted).map(d => {
+            const v = d.published.version; if (v <= seenV(d.id)) return null;
+            const h = (d.history || []).find(x => x.v === v) || {};
+            const mine = entsOf(d, true).some(e => lid ? ((e.lects || []).includes(lid) || (e.invig || []).includes(lid)) : so.has(e.off));
+            const touched = lid ? (h.lects || []).includes(lid) : (h.offs || []).some(o => so.has(o));
+            if (!mine && !touched) return null;
+            return { d, v, h, touched };
+        }).filter(Boolean);
+    };
+    const toasted = {};
+    const checkAmendNotices = () => { try { myNotices().forEach(n => { const k = n.d.id + '|' + n.v; if (toasted[k]) return; toasted[k] = 1; toast(`📢 ${n.d.kind === 'CLASS' ? 'Lecture' : 'Exam'} timetable ${n.v > 1 ? 'AMENDED' : 'published'}: ${n.d.title} (v${n.v}${n.h.eff ? ', effective ' + fmtD(n.h.eff) : ''})${n.touched ? ' – your classes changed' : ''}`, 'warning'); }); } catch (e) {} };
+    window.AXseen = (id, v) => { try { localStorage.setItem('aims_seen_' + id, v); } catch (e) {} renderVisible(); };
+    const noticesHtml = () => myNotices().map(n => `<div class="ax-notice"><div class="flex justify-between gap-2 items-start"><div><b>📢 ${n.d.kind === 'CLASS' ? 'Lecture' : 'Exam'} timetable ${n.v > 1 ? 'amended' : 'published'} – ${E(n.d.title)}</b><div class="text-[10px]">Version ${n.v} · ${fmtDT(n.d.published.publishedAt)} · <b>effective from ${fmtD(n.d.published.effectiveFrom)}</b>${n.touched ? ' · <b class="text-red-700">your classes are affected</b>' : ''}</div>${n.d.published.note ? `<div class="text-[11px] mt-1">“${E(n.d.published.note)}”</div>` : ''}${(n.h.lines || []).length ? `<details class="mt-1"><summary class="text-[10px] cursor-pointer">what changed</summary><div class="ax-diff">${n.h.lines.map(l => `<div>${E(l)}</div>`).join('')}</div></details>` : ''}</div><button class="ax-b ax-b-sm" onclick="window.AXseen('${n.d.id}',${n.v})">✓ Got it</button></div></div>`).join('');
+
+    // ------------------------------------------------------------------ LECTURER / COORDINATOR DASHBOARD PANEL
+    const LP = { tab: 'week', cohort: '', lf: '' };
+    const ensureLectPanel = () => {
+        if (document.getElementById('ax-lect-tt')) return true;
+        const sec = document.getElementById('lect-coord-section'); if (!sec) return false;
+        sec.insertAdjacentHTML('beforebegin', '<div id="ax-lect-tt" class="p-4 md:p-6 border-b border-gray-100 bg-gradient-to-b from-sky-50/60 to-white"></div>');
+        return true;
+    };
+    window.AXlp = (k, v) => { LP[k] = v; renderLectTT(); };
+    const renderLectTT = () => {
+        if (!ensureLectPanel()) return;
+        const box = document.getElementById('ax-lect-tt'); const lid = currentLecturerId;
+        if (!ttUnsub && !ttReady) startTT();
+        if (!lid) { box.innerHTML = `<div class="text-[11px] font-bold text-slate-500">🗓️ Your live timetable appears here once your identity is selected.</div>`; return; }
+        const cs = coordScope(lid); const isCoord = cs.offs.size > 0 || cs.team.size > 0;
+        const tabs = [['week', '🗓️ My week'], ['exam', '📝 My exams & invigilation'], ['course', '🎓 My courses'], ...(isCoord ? [['team', '👥 My coordination team']] : [])];
+        if (!tabs.find(t => t[0] === LP.tab)) LP.tab = 'week';
+        let body = '', dl = '';
+        if (LP.tab === 'week') { const d = personal('lect', lid, 'CLASS', true, ''); body = personalGrid(d, 'lect'); dl = `'lect','${lid}','CLASS'`; }
+        if (LP.tab === 'exam') { const d = personal('lect', lid, 'EXAM', true, ''); body = personalExams(d); dl = `'lect','${lid}','EXAM'`; }
+        if (LP.tab === 'course') {
+            const mine = personal('lect', lid, 'CLASS', true, '');
+            const cohorts = [...new Map(mine.ents.flatMap(e => e.cohorts || []).map(c => [c.k, c])).values()];
+            if (!LP.cohort || !cohorts.find(c => c.k === LP.cohort)) LP.cohort = (cohorts[0] || {}).k || '';
+            body = cohorts.length ? `<select class="ax-in mb-2" style="max-width:420px" onchange="window.AXlp('cohort',this.value)">${cohorts.map(c => `<option value="${c.k}" ${c.k === LP.cohort ? 'selected' : ''}>${E(cohortLabel(c))}</option>`).join('')}</select>${personalGrid(personal('cohort', LP.cohort, 'CLASS', true, ''), 'cohort')}` : '<div class="ax-empty">No published classes yet.</div>';
+            dl = `'cohort','${LP.cohort}','CLASS'`;
+        }
+        if (LP.tab === 'team') {
+            const d = personal('team', lid, 'CLASS', true, '');
+            const lects = [...new Set(d.ents.flatMap(e => e.lects || []))].sort((a, b) => lname(a).localeCompare(lname(b)));
+            const ents = d.ents.filter(e => !LP.lf || (e.lects || []).includes(LP.lf)).sort((a, b) => DAYS_ALL.indexOf(a.day) - DAYS_ALL.indexOf(b.day) || toMin(a.start) - toMin(b.start));
+            body = `<div class="flex gap-2 items-center mb-2 flex-wrap"><select class="ax-in" style="max-width:320px" onchange="window.AXlp('lf',this.value)"><option value="">All lecturers I coordinate (${lects.length})</option>${lects.map(l => `<option value="${l}" ${l === LP.lf ? 'selected' : ''}>${E(lname(l))}</option>`).join('')}</select>${LP.lf ? `<button class="ax-b ax-b-sm" onclick="window.AXpersonal('lect','${LP.lf}','CLASS')">⤢ ${E(lname(LP.lf))}'s week grid</button>` : ''}</div>
+                <div class="overflow-auto"><table class="ax-tbl"><thead><tr><th>Day</th><th>Time</th><th>Module</th><th>Course · Batch</th><th>Lecturer</th><th>Venue</th><th>Mode</th></tr></thead><tbody>${ents.map(e => `<tr><td>${e.day}</td><td>${e.start}–${e.end}</td><td><b>${E(e.code)}</b> ${E(e.name)}</td><td>${E(e.course)} · ${E(e.batch)}</td><td>${E(lnames(e.lects))}</td><td>${E(vname(e.venue))}</td><td>${E(e.mode || '')}</td></tr>`).join('') || '<tr><td colspan="7" class="ax-empty">No published classes for your team yet.</td></tr>'}</tbody></table></div>`;
+            dl = `'team','${lid}','CLASS'`;
+        }
+        box.innerHTML = `<div class="flex flex-col md:flex-row justify-between md:items-center gap-2 mb-2">
+                <div><h3 class="text-sm font-black text-sky-900 uppercase tracking-wide">🗓️ My Timetable <span class="ax-live">● LIVE</span></h3><p class="text-[10px] text-slate-500 font-bold">${AX.app} · updates instantly when the faculty publishes an amendment</p></div>
+                <div class="flex gap-1 flex-wrap">${dl ? `<button class="ax-b ax-b-sm ax-b-red" onclick="window.AXpvDl('pdf',${dl})">📕 PDF</button><button class="ax-b ax-b-sm ax-b-blue" onclick="window.AXpvDl('html',${dl})">🌐 HTML</button><button class="ax-b ax-b-sm ax-b-green" onclick="window.AXpvDl('xlsx',${dl})">📗 Excel</button>` : ''}</div></div>
+            ${noticesHtml()}
+            <div class="ax-seg mb-2">${tabs.map(([k, l]) => `<button class="${k === LP.tab ? 'on' : ''}" onclick="window.AXlp('tab','${k}')">${l}</button>`).join('')}</div>
+            <div>${body}</div>`;
+    };
+
+    // ------------------------------------------------------------------ student dashboard button
+    const ensureStudentBtn = () => {
+        const sd = document.getElementById('student-dashboard'); if (!sd || document.getElementById('ax-stu-btn')) return;
+        const btns = sd.querySelector('.flex.flex-col'); if (!btns) return;
+        btns.insertAdjacentHTML('beforebegin', `<button id="ax-stu-btn" onclick="window.AXpersonal('stu', (window.__aimsCurStu && window.__aimsCurStu()) || '', 'CLASS')" class="w-full mb-2 py-3 rounded-xl font-black uppercase text-xs shadow-md text-white" style="background:linear-gradient(135deg,#0d47a1,#004d40)">🗓️ My personal timetable (live · with my repeat modules)</button><div id="ax-stu-notice" class="text-left"></div>`);
+    };
+    window.__aimsCurStu = () => currentStudentId || (document.getElementById('studentSelectStandalone') || {}).value || '';
+
+
+    // ------------------------------------------------------------------ EXCEL DATA TEMPLATE (download blank / current data · upload → software)
+    const TPL = {
+        Courses: ['Faculty', 'CourseCode', 'CourseName', 'Level', 'Batch', 'YearOfStudy', 'StudyMode', 'Session', 'Campus', 'CourseCoordinatorID', 'Students'],
+        Modules: ['Faculty', 'Semester', 'ModuleCode', 'ModuleName', 'CourseName', 'Batch', 'CombinedWith', 'LecturerIDs', 'CoordinatorID', 'Students', 'WCH', 'HoursPerClass', 'Modality', 'Session', 'Campus', 'Medium', 'RoomType', 'FinalExam', 'ExamHours', 'Status'],
+        Lecturers: ['Kulliyyah', 'LecturerID', 'LecturerName', 'LecturerCategory', 'LecturerType', 'MobileNumber', 'Email', 'Positions'],
+        Students: ['StudentID', 'FullName', 'EnrolledProgram', 'Semester', 'Batch', 'StudyMode', 'Type', 'Faculty', 'Email', 'Mobile'],
+        StudentModules: ['StudentID', 'ModuleCode', 'WithBatch', 'Faculty', 'Type', 'Reason'],
+        Venues: ['VenueName', 'Building', 'Campus', 'Type', 'Seats', 'ExamSeats', 'Online', 'Hybrid', 'MultiUse', 'OwnerFaculty', 'Notes'],
+        Sessions: ['Faculty', 'SessionName', 'Start', 'End', 'ClassMinutes', 'BreakMinutes', 'CustomSlots', 'WorkingDays'],
+        ExamSlots: ['Faculty', 'SlotName', 'Start', 'End']
+    };
+    const TPL_EX = {
+        Courses: [['KIRK', 'ACI', 'Advanced Certificate for Imaamship', 'Level 4', 'ACI B12', '1', 'Face to Face', 'Evening', "Male'", 'A123456', '28']],
+        Modules: [['KIRK', 'Semester 2 2026', 'SHA0302', 'Rules of Janazah', 'Advanced Certificate for Imaamship', 'ACI B12', '', 'A123456', 'A654321', '28', '3', '2', 'Face to Face', 'Evening', "Male'", 'Dhivehi', 'Classroom', 'Yes', '2', 'Existing']],
+        Lecturers: [['KIRK', 'A123456', 'Ali Ibrahim Didi', 'Teaching Focused', 'Full-time', '7791550', 'ali.ibrahim@ium.edu.mv', 'Coordinator']],
+        Students: [['S123456', 'Aishath Ali', 'Advanced Certificate for Imaamship', 'Semester 2', 'ACI B12', 'Face to Face', 'Full-time', 'KIRK', 'aishath@example.com', '7000000']],
+        StudentModules: [['S654321', 'SHA0302', 'ACI B12', 'KIRK', 'EXTRA', 'Repeat – failed before'], ['S654321', 'DIS0702', '', 'KIRK', 'SKIP', 'Exempted / already passed']],
+        Venues: [['CR-201', 'Main Building', "Male'", 'Classroom', '30', '20', 'No', 'Yes', 'No', 'SHARED', 'Projector'], ['Online Room 1', '', '', 'Online', '300', '0', 'Yes', 'No', 'No', 'SHARED', 'Google Meet']],
+        Sessions: [['KIRK', 'Morning', '08:10', '12:00', '50', '10', '', 'Sunday;Monday;Tuesday;Wednesday;Thursday'], ['KIRK', 'Afternoon', '13:00', '18:00', '50', '10', '', ''], ['KIRK', 'Night', '18:00', '23:00', '50', '10', '', '']],
+        ExamSlots: [['KIRK', 'Morning', '09:00', '12:00'], ['KIRK', 'Afternoon', '13:30', '16:30']]
+    };
+    const nk = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const yes = (v) => /^(y|yes|true|1|✓|ok)$/i.test(String(v || '').trim());
+    const dataHtml = (kind, S) => `<div class="grid lg:grid-cols-3 gap-3">
+        <div class="ax-card"><div class="ax-card-h">📄 1 · Download the template</div>
+            <p class="text-[11px] text-slate-600 mb-2">One Excel file with every sheet the timetable needs: <b>Courses, Modules, Lecturers, Students, StudentModules</b> (repeat / failed / skip), <b>Venues, Sessions, ExamSlots</b> – plus an Instructions sheet with examples and allowed values.</p>
+            <button class="ax-b ax-b-gold w-full" onclick="window.AXtplDownload('blank','${S.fac}')">📄 Blank template (with examples)</button>
+            <button class="ax-b w-full mt-1" onclick="window.AXtplDownload('current','${S.fac}')">📊 Current data of ${E(S.fac)} in the template</button>
+        </div>
+        <div class="ax-card"><div class="ax-card-h">⬆ 2 · Upload the filled file</div>
+            <p class="text-[11px] text-slate-600 mb-2">The software reads every sheet, shows a summary, then sets everything up: modules & lecturers go to the Modules / Lecturers data, students to the Students data, and the timetable settings (venues, sessions, individual registrations) are saved for ${E(S.fac)}.</p>
+            ${RO() ? '<p class="text-xs font-bold text-slate-500">View only.</p>' : `<label class="ax-b ax-b-green w-full text-center cursor-pointer">⬆ Choose Excel file<input type="file" accept=".xlsx,.xls" class="hidden" onchange="window.AXtplUpload(event,'${S.fac}')"></label>`}
+        </div>
+        <div class="ax-card"><div class="ax-card-h">💡 Rules</div><ul class="text-[11px] text-slate-600 list-disc pl-4 space-y-1">
+            <li>Keep the header row exactly as it is. One row per item.</li>
+            <li><b>Modules</b>: one row per module + batch. <i>LecturerIDs</i> = staff IDs separated by <code>;</code>. <i>WCH</i> = weekly contact hours, <i>HoursPerClass</i> = length of one class.</li>
+            <li><b>StudentModules</b>: <code>EXTRA</code> = the student takes this module with <i>WithBatch</i> (repeat / failed / carry-over); <code>SKIP</code> = does not take it with own batch.</li>
+            <li>Times as <code>08:10</code>. Yes/No columns accept Yes / No.</li>
+            <li>Existing IDs / codes are updated, new ones added – nothing is deleted.</li>
+        </ul></div>
+    </div>`;
+    window.AXtplDownload = (mode, fac) => {
         if (!window.XLSX) return alert('Excel library not loaded.');
         const wb = XLSX.utils.book_new();
-        const info = [[`${IQ.short} ${IQ.arabic} – ${IQ.long}`], ['Timetable data template – fill every sheet you need, keep the column names, then use “Import Excel” in the Timetable Studio.'], [], ['Sheet', 'What to put in it'], ['Courses', 'Every course and batch running this semester (course name must match the Modules and Students sheets).'], ['Modules', 'Every module to be taught, one row per course/batch, with weekly hours, delivery mode, preferred session and lecturer ID.'], ['Lecturers', 'Every lecturer (full-time and part-time). The LecturerID links modules to lecturers.'], ['Students', 'Every student with course and batch. Students automatically take all modules of their course & batch.'], ['Registrations', 'ONLY students who differ from the normal plan: Action = Add (repeat / carry-over / from another batch – give AttendBatch) or Drop (not taking it).'], ['Rooms', 'Classrooms, labs, halls, exam halls, Online accounts and Hybrid rooms with capacity.'], ['Sessions', 'Each faculty’s teaching sessions (Morning / Afternoon / Night).'], ['Periods', 'The time grid used by the timetable (start – end of each period).'], ['ExamSittings', 'Exam sittings per day.'], [], ['Delete the example rows before importing. Times in 24-hour format (13:00). Dates as YYYY-MM-DD.']];
-        const wsI = XLSX.utils.aoa_to_sheet(info); wsI['!cols'] = [{ wch: 16 }, { wch: 120 }]; XLSX.utils.book_append_sheet(wb, wsI, 'Instructions');
-        Object.entries(TPL).forEach(([n, rows]) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = rows[0].map(h => ({ wch: Math.max(14, String(h).length + 4, /Name|Course/.test(h) ? 34 : 0) })); XLSX.utils.book_append_sheet(wb, ws, n); });
-        XLSX.writeFile(wb, `${IQ.short.replace(/\s+/g, '_')}_Timetable_Data_Template.xlsx`);
-        log('TIMETABLE', 'Excel template downloaded', '');
+        const info = [[`${AX.app} – ${AX.long}`], ['TIMETABLE DATA TEMPLATE · ޓައިމްޓޭބަލަށް ބޭނުންވާ މަޢުލޫމާތު'], [`Faculty: ${fac}   ·   downloaded ${fmtDT(Date.now())}`], [],
+            ['HOW TO USE'], ['1. Fill each sheet (one row per item). Keep the header row unchanged.'], ['2. Save the file and upload it in Timetable Studio → 📥 Excel Data → Upload.'], ['3. Check the summary and press Apply – the software sets up modules, lecturers, students, venues, sessions and individual registrations.'], [],
+            ['ދިވެހިން'], ['1. ކޮންމެ ޝީޓެއްގައި މަޢުލޫމާތު ފުރިހަމަކުރައްވާ (ކޮންމެ ކަމަކަށް އެއް ރޯ). ހެޑަރ ރޯ ބަދަލު ނުކުރައްވާ.'], ['2. ފައިލް ސޭވްކޮށް ޓައިމްޓޭބަލް ސްޓޫޑިއޯ → 📥 Excel Data → Upload އިން އަޕްލޯޑް ކުރައްވާ.'], ['3. ސަމަރީ ބައްލަވާފައި Apply ދެއްވުމުން ސޮފްޓްވެއަރ އަށް ހުރިހާ މަޢުލޫމާތެއް ސެޓްވެގެންދާނެ.'], [],
+            ['ALLOWED VALUES'], ['Faculty', FACULTIES.join(', ')], ['Modality / StudyMode', 'Face to Face, Online, Blended'], ['Session', 'Morning, Afternoon, Evening, Night (or your session names)'], ['RoomType / Venue Type', 'Classroom, Lab, Hall, Seminar room, Online'], ['StudentModules Type', 'EXTRA (takes the module with WithBatch) · SKIP (does not take it with own batch)'], ['Reason', REASONS.join(', ')], ['Yes/No columns', 'Yes, No'], ['Positions', 'Coordinator; Dean; HOD; Secretary'], [],
+            ['EXAMPLES (copy the style – do not leave these in the data sheets unless they are real)']];
+        Object.entries(TPL_EX).forEach(([s, rows]) => { info.push([`— ${s} —`]); info.push(TPL[s]); rows.forEach(r => info.push(r)); info.push([]); });
+        const wi = XLSX.utils.aoa_to_sheet(info); wi['!cols'] = [{ wch: 26 }, { wch: 60 }, ...Array(20).fill({ wch: 16 })];
+        XLSX.utils.book_append_sheet(wb, wi, 'Instructions');
+        const cur = mode === 'current' ? currentTplData(fac) : {};
+        Object.entries(TPL).forEach(([s, cols]) => { const rows = [cols, ...(cur[s] || [])]; const ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = cols.map(c => ({ wch: Math.max(12, c.length + 4) })); XLSX.utils.book_append_sheet(wb, ws, s); });
+        XLSX.writeFile(wb, `${AX.app.replace(/\s+/g, '_')}_Timetable_Data_${fac}_${mode}.xlsx`);
+        log('Template downloaded', `${fac} ${mode}`);
     };
-    const normRows = (ws) => XLSX.utils.sheet_to_json(ws, { defval: '', raw: false }).map(r => { const o = {}; Object.entries(r).forEach(([k, v]) => o[String(k).toLowerCase().replace(/[^a-z0-9]/g, '')] = String(v).trim()); return o; });
-    const g = (r, ...ks) => { for (const k of ks) if (r[k] !== undefined && r[k] !== '') return r[k]; return ''; };
-    const tm = (v) => { v = String(v || '').trim(); if (/^\d+(\.\d+)?$/.test(v) && n1(v) < 1) { const m = Math.round(n1(v) * 1440); return `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`; } const m = v.match(/^(\d{1,2})[:.](\d{2})/); return m ? `${pad2(m[1])}:${m[2]}` : v; };
-    window.ttImport = async (ev) => {
-        const file = ev.target.files[0]; ev.target.value = ''; if (!file) return;
-        if (!window.XLSX) return alert('Excel library not loaded.');
-        const own = facManaged(); const admin = activeRole === 'ALL';
-        if (!admin && !own) return alert('Only the Super Admin or a faculty can import timetable data.');
-        await ensureTerm(); await loadStudents();
-        const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
-        const sheet = (n) => { const k = wb.SheetNames.find(s => s.toLowerCase().replace(/[^a-z]/g, '') === n.toLowerCase()); return k ? normRows(wb.Sheets[k]) : []; };
-        const okFac = (f) => admin || !f || f === own; const facOr = (f) => (String(f || '').toUpperCase().trim() || own || '');
-        const rep = []; const planObj = {}; const P = (f) => (planObj[f] = planObj[f] || {});
-        // lecturers
-        let nL = 0; sheet('Lecturers').forEach(r => { const id = g(r, 'lecturerid', 'id'); if (!id) return; const fac = facOr(g(r, 'faculty', 'kulliyyah')); if (!okFac(fac)) return; const ex = window.getLecturerById(window.makeSafeId(id)); const rec = { Kulliyyah: fac, LecturerID: id, LecturerName: g(r, 'lecturername', 'name', 'fullname'), Email: g(r, 'email').toLowerCase(), MobileNumber: g(r, 'mobile', 'phone'), LecturerType: g(r, 'type', 'lecturertype'), LecturerCategory: g(r, 'category'), ...(g(r, 'position') ? { Position: g(r, 'position') } : {}) }; if (ex) Object.entries(rec).forEach(([k, v]) => { if (v) ex[k] = v; }); else localDB.lecturers.push(rec); nL++; });
-        window.invalidateLecturerCache(); if (nL) rep.push(`${nL} lecturer(s)`);
-        // courses
-        let nC = 0; sheet('Courses').forEach(r => { const course = g(r, 'coursename', 'course'); if (!course) return; const fac = facOr(g(r, 'faculty')); if (!okFac(fac)) return; const batch = g(r, 'batch'); P(fac)[`courses.${grpKey(course, batch)}`] = { course, code: g(r, 'coursecode'), level: g(r, 'level'), mode: g(r, 'studymode', 'mode'), batch, intake: g(r, 'intakeyear', 'intake'), semester: g(r, 'semester'), students: n1(g(r, 'students')) }; nC++; }); if (nC) rep.push(`${nC} course/batch(es)`);
-        // modules
-        let nM = 0; sheet('Modules').forEach(r => { const code = g(r, 'modulecode', 'code'); if (!code) return; const fac = facOr(g(r, 'faculty')); if (!okFac(fac)) return; const course = g(r, 'coursename', 'course', 'programname'), batch = g(r, 'batch', 'offeredbatch'); const lid = g(r, 'lecturerid') ? window.makeSafeId(g(r, 'lecturerid')) : ''; const k = offKey(code, batch);
-            const o = { key: k, code, name: g(r, 'modulename', 'name'), course, batch, fac, lecturerId: lid, coordinatorId: g(r, 'coordinatorid') ? window.makeSafeId(g(r, 'coordinatorid')) : '', students: n1(g(r, 'students')), wch: n1(g(r, 'weeklyhours', 'wch')), mode: g(r, 'deliverymode', 'mode', 'modality'), session: g(r, 'session'), credit: g(r, 'credit') };
-            P(fac)[`offers.${k}`] = o;
-            const ex = localDB.modules.find(m => window.makeSafeId(window.getSafeVal(m, ['ModuleCode'])) === window.makeSafeId(code) && String(window.getSafeVal(m, ['OfferedBatch'])).trim() === batch);
-            const rec = { ModuleCode: code, ModuleName: o.name, ParentKulliyya: fac, ProgramName: course, OfferedBatch: batch, WCH: String(o.wch || ''), CreditHours: o.credit, Modality: o.mode, NoofStudents: String(o.students || ''), Session: o.session };
-            if (ex) Object.entries(rec).forEach(([kk, v]) => { if (v) ex[kk] = v; }); else localDB.modules.push(rec);
-            if (lid) { const sc = window.makeSafeId(code); if (!localDB.assignments[sc] || !localDB.assignments[sc].id) localDB.assignments[sc] = { id: lid, mode: 'Individual' }; }
-            nM++; }); if (nM) rep.push(`${nM} module(s)`);
-        // students + registrations
-        let nS = 0; const touched = new Set();
-        sheet('Students').forEach(r => { const id = g(r, 'studentid', 'id'); if (!id) return; const fac = facOr(g(r, 'faculty')); if (!okFac(fac)) return; let s = TT.students.find(x => x.id === id); if (!s) { s = { id, extra: [], dropped: [] }; TT.students.push(s); } Object.assign(s, { name: g(r, 'fullname', 'name'), fac, course: g(r, 'coursename', 'course', 'enrolledprogram'), batch: g(r, 'batch'), mode: g(r, 'studymode', 'mode'), semester: g(r, 'semester'), email: g(r, 'email'), mobile: g(r, 'mobile') }); touched.add(fac); nS++; });
-        let nR = 0; sheet('Registrations').forEach(r => { const s = TT.students.find(x => x.id === g(r, 'studentid', 'id')); const code = g(r, 'modulecode', 'code'); if (!s || !code || !okFac(s.fac)) return; const act = g(r, 'action', 'type').toLowerCase(); s.extra = s.extra || []; s.dropped = s.dropped || []; if (act.startsWith('drop')) { if (!s.dropped.includes(code)) s.dropped.push(code); } else { s.extra = s.extra.filter(x => (typeof x === 'string' ? x.split('|')[0] : x.code) !== code); s.extra.push({ code, batch: g(r, 'attendbatch', 'batch'), reason: g(r, 'reason', 'note') }); } touched.add(s.fac); nR++; });
-        if (nS) rep.push(`${nS} student(s)`); if (nR) rep.push(`${nR} irregular registration(s)`);
-        // rooms / sessions / periods / exam sittings
-        const cfgObj = {};
-        let nRm = 0; sheet('Rooms').forEach(r => { const name = g(r, 'roomname', 'name', 'room'); if (!name) return; const ex = rooms().find(x => x.name.toLowerCase() === name.toLowerCase()); const id = ex ? ex.id : 'r_' + sk(name).toLowerCase(); cfgObj[`rooms.${id}`] = { id, name, type: ROOM_TYPES.find(t => t.toLowerCase() === g(r, 'type').toLowerCase()) || 'Classroom', capacity: n1(g(r, 'capacity')), building: g(r, 'building', 'campus'), fac: g(r, 'faculty').toUpperCase(), features: g(r, 'features', 'link') }; nRm++; }); if (nRm) rep.push(`${nRm} venue(s)`);
-        const sess = {}; sheet('Sessions').forEach(r => { const fac = facOr(g(r, 'faculty')); if (!okFac(fac) || !g(r, 'start')) return; (sess[fac] = sess[fac] || []).push({ name: g(r, 'sessionname', 'session', 'name') || 'Session', start: tm(g(r, 'start')), end: tm(g(r, 'end')) }); }); Object.entries(sess).forEach(([f, l]) => cfgObj[`sessions.${f}`] = l); if (Object.keys(sess).length) rep.push(`sessions for ${Object.keys(sess).join(', ')}`);
-        const per = sheet('Periods').filter(r => g(r, 'start')).map(r => ({ start: tm(g(r, 'start')), end: tm(g(r, 'end')) })); if (per.length && admin) { cfgObj.slots = per.sort((a, b) => toMin(a.start) - toMin(b.start)); rep.push(`${per.length} period(s)`); }
-        const xs = sheet('ExamSittings').filter(r => g(r, 'start')).map(r => ({ name: g(r, 'sittingname', 'name'), start: tm(g(r, 'start')), end: tm(g(r, 'end')) })); if (xs.length && (admin || activeRole === 'EXAM')) { cfgObj.examSlots = xs; rep.push(`${xs.length} exam sitting(s)`); }
-        if (!rep.length) return alert('Nothing recognised. Use the sheet and column names of the template.');
-        const ld = document.getElementById('loader'); ld.style.display = 'flex'; document.getElementById('loader-text').innerText = 'Saving imported data…';
+    const currentTplData = (fac) => {
+        const offs = offList(fac); const courses = new Set(offs.map(o => nrm(o.course)));
+        const cd = cfgData(fac); const cs = sessCfg(fac);
+        const L = (ids) => (ids || []).map(id => { const l = window.getLecturerById(id); return l ? window.getSafeVal(l, ['LecturerID']) : id; }).join(';');
+        return {
+            Courses: [...new Map(cohortsOf(fac).map(c => [c.k, c])).values()].map(c => { const x = Object.values(cd.courses || {}).find(z => nrm(z.name) === nrm(c.course) && (!z.batch || nrm(z.batch) === nrm(c.batch))) || {}; return [fac, x.code || '', c.course, x.level || '', c.batch, x.year || '', x.mode || '', x.session || '', x.campus || '', x.coordId || '', (stuIndex().byCohort[c.k] || []).length || x.students || '']; }),
+            Modules: offs.map(o => [fac, '', o.code, o.name, o.course, o.batch, o.combined.join(', '), L(o.lects), L([o.coordId].filter(Boolean)), num(o.students) || '', o.wch, o.classLen, o.modality || (o.mode === 'F2F' ? 'Face to Face' : o.mode), o.session, o.campus, o.medium, o.venueType, o.exam, o.examHrs, '']),
+            Lecturers: localDB.lecturers.filter(l => window.getFaculty(l) === fac).map(l => [window.getFaculty(l), window.getSafeVal(l, ['LecturerID']), window.getLecturerName(l), window.getSafeVal(l, ['LecturerCategory']), window.getSafeVal(l, ['LecturerType']), window.getSafeVal(l, ['MobileNumber', 'Mobile']), window.getLecturerEmail(l), (window.getPositions(l) || []).filter(p => p !== 'LECTURER').join(';')]),
+            Students: (localDB.students || []).filter(s => courses.has(nrm(window.getSafeVal(s, ['EnrolledProgram', 'Program']))) || nrm(s.Faculty) === nrm(fac)).map(s => [window.getSafeVal(s, ['StudentID']), window.getSafeVal(s, ['FullName']), window.getSafeVal(s, ['EnrolledProgram']), window.getSafeVal(s, ['Semester']), window.getSafeVal(s, ['Batch']), window.getSafeVal(s, ['StudyMode']), s.Type || '', s.Faculty || fac, s.Email || '', s.Mobile || '']),
+            StudentModules: Object.values(cd.regs || {}).filter(r => r && !r.deleted).map(r => [r.stu, r.code, r.batch || '', r.fac || fac, r.type, r.reason || '']),
+            Venues: venuesArr().map(v => [v.name, v.building || '', v.campus || '', v.type || '', num(v.capacity), num(v.examCap), v.online ? 'Yes' : 'No', v.hybrid ? 'Yes' : 'No', v.multi ? 'Yes' : 'No', v.faculty || 'SHARED', v.notes || '']),
+            Sessions: sessList(fac).map((s, i) => [fac, s.name, s.start, s.end, s.slot, s.brk, s.custom || '', i === 0 ? cs.days.join(';') : '']),
+            ExamSlots: examSlotList(fac).map(s => [fac, s.name, s.start, s.end])
+        };
+    };
+    const resolveLect = (x) => {
+        x = String(x || '').trim(); if (!x) return '';
+        const id = window.makeSafeId(x); if (window.getLecturerById(id)) return id;
+        const byE = localDB.lecturers.find(l => window.getLecturerEmail(l) === x.toLowerCase()); if (byE) return window.lecIdOf(byE);
+        const byN = localDB.lecturers.find(l => nrm(window.getLecturerName(l)) === nrm(x)); if (byN) return window.lecIdOf(byN);
+        return id;
+    };
+    let TPL_PLAN = null;
+    window.AXtplUpload = async (ev, curFac) => {
+        const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+        loader(true, 'Reading the Excel file…');
         try {
-            if (nL || nM) window.saveLocal(true);
-            if (Object.keys(cfgObj).length) await cfgUpdate(cfgObj);
-            for (const [f, obj] of Object.entries(planObj)) await planUpdate(f, obj);
-            if (dbCloud) for (const f of touched) await saveStudentsFac(f);
-            TT.ver++; log('TIMETABLE', 'Timetable data imported from Excel', rep.join(', '));
-            alert('✅ Imported:\n• ' + rep.join('\n• '));
-        } catch (e) { alert('❌ Import failed: ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
-        finally { ld.style.display = 'none'; ttRender(); }
+            const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+            const sheets = {};
+            wb.SheetNames.forEach(n => { const key = Object.keys(TPL).find(k => nk(k) === nk(n)); if (!key) return; sheets[key] = XLSX.utils.sheet_to_json(wb.Sheets[n], { defval: '', raw: false }).map(r => { const o = {}; Object.entries(r).forEach(([k, v]) => { o[nk(k)] = String(v ?? '').trim(); }); return o; }).filter(r => Object.values(r).some(v => v)); });
+            if (!Object.keys(sheets).length) throw new Error('No template sheets found (Courses, Modules, Lecturers, Students, StudentModules, Venues, Sessions, ExamSlots).');
+            const facOf = (r, k = 'faculty') => { const v = String(r[k] || r.kulliyyah || r.ownerfaculty || '').toUpperCase().trim(); return FACULTIES.find(x => v.includes(x)) || v || curFac; };
+            const skipped = []; const ok = (fac) => { if (canFac(fac)) return true; skipped.push(fac); return false; };
+            const plan = { lect: [], stu: [], mods: [], courses: [], regs: [], venues: [], sess: {}, ex: {}, days: {} };
+            (sheets.Lecturers || []).forEach(r => { if (!r.lecturerid) return; const fac = facOf(r, 'kulliyyah'); if (ok(fac)) plan.lect.push({ ...r, fac }); });
+            (sheets.Students || []).forEach(r => { if (!r.studentid) return; const fac = facOf(r); if (activeRole === 'ALL' || canFac(fac)) plan.stu.push({ ...r, fac }); else skipped.push(fac); });
+            (sheets.Modules || []).forEach(r => { if (!r.modulecode) return; const fac = facOf(r); if (ok(fac)) plan.mods.push({ ...r, fac }); });
+            (sheets.Courses || []).forEach(r => { if (!r.coursename && !r.coursecode) return; const fac = facOf(r); if (ok(fac)) plan.courses.push({ ...r, fac }); });
+            (sheets.StudentModules || []).forEach(r => { if (!r.studentid || !r.modulecode) return; const fac = facOf(r); if (ok(fac)) plan.regs.push({ ...r, fac }); });
+            (sheets.Venues || []).forEach(r => { if (r.venuename) plan.venues.push(r); });
+            (sheets.Sessions || []).forEach(r => { if (!r.sessionname) return; const fac = facOf(r); if (!ok(fac)) return; (plan.sess[fac] = plan.sess[fac] || []).push(r); if (r.workingdays) plan.days[fac] = splitList(r.workingdays).map(d => DAYS_ALL.find(x => nrm(x).startsWith(nrm(d).slice(0, 3)))).filter(Boolean); });
+            (sheets.ExamSlots || []).forEach(r => { if (!r.slotname) return; const fac = facOf(r); if (!ok(fac)) return; (plan.ex[fac] = plan.ex[fac] || []).push(r); });
+            if (plan.venues.length && !canVenues()) { skipped.push('Venues'); plan.venues = []; }
+            TPL_PLAN = plan;
+            const sk = [...new Set(skipped)];
+            dlg(`${boxHead(AX.app + ' · Excel import', 'Check before applying', E(f.name), 'window.AXdlgClose()')}<div class="ax-mb">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-center">${[['Lecturers', plan.lect.length], ['Students', plan.stu.length], ['Module rows', plan.mods.length], ['Courses', plan.courses.length], ['Student modules', plan.regs.length], ['Venues', plan.venues.length], ['Session sets', Object.keys(plan.sess).length], ['Exam-slot sets', Object.keys(plan.ex).length]].map(([l, n]) => `<div class="ax-kbox"><b>${n}</b>${l}</div>`).join('')}</div>
+                ${sk.length ? `<div class="ax-alert warn mt-2">Skipped rows for: ${E(sk.join(', '))} – you can only change your own faculty.</div>` : ''}
+                <p class="text-[11px] text-slate-600 mt-2">Existing lecturers / students / modules with the same ID or code are updated; new ones are added. Nothing is deleted.</p>
+            </div><div class="ax-mf"><span class="ml-auto"></span><button class="ax-b" onclick="window.AXdlgClose()">Cancel</button><button class="ax-b ax-b-green" onclick="window.AXtplApply()">✅ Apply to the software</button></div>`);
+        } catch (e) { alert('❌ Could not read the file: ' + e.message); }
+        finally { loader(false); }
     };
-    window.ttExportData = () => {
-        const wb = XLSX.utils.book_new(); const add = (n, rows) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), n);
-        add('Modules', [TPL.Modules[0], ...offList().map(o => [o.fac, o.course, o.batch, o.code, o.name, o.credit || '', o.wch || '', o.mode, o.session || '', o.lecturerId, nm(o.lecturerId), o.coordinatorId || '', enrolledCount(o)])]);
-        add('Students', [TPL.Students[0], ...TT.students.map(s => [s.id, s.name, s.fac, s.course, s.batch, s.mode, s.semester, s.email, s.mobile])]);
-        add('Registrations', [TPL.Registrations[0], ...TT.students.flatMap(s => [...(s.extra || []).map(x => [s.id, typeof x === 'string' ? x.split('|')[0] : x.code, typeof x === 'string' ? (x.split('|')[1] || '') : x.batch, 'Add', x.reason || '']), ...(s.dropped || []).map(c => [s.id, c, '', 'Drop', ''])])]);
-        add('Rooms', [TPL.Rooms[0], ...rooms().map(r => [r.name, r.type, r.capacity, r.building, r.fac, r.features])]);
-        add('Sessions', [TPL.Sessions[0], ...Object.entries(TT.cfg.sessions || {}).flatMap(([f, l]) => l.map(s => [f, s.name, s.start, s.end]))]);
-        add('Periods', [TPL.Periods[0], ...slots().map(s => [s.start, s.end])]);
-        add('ExamSittings', [TPL.ExamSittings[0], ...exSlots().map(s => [s.name, s.start, s.end])]);
-        XLSX.writeFile(wb, 'Timetable_Data_Export.xlsx');
+    window.AXtplApply = async () => {
+        const p = TPL_PLAN; if (!p) return; TPL_PLAN = null;
+        loader(true, 'Setting up the data…');
+        const res = [];
+        try {
+            // lecturers
+            if (p.lect.length) {
+                const map = new Map(localDB.lecturers.map(l => [window.lecIdOf(l), l]));
+                p.lect.forEach(r => { const id = window.makeSafeId(r.lecturerid); const prev = map.get(id) || {}; const row = { ...prev, Kulliyyah: r.fac, LecturerID: r.lecturerid, LecturerName: r.lecturername || prev.LecturerName || '', LecturerCategory: r.lecturercategory || prev.LecturerCategory || '', LecturerType: r.lecturertype || prev.LecturerType || '', MobileNumber: r.mobilenumber || prev.MobileNumber || '', Email: (r.email || prev.Email || '').toLowerCase() }; if (r.positions) { row.Positions = r.positions; row.positions = splitList(r.positions).map(x => x.toUpperCase()).map(x => x === 'HEAD OF DEPARTMENT' ? 'HOD' : x); } map.set(id, row); });
+                localDB.lecturers = [...map.values()]; window.invalidateLecturerCache(); res.push(`${p.lect.length} lecturers`);
+            }
+            // students
+            if (p.stu.length) {
+                const map = new Map(localDB.students.map(s => [stuIdOf(s), s]));
+                p.stu.forEach(r => { const id = window.makeSafeId(r.studentid); const prev = map.get(id) || {}; map.set(id, { ...prev, StudentID: r.studentid, FullName: r.fullname || prev.FullName || '', EnrolledProgram: r.enrolledprogram || prev.EnrolledProgram || '', Semester: r.semester || prev.Semester || '', Batch: r.batch || prev.Batch || '', StudyMode: r.studymode || prev.StudyMode || '', Type: r.type || prev.Type || '', Faculty: r.fac, Email: r.email || prev.Email || '', Mobile: r.mobile || prev.Mobile || '' }); });
+                localDB.students = [...map.values()]; res.push(`${p.stu.length} students`);
+            }
+            // modules → Modules data (by code) + per-batch timetable offerings
+            const cfg = {};
+            const C = (fac) => (cfg[fac] = cfg[fac] || { faculty: fac, offerings: {}, courses: {}, regs: {} });
+            if (p.mods.length) {
+                const map = new Map(localDB.modules.map(m => [window.makeSafeId(window.getSafeVal(m, ['ModuleCode', 'Code'])), m]));
+                const byCode = {}; p.mods.forEach(r => (byCode[window.makeSafeId(r.modulecode)] = byCode[window.makeSafeId(r.modulecode)] || []).push(r));
+                Object.entries(byCode).forEach(([id, rows]) => {
+                    const r = rows[0]; const prev = map.get(id) || {};
+                    const batches = [...new Set([...splitList(window.getSafeVal(prev, ['OfferedBatch'])), ...rows.map(x => x.batch).filter(Boolean)])];
+                    const row = { ...prev, Semester: r.semester || prev.Semester || '', ModuleCode: r.modulecode, ModuleName: r.modulename || prev.ModuleName || '', ParentKulliyya: r.fac, ProgramName: r.coursename || prev.ProgramName || '', Session: r.session || prev.Session || '', OfferedBatch: batches.join(', '), CombinedBatch: r.combinedwith || prev.CombinedBatch || '', Campus: r.campus || prev.Campus || '', Modality: r.modality || prev.Modality || '', MediumofInstruction: r.medium || prev.MediumofInstruction || '', NoofStudents: rows.reduce((a, x) => a + num(x.students), 0) || prev.NoofStudents || '', WCH: r.wch || prev.WCH || '', OfferedStatus: r.status || prev.OfferedStatus || '' };
+                    map.set(id, row);
+                    const lects = splitList(r.lecturerids).map(resolveLect).filter(Boolean);
+                    if (lects.length && !(localDB.assignments[id] && localDB.assignments[id].id)) localDB.assignments[id] = { ...(localDB.assignments[id] || { mode: 'Individual' }), id: lects[0] };
+                });
+                localDB.modules = [...map.values()];
+                p.mods.forEach(r => { const k = K(r.fac, r.modulecode, r.batch); C(r.fac).offerings[k] = { code: r.modulecode, batch: r.batch || '', course: r.coursename || '', name: r.modulename || '', lects: splitList(r.lecturerids).map(resolveLect).filter(Boolean), coordId: resolveLect(r.coordinatorid), students: num(r.students), wch: num(r.wch), classLen: num(r.hoursperclass), modality: r.modality || '', session: r.session || '', campus: r.campus || '', medium: r.medium || '', venueType: r.roomtype || '', exam: r.finalexam ? (yes(r.finalexam) ? 'Yes' : 'No') : '', examHrs: num(r.examhours), combined: splitList(r.combinedwith), at: Date.now(), by: meE() }; });
+                res.push(`${p.mods.length} module rows`);
+            }
+            p.courses.forEach(r => { const k = K(r.coursecode || r.coursename, r.batch); C(r.fac).courses[k] = { code: r.coursecode || '', name: r.coursename || '', level: r.level || '', batch: r.batch || '', year: r.yearofstudy || '', mode: r.studymode || '', session: r.session || '', campus: r.campus || '', coordId: resolveLect(r.coursecoordinatorid), students: num(r.students) }; });
+            if (p.courses.length) res.push(`${p.courses.length} courses`);
+            p.regs.forEach(r => { const type = /skip|not|drop|exempt/i.test(r.type) ? 'SKIP' : 'EXTRA'; const same = Object.values(cfgData(r.fac).regs || {}).find(x => x && window.makeSafeId(x.stu) === window.makeSafeId(r.studentid) && nrm(x.code) === nrm(r.modulecode) && nrm(x.batch) === nrm(r.withbatch) && x.type === type); const id = same ? same.id : ('r_' + K(r.studentid, r.modulecode, r.withbatch, type)).toLowerCase().slice(0, 120); C(r.fac).regs[id] = { id, stu: r.studentid, code: r.modulecode, batch: r.withbatch || '', fac: r.fac, type, reason: r.reason || '', at: Date.now(), by: meE() }; });
+            if (p.regs.length) res.push(`${p.regs.length} student-module registrations`);
+            if (p.lect.length || p.stu.length || p.mods.length) { window.saveLocal(true); window.triggerAllRenders(); }
+            for (const [fac, d] of Object.entries(cfg)) await axSet('cfg_data_' + fac, d);
+            if (p.venues.length) {
+                const cur = venuesArr(); const venues = {};
+                p.venues.forEach(r => { const ex = cur.find(v => nrm(v.name) === nrm(r.venuename)); const id = ex ? ex.id : 'v_' + K(r.venuename).toLowerCase().slice(0, 30); const type = r.type || 'Classroom'; venues[id] = { id, name: r.venuename, building: r.building || '', campus: r.campus || '', type, capacity: num(r.seats), examCap: num(r.examseats), online: yes(r.online) || nrm(type) === 'online', hybrid: yes(r.hybrid), multi: yes(r.multiuse), faculty: (r.ownerfaculty || 'SHARED').toUpperCase(), notes: r.notes || '' }; });
+                await axSet('cfg_venues', { faculty: 'SHARED', venues }); res.push(`${p.venues.length} venues`);
+            }
+            const facs = new Set([...Object.keys(p.sess), ...Object.keys(p.ex)]);
+            for (const fac of facs) {
+                const cur = sessCfg(fac); const data = { faculty: fac, days: p.days[fac] && p.days[fac].length ? p.days[fac] : cur.days, sessions: cur.sessions, examSlots: cur.examSlots, updatedAt: Date.now(), updatedBy: meE() };
+                if (p.sess[fac]) { data.sessions = {}; p.sess[fac].forEach((r, i) => { const id = 'S' + (i + 1); data.sessions[id] = { id, name: r.sessionname, start: toHM(toMin(r.start)), end: toHM(toMin(r.end)), slot: num(r.classminutes, 50), brk: num(r.breakminutes, 10), custom: r.customslots || '', color: ['#0284c7', '#d97706', '#4338ca', '#059669', '#db2777'][i % 5] }; }); }
+                if (p.ex[fac]) { data.examSlots = {}; p.ex[fac].forEach((r, i) => { const id = 'E' + (i + 1); data.examSlots[id] = { id, name: r.slotname, start: toHM(toMin(r.start)), end: toHM(toMin(r.end)) }; }); }
+                if (!cloudOn()) { TT['cfg_sessions_' + fac] = { id: 'cfg_sessions_' + fac, ...data }; localChanged(); } else { try { await setDoc(ttRef('cfg_sessions_' + fac), data); } catch (e) { axErr(e); } }
+            }
+            if (facs.size) res.push(`sessions / exam slots for ${[...facs].join(', ')}`);
+            LV++; log('Excel data imported', res.join(', '));
+        } finally { loader(false); }
+        window.AXdlgClose();
+        alert('✅ Imported into the software:\n• ' + (res.join('\n• ') || 'nothing'));
     };
-    window.ttMigrateOld = async () => {
-        const old = localDB.timetable || []; if (!old.length) return alert('No entries in the old timetable.');
-        if (!confirm(`Copy ${old.length} entries from the old Timetable Manager into this semester?`)) return;
-        const offs = offList(); const byFac = {}; let n = 0;
-        old.forEach(t => { const ts = localDB.settings.timeslots[t.tsIndex]; if (!ts) return; const o = offs.find(x => sk(x.code) === sk(t.modCode) && (!t.program || x.course === t.program)) || offs.find(x => sk(x.code) === sk(t.modCode)); if (!o || !canEditFacTT(o.fac)) return; const rm = rooms().find(r => r.name === t.room); const e = { id: newId('c'), key: o.key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac || 'GEN', lecturerId: t.lectId || o.lecturerId || '', day: t.day, start: ts.start, end: ts.end, roomId: rm ? rm.id : '', mode: t.mode || o.mode, by: meEmail(), at: Date.now() }; (byFac[e.fac] = byFac[e.fac] || {})[`classes.${e.id}`] = e; n++; });
-        for (const [f, obj] of Object.entries(byFac)) await planUpdate(f, obj, { a: 'Old timetable migrated', d: `${Object.keys(obj).length} entries` });
-        alert(`${n} entries copied.`);
-    };
-    function dataHtml() {
-        const f = TT.ui.fac || facManaged(); const offs = offList().filter(o => !f || o.fac === f);
-        const noLect = offs.filter(o => !o.lecturerId).length, noHrs = offs.filter(o => !o.wch).length;
-        const q = TT.ui.stuQ.toLowerCase(); const sts = TT.students.filter(s => (!f || s.fac === f) && (!q || [s.id, s.name, s.course, s.batch].join(' ').toLowerCase().includes(q)));
-        const irregular = TT.students.filter(s => (!f || s.fac === f) && ((s.extra || []).length || (s.dropped || []).length));
-        const sel = TT.ui.stuSel ? stuById(TT.ui.stuSel) : null;
-        return `<div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
-            <div class="iq-card"><div class="tt-sec">📥 Excel data</div><p class="text-[10.5px] text-gray-600 font-bold mb-2">Download the template, fill Courses, Modules, Lecturers, Students, Registrations, Rooms, Sessions and Periods, then import – everything is set up in one go.</p>
-                <div class="flex flex-wrap gap-2"><button class="iq-btn" onclick="window.ttTemplate()">⬇ Download Excel template</button>${!isReadOnly() && (activeRole === 'ALL' || facManaged()) ? '<label class="iq-btn cursor-pointer">⬆ Import Excel<input type="file" accept=".xlsx,.xls" class="hidden" onchange="window.ttImport(event)"></label>' : ''}<button class="iq-btn-soft" onclick="window.ttExportData()">📗 Export current data</button>${(localDB.timetable || []).length && activeRole === 'ALL' ? `<button class="iq-btn-soft" onclick="window.ttMigrateOld()">↪ Copy old timetable (${localDB.timetable.length})</button>` : ''}</div>
-                <div class="iq-kpis mt-3">${kpi('Modules to schedule', offs.length, '#0d47a1', f ? FAC_FULL(f) : 'all faculties')}${kpi('No lecturer', noLect, noLect ? '#b91c1c' : '#065f46')}${kpi('No weekly hours', noHrs, noHrs ? '#7e22ce' : '#065f46')}${kpi('Students', TT.students.filter(s => !f || s.fac === f).length, '#004d40', irregular.length + ' irregular')}${kpi('Venues', rooms().length, '#00838f')}</div></div>
-            <div class="iq-card"><div class="tt-sec">🎓 Students & irregular registrations</div><p class="text-[10.5px] text-gray-600 font-bold mb-2">Students follow their course & batch automatically. Add a module (repeat / carry-over / other batch) or drop one – the clash check then covers that student personally.</p>
-                <div class="flex gap-1 mb-2"><input class="iq-in !py-1.5 !text-[11px]" placeholder="🔍 student ID or name" value="${esc(TT.ui.stuQ)}" onchange="window.ttSet('stuQ', this.value)">${!isReadOnly() ? '<button class="iq-btn-soft" onclick="window.ttStuNew()">➕ Student</button>' : ''}</div>
-                <div class="border rounded-lg max-h-[210px] overflow-y-auto bg-white">${sts.slice(0, 80).map(s => `<div class="px-2 py-1 border-b text-[11px] cursor-pointer hover:bg-sky-50 ${TT.ui.stuSel === s.id ? 'bg-sky-100' : ''}" onclick="window.ttSet('stuSel','${js(s.id)}')"><b>${esc(s.name || s.id)}</b> <span class="text-gray-500">${esc(s.id)} · ${esc(s.course)} · ${esc(s.batch)}</span>${(s.extra || []).length || (s.dropped || []).length ? ' <span class="iq-chip" style="background:#ede9fe;color:#5b21b6">irregular</span>' : ''}</div>`).join('') || `<p class="text-[11px] text-gray-400 italic p-3">${TT.stuLoaded ? 'No students – import the Students sheet.' : 'Loading…'}</p>`}</div>
-                ${sel ? studentPanel(sel) : ''}</div></div>
-            <div class="iq-card mt-3"><div class="flex flex-wrap justify-between items-center gap-2"><div class="tt-sec !m-0">📚 Modules to schedule ${f ? '· ' + esc(FAC_FULL(f)) : ''}</div><span class="text-[10px] font-bold text-gray-500">Edit a row – it overrides the imported data for timetabling</span></div>
-                <div class="overflow-x-auto max-h-[50vh]"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course · Batch</th><th>Lecturer</th><th>Students</th><th>Hrs/week</th><th>Mode</th><th>Session</th><th>Scheduled</th></tr></thead><tbody>${offs.slice(0, 400).map(o => { const ed = canEditFacTT(o.fac); return `<tr><td><b>${esc(o.code)}</b> ${esc(o.name)}</td><td>${esc(o.course)} · ${esc(o.batch)}</td><td>${ed ? `<button class="iq-btn-soft !py-0.5 !px-2 !text-[10.5px]" onclick="window.ttLectPick(this, '${js(o.key)}')">${esc(o.lecturerId ? nm(o.lecturerId) : '— choose —')} ✎</button>` : esc(nm(o.lecturerId))}</td><td>${ed ? `<input type="number" class="iq-in !py-1 !w-16" value="${esc(o.students || '')}" onchange="window.ttOffer('${js(o.key)}','students',this.value)">` : o.students}<div class="text-[8px] text-gray-400">${enrolledCount(o)} enrolled</div></td><td>${ed ? `<input type="number" step="0.5" class="iq-in !py-1 !w-16" value="${esc(o.wch || '')}" onchange="window.ttOffer('${js(o.key)}','wch',this.value)">` : o.wch}</td><td>${ed ? `<select class="iq-in !py-1 !text-[10.5px]" onchange="window.ttOffer('${js(o.key)}','mode',this.value)">${['Face to Face', 'Online', 'Blended'].map(m => `<option ${String(o.mode).toLowerCase().startsWith(m.toLowerCase().slice(0, 4)) ? 'selected' : ''}>${m}</option>`).join('')}</select>` : esc(o.mode)}</td><td>${ed ? `<select class="iq-in !py-1 !text-[10.5px]" onchange="window.ttOffer('${js(o.key)}','session',this.value)"><option value="">Any</option>${sessionsOf(o.fac).map(s => `<option ${o.session === s.name ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : esc(o.session || 'Any')}</td><td class="font-bold">${Math.round(scheduledHrsTT(o.key) * 10) / 10} h</td></tr>`; }).join('')}</tbody></table></div></div>`;
-    }
-    window.ttLectPick = (btn, key) => {
-        const o = offerings()[key]; if (!o) return;
-        const same = localDB.lecturers.filter(l => !o.fac || lFac(l) === o.fac), other = localDB.lecturers.filter(l => o.fac && lFac(l) !== o.fac);
-        const opt = (l, suf) => `<option value="${esc(window.lecIdOf(l))}" ${window.lecIdOf(l) === o.lecturerId ? 'selected' : ''}>${esc(window.getLecturerName(l))}${suf ? ' (' + esc(lFac(l)) + ')' : ''}</option>`;
-        btn.outerHTML = `<select class="iq-in !py-1 !text-[10.5px]" onchange="window.ttOffer('${js(key)}','lecturerId',this.value)"><option value="">— none —</option>${same.map(l => opt(l)).join('')}${other.length ? '<option disabled>── other faculties ──</option>' + other.map(l => opt(l, 1)).join('') : ''}</select>`;
-    };
-    window.ttOffer = (key, k, v) => { const o = offerings()[key]; if (!o) return; const val = ['students', 'wch'].includes(k) ? n1(v) : v; planUpdate(o.fac || 'GEN', { [`offers.${key}`]: { ...(((TT.plans[o.fac] || {}).offers || {})[key] || { key, code: o.code, name: o.name, course: o.course, batch: o.batch, fac: o.fac }), [k]: val } }, { a: 'Timetable module details changed', d: `${o.code} ${o.batch}: ${k} = ${val}` }); };
-    const studentPanel = (s) => {
-        const offs = offerings(); const my = Object.entries(enrolment()).filter(([, set]) => set.has(s.id)).map(([k]) => offs[k]).filter(Boolean);
-        const cls = allClasses().filter(e => my.some(o => o.key === e.key)); const clashes = [];
-        cls.forEach((a, i) => cls.slice(i + 1).forEach(b => { if (a.day === b.day && overlap(a, b) && a.key !== b.key) clashes.push([a, b]); }));
-        const ro = isReadOnly();
-        return `<div class="mt-3 border-t pt-2"><div class="flex justify-between"><b class="text-[12px] text-[#0d47a1]">${esc(s.name)} · ${esc(s.id)}</b><span class="text-[10px] font-bold text-gray-500">${esc(s.course)} · ${esc(s.batch)}</span></div>
-            <div class="text-[10.5px] mt-1"><b>Modules (${my.length}):</b> ${my.map(o => `<span class="iq-chip mr-1" style="background:${(s.extra || []).some(x => (x.code || String(x).split('|')[0]) === o.code) ? '#ede9fe;color:#5b21b6' : '#e0f2fe;color:#0d47a1'}">${esc(o.code)} ${esc(o.batch)}</span>`).join('')}</div>
-            ${(s.dropped || []).length ? `<div class="text-[10.5px] mt-1"><b>Dropped:</b> ${s.dropped.map(c => `<span class="iq-chip" style="background:#fee2e2;color:#b91c1c">${esc(c)}${ro ? '' : ` <button onclick="window.ttStuReg('${js(s.id)}','undrop','${js(c)}')">✖</button>`}</span>`).join(' ')}</div>` : ''}
-            ${(s.extra || []).length ? `<div class="text-[10.5px] mt-1"><b>Added:</b> ${s.extra.map(x => { const c = x.code || String(x).split('|')[0]; return `<span class="iq-chip" style="background:#ede9fe;color:#5b21b6">${esc(c)} ${esc(x.batch || '')}${ro ? '' : ` <button onclick="window.ttStuReg('${js(s.id)}','unadd','${js(c)}')">✖</button>`}</span>`; }).join(' ')}</div>` : ''}
-            <div class="mt-2 rounded-lg p-2 ${clashes.length ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'} text-[10.5px] font-bold">${clashes.length ? clashes.map(([a, b]) => `⛔ ${esc(a.code)} (${a.day} ${hm(a.start)}) clashes with ${esc(b.code)} (${hm(b.start)}–${hm(b.end)})`).join('<br>') : '✔ This student’s personal timetable has no clash.'}</div>
-            ${ro ? '' : `<div class="flex gap-1 mt-2"><button class="iq-btn-soft" onclick="window.ttStuReg('${js(s.id)}','add')">➕ Add module</button><button class="iq-btn-soft" onclick="window.ttStuReg('${js(s.id)}','drop')">➖ Drop module</button><button class="iq-btn-soft" onclick="window.ttStuTT('${js(s.id)}')">🗓️ Timetable</button></div>`}</div>`;
-    };
-    window.ttStuReg = async (id, act, code) => {
-        const s = stuById(id); if (!s) return; s.extra = s.extra || []; s.dropped = s.dropped || [];
-        if (act === 'add') { const c = prompt('Module code the student will also take (repeat / carry-over):'); if (!c) return; const b = prompt('Which batch will the student attend for this module? (leave empty = own batch)', '') || ''; s.extra = s.extra.filter(x => (x.code || String(x).split('|')[0]) !== c.trim()); s.extra.push({ code: c.trim(), batch: b.trim(), reason: prompt('Reason (e.g. repeat – failed):', 'Repeat') || '' }); }
-        else if (act === 'drop') { const c = prompt('Module code the student is NOT taking this semester:'); if (!c) return; if (!s.dropped.includes(c.trim())) s.dropped.push(c.trim()); }
-        else if (act === 'undrop') s.dropped = s.dropped.filter(x => x !== code);
-        else if (act === 'unadd') s.extra = s.extra.filter(x => (x.code || String(x).split('|')[0]) !== code);
-        TT.ver++; ttRender();
-        try { await saveStudentsFac(s.fac || ''); log('TIMETABLE', 'Student registration changed', `${s.id}: ${act} ${code || ''}`); } catch (e) { alert('❌ ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
-        const clash = (() => { const offs = offerings(); const my = Object.entries(enrolment()).filter(([, set]) => set.has(s.id)).map(([k]) => k); const cls = allClasses().filter(e => my.includes(e.key)); for (let i = 0; i < cls.length; i++) for (let j = i + 1; j < cls.length; j++) if (cls[i].day === cls[j].day && overlap(cls[i], cls[j]) && cls[i].key !== cls[j].key) return `${cls[i].code} and ${cls[j].code} on ${cls[i].day}`; return ''; })();
-        if (clash) alert(`⚠️ ${s.name} now has a clash: ${clash}.\nMove one of the classes (🧩 Build) or choose another batch for the added module.`);
-    };
-    window.ttStuNew = () => { const id = prompt('Student ID:'); if (!id) return; const name = prompt('Full name:') || ''; const fac = facManaged() || (prompt('Faculty code:', TT.ui.fac || '') || '').toUpperCase(); const course = prompt('Course name (as in Modules):', TT.ui.course || '') || ''; const batch = prompt('Batch:', TT.ui.batch || '') || ''; TT.students.push({ id: id.trim(), name, fac, course, batch, extra: [], dropped: [] }); TT.ui.stuSel = id.trim(); TT.ver++; saveStudentsFac(fac).catch(e => alert('❌ ' + e.message)); ttRender(); };
-    window.ttStuTT = (id) => { const s = stuById(id); if (!s) return; const offs = offerings(); const keys = new Set(Object.entries(enrolment()).filter(([, set]) => set.has(id)).map(([k]) => k)); const list = allClasses().filter(e => keys.has(e.key)); dlg(`🗓️ ${esc(s.name)} – personal timetable`, weekHtml(list, { click: false, maxH: '60vh' }) + `<div class="flex justify-end mt-2"><button class="iq-btn-soft" onclick="window.ttExport('pdf', [{ meta: { type: 'Student', title: '${js(s.name + ' (' + s.id + ')')}', fac: '${js(s.fac)}' }, list: window.__ttStuList }], 'Timetable_${js(s.id)}')">📄 PDF</button></div>`); window.__ttStuList = list; };
 
-    // ------------------------------------------------------------------ live amendment notices for lecturers & coordinators
-    let _ttSigInit = false;
-    function ttNotifyMine() {
-        if (!currentLecturerId || !TT.ready) return;
-        const mine = allClasses().filter(e => e.lecturerId === currentLecturerId || teamIds().has(e.lecturerId)).map(e => `${e.id}|${e.day}|${e.start}|${e.end}|${e.roomId}|${e.lecturerId}`).concat(myExams().map(e => `${e.id}|${e.date}|${e.start}|${(e.rooms || []).join(',')}`)).sort().join('#');
-        const key = 'iq_tt_sig_' + sk(TT.cfg.activeTerm) + '_' + sk(currentLecturerId);
-        let old = null; try { old = localStorage.getItem(key); } catch (e) {}
-        if (old !== null && old !== mine) { window.showToast('🗓️ Your timetable (or your team’s) was amended – open My timetable to see the latest.', 'info'); try { localStorage.setItem('iq_tt_changed_' + sk(currentLecturerId), String(Date.now())); } catch (e) {} }
-        try { localStorage.setItem(key, mine); } catch (e) {}
-        _ttSigInit = true; renderMyTT();
-    }
-    // lecturer dashboard card
-    function renderMyTT() {
-        const panel = document.getElementById('iq-lect-panel'); if (!panel || !currentLecturerId || !isWorkspaceRole()) return;
-        let el = document.getElementById('iq-my-tt'); if (!el) { el = document.createElement('div'); el.id = 'iq-my-tt'; el.className = 'mt-3'; panel.appendChild(el); }
-        const list = myClasses(); const ex = myExams(); let ch = 0; try { ch = n1(localStorage.getItem('iq_tt_changed_' + sk(currentLecturerId))); } catch (e) {}
-        el.innerHTML = `<div style="border:2px solid #7dd3fc;border-radius:16px;background:white;overflow:hidden">${royalHead('🗓️', 'My Timetable', `${TT.cfg.activeTerm ? esc(term().label || '') : 'No semester yet'} · ${list.length} class session(s) · ${Math.round(list.reduce((a, e) => a + durH(e), 0) * 10) / 10} h/week · ${ex.length} exam(s)`, `<div class="flex gap-2 flex-wrap">${ch && Date.now() - ch < 7 * 864e5 ? `<span class="iq-chip" style="background:#fee2e2;color:#b91c1c">🔔 amended ${fmtDT(ch)}</span>` : ''}<button class="iq-btn-soft" onclick="window.ttOpen('class','mine')">Open full view</button><button class="iq-btn-soft" onclick="window.ttQuickPdf('mine')">📄 PDF</button></div>`)}
-            <div class="p-2">${list.length ? weekHtml(list, { click: false, noLect: true, maxH: '420px' }) : '<p class="text-[11px] text-gray-400 italic p-4 text-center">No classes on the timetable yet – they appear here live as soon as the faculty schedules them.</p>'}</div></div>`;
-    }
-    window.__ttRenderMine = renderMyTT;
+    // ------------------------------------------------------------------ STYLES
+    const axCss = document.createElement('style');
+    axCss.textContent = `
+    .ax-studio{--g:#004d40;--gold:#d4af37;--b:#0d47a1;font-family:Inter,sans-serif}
+    .ax-hero{position:relative;overflow:hidden;border-radius:18px;padding:16px 18px;color:#fff;background:linear-gradient(120deg,#012e2a 0%,#004d40 45%,#0d47a1 100%);box-shadow:0 10px 30px rgba(0,77,64,.25);border-bottom:4px solid var(--gold)}
+    .ax-k-EXAM .ax-hero{background:linear-gradient(120deg,#1f1300 0%,#6b3f00 40%,#004d40 100%)}
+    .ax-hero-pat{position:absolute;inset:0;opacity:.09;background-image:radial-gradient(circle at 10px 10px,#fff 1.5px,transparent 2px);background-size:22px 22px;pointer-events:none}
+    .ax-kick{font-size:9px;font-weight:900;letter-spacing:.3em;text-transform:uppercase;color:#fde68a}
+    .ax-h2{font-family:Cinzel,'Playfair Display',serif;font-weight:900;font-size:22px;line-height:1.15}.ax-h2s{font-family:Inter,sans-serif;font-size:13px;font-weight:700;opacity:.85}
+    .ax-meta{font-size:10.5px;opacity:.95;margin-top:2px}
+    .ax-ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end}.ax-ctl label{display:flex;flex-direction:column;font-size:8px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#fde68a}
+    .ax-ctl select{margin-top:2px;min-width:120px;max-width:280px;padding:6px 8px;border-radius:9px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:800}.ax-ctl select option{color:#0f172a}
+    .ax-b{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:7px 12px;border-radius:10px;font-size:10.5px;font-weight:900;border:1px solid #cbd5e1;background:#fff;color:#0f172a;cursor:pointer;transition:.15s;white-space:nowrap}
+    .ax-b:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.12)}.ax-b:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+    .ax-b-gold{background:linear-gradient(135deg,#f5d77a,#d4af37);border-color:#b8860b;color:#3b2a00}.ax-b-green{background:#047857;border-color:#065f46;color:#fff}.ax-b-red{background:#b91c1c;border-color:#991b1b;color:#fff}.ax-b-blue{background:#0d47a1;border-color:#0b3a85;color:#fff}
+    .ax-b-sm{padding:4px 8px;font-size:9.5px;border-radius:8px}.ax-b-lg{padding:12px;font-size:12px}
+    .ax-st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.05em}.ax-st-draft{background:#fee2e2;color:#991b1b}.ax-st-pub{background:#d1fae5;color:#065f46}.ax-st-amend{background:#fef3c7;color:#92400e}.ax-st-ro{background:#e2e8f0;color:#334155}
+    .ax-warnbar{margin-top:8px;background:#fef3c7;border:1px solid #f59e0b;color:#78350f;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:700}
+    .ax-tabs{display:flex;gap:4px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:thin}.ax-tabs button{white-space:nowrap;padding:7px 12px;border-radius:999px;font-size:10.5px;font-weight:900;background:#fff;border:1px solid #e2e8f0;color:#334155}.ax-tabs button.on{background:#004d40;color:#fff;border-color:#004d40;box-shadow:0 4px 12px rgba(0,77,64,.3)}
+    .ax-body{min-height:300px}
+    .ax-empty{text-align:center;padding:30px 16px;color:#64748b;font-size:12px}
+    .ax-build{display:grid;grid-template-columns:300px 1fr;gap:10px;align-items:start}
+    @media(max-width:960px){.ax-build{grid-template-columns:1fr}.ax-offlist{max-height:260px!important}}
+    .ax-side{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:10px;position:sticky;top:8px}
+    .ax-lbl{display:block;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#475569;margin-bottom:3px}
+    .ax-in{width:100%;padding:7px 9px;border:1px solid #cbd5e1;border-radius:9px;font-size:11.5px;background:#fff;outline:none}.ax-in:focus{border-color:#0d47a1;box-shadow:0 0 0 3px rgba(13,71,161,.12)}
+    .ax-prog{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:8px 0 3px}.ax-prog>div{height:100%;background:linear-gradient(90deg,#059669,#d4af37)}
+    .ax-offlist{max-height:62vh;overflow:auto;display:flex;flex-direction:column;gap:5px;padding-right:2px}
+    .ax-off{border:1px solid #e2e8f0;border-left:5px solid #ef4444;border-radius:10px;padding:6px 8px;background:#fff;cursor:pointer;font-size:11px;transition:.12s}.ax-off:hover{box-shadow:0 3px 10px rgba(0,0,0,.08)}
+    .ax-off-part{border-left-color:#f59e0b}.ax-off-done{border-left-color:#10b981;opacity:.75}.ax-off.sel{outline:3px solid #0d47a1;outline-offset:1px;opacity:1}
+    .ax-off-n{font-size:10px;color:#334155;line-height:1.2}.ax-off-m{font-size:9px;color:#64748b;margin-top:1px}
+    .ax-pill{font-size:9px;font-weight:900;background:#f1f5f9;border-radius:99px;padding:1px 7px;color:#334155}
+    .ax-main{min-width:0}
+    .ax-legend{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:10px;font-weight:700;color:#475569;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:7px 10px;margin-bottom:6px}
+    .ax-legend .lg,.lg{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:middle;margin-right:3px}.lg.ok{background:#bbf7d0;border:1px solid #22c55e}.lg.warn{background:#fde68a;border:1px solid #f59e0b}.lg.bad{background:#fecaca;border:1px solid #ef4444}
+    .ax-selinfo{background:#dbeafe;color:#0b3a85;padding:3px 8px;border-radius:8px}.ax-selinfo a{cursor:pointer;margin-left:6px;font-weight:900}
+    .ax-cap{font-size:10.5px;font-weight:800;color:#0f3d3a;margin:0 0 6px 2px}.ax-cap a{cursor:pointer;text-decoration:underline}
+    .ax-grid{overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:6px;max-height:74vh}
+    .ax-row{display:grid;grid-template-columns:118px 1fr;border-bottom:1px solid #eef2f7;min-width:max-content}
+    .ax-row.ax-head{position:sticky;top:-6px;z-index:5;background:#fff}
+    .ax-lab{position:sticky;left:-6px;z-index:4;background:#f8fafc;border-right:2px solid #e2e8f0;padding:10px 8px;font-size:11px;display:flex;flex-direction:column;justify-content:flex-start}.ax-lab span{font-size:9px;color:#64748b;font-weight:700}
+    .ax-trk{position:relative;min-height:66px}
+    .ax-bg,.ax-fg{display:grid;grid-template-columns:repeat(var(--n),minmax(96px,1fr));gap:0}
+    .ax-bg{position:absolute;inset:0}
+    .ax-fg{position:relative;pointer-events:none;grid-auto-rows:minmax(62px,auto);grid-auto-flow:row dense;gap:3px;padding:3px}
+    .ax-hdr{grid-auto-rows:auto;pointer-events:auto;gap:0;padding:0}
+    .ax-band{grid-row:1;text-align:center;font-size:8.5px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:#fff;background:var(--c);padding:3px 0;border-right:2px solid #fff}
+    .ax-th{text-align:center;padding:4px 2px;font-size:10px;border-left:1px dashed #e2e8f0;background:#f8fafc}.ax-th b{display:block;color:#0f3d3a}.ax-th span{font-size:8.5px;color:#64748b}
+    .ax-c{border-left:1px dashed #eef2f7;transition:.1s;display:flex;align-items:center;justify-content:center}.ax-c i{font-style:normal;font-weight:900;color:#16a34a;opacity:0;font-size:16px}.ax-c.ok{background:repeating-linear-gradient(45deg,#dcfce7,#dcfce7 6px,#f0fdf4 6px,#f0fdf4 12px);cursor:pointer}.ax-c.ok:hover i{opacity:1}.ax-c.ok:hover{background:#bbf7d0}
+    .ax-c.warn{background:#fef9c3;cursor:pointer}.ax-c.bad{background:#fee2e2;cursor:not-allowed}.ax-c.na{background:#f1f5f9}.ax-sep{border-left:2px solid #cbd5e1!important}.ax-dragover{background:#bfdbfe!important;outline:2px dashed #0d47a1}
+    .ax-e{pointer-events:auto;border:1px solid;border-left-width:5px;border-radius:9px;padding:4px 6px;font-size:10px;cursor:pointer;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.06);transition:.12s;min-width:0}.ax-e:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.14);z-index:3}
+    .ax-e-clash{outline:3px solid #dc2626;animation:axpulse 1.4s infinite}.ax-e-hi{outline:3px solid #0d47a1}
+    @keyframes axpulse{50%{outline-color:#fca5a5}}
+    .ax-e-top{display:flex;gap:4px;align-items:center;justify-content:space-between}.ax-e-top b{font-size:11px}
+    .ax-e-n{font-size:9px;opacity:.85;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ax-e-l{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ax-e-t{font-size:8.5px;opacity:.7;font-weight:800}
+    .ax-md{font-size:8px;font-weight:900;padding:0 5px;border-radius:99px;background:#fff}.ax-md-Online{color:#047857}.ax-md-Hybrid{color:#7c3aed}.ax-md-ov{background:#dc2626;color:#fff}
+    .ax-offgrid{font-size:9px;color:#92400e;padding:2px 6px}.ax-offgrid a{cursor:pointer;text-decoration:underline}
+    .ax-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+    .ax-seg{display:inline-flex;background:#f1f5f9;border-radius:10px;padding:2px;gap:2px;flex-wrap:wrap}.ax-seg button{padding:5px 10px;border-radius:8px;font-size:10px;font-weight:900;color:#475569}.ax-seg button.on{background:#fff;color:#004d40;box-shadow:0 1px 4px rgba(0,0,0,.12)}.ax-seg button:disabled{opacity:.4}
+    .ax-filters{display:flex;gap:4px;flex-wrap:wrap}.ax-filters select{padding:5px 8px;border:1px solid #cbd5e1;border-radius:8px;font-size:10.5px;max-width:200px}
+    .ax-kpi{font-size:10px;font-weight:800;color:#475569}
+    .ax-wk{overflow:auto;max-height:74vh;background:#fff;border:1px solid #e2e8f0;border-radius:14px}
+    .ax-wkt{width:100%;border-collapse:separate;border-spacing:0;font-size:10px}.ax-wkt thead th{position:sticky;top:0;z-index:2;background:#0f3d3a;color:#fff;padding:7px;font-size:10px;text-align:left}.ax-wkt thead th span{display:block;font-size:8.5px;color:#fde68a;font-weight:700}
+    .ax-wkt tbody th{position:sticky;left:0;background:#f8fafc;text-align:left;vertical-align:top;padding:6px 8px;min-width:150px;border-bottom:1px solid #e2e8f0;z-index:1}.ax-wkt tbody th span{display:block;font-size:9px;color:#64748b;font-weight:600}
+    .ax-wkt td{vertical-align:top;padding:4px;border-bottom:1px solid #eef2f7;border-left:1px solid #f1f5f9;min-width:170px}
+    .ax-chip{border-left:4px solid var(--c);background:#f8fafc;border-radius:7px;padding:3px 6px;margin:2px 0;cursor:pointer;line-height:1.25}.ax-chip:hover{background:#eef2ff}.ax-chip .t{font-weight:900;color:#0f3d3a}.ax-chip.clash{background:#fee2e2;border-left-color:#dc2626}
+    .ax-xe{border-left:6px solid var(--c);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 14%,#fff),#fff);color:#0f172a;border-radius:6px;margin:-4px -6px;padding:4px 6px;height:calc(100% + 8px)}
+    .ax-grid-exam .ax-e{border-color:#cbd5e1;background:#fff}
+    .ax-cn{font-size:8px;font-weight:900;color:#fff;background:var(--c);padding:0 6px;border-radius:99px}
+    .ax-xchip{display:flex;gap:6px;align-items:stretch;background:#fff;border:1px solid #e2e8f0;border-radius:9px;margin:3px 0;cursor:pointer;overflow:hidden;font-size:10px}.ax-xchip>i{width:8px;background:var(--c);flex-shrink:0}.ax-xchip>div{padding:3px 6px 3px 0}.ax-xchip .s{font-size:9px;color:#64748b}.ax-xchip.clash{border-color:#dc2626;background:#fef2f2}
+    .ax-legend-col{gap:6px 10px}.ax-lg-c{display:inline-flex;align-items:center;gap:4px;background:#f8fafc;border-radius:99px;padding:2px 8px}.ax-lg-c i{width:14px;height:14px;border-radius:4px;display:inline-block}
+    .ax-hall{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}.ax-hall-h{background:#0f3d3a;color:#fff;font-weight:900;padding:8px 12px;display:flex;justify-content:space-between;font-size:13px}.ax-hall-h span{font-size:10px;color:#fde68a}
+    .ax-hall-s{border-top:1px solid #e2e8f0;padding:6px 8px}.ax-hall-d{font-size:10px;font-weight:900;color:#334155;display:flex;justify-content:space-between;margin-bottom:3px}
+    .ax-hall-b{display:flex;align-items:center;gap:8px;border-radius:9px;overflow:hidden;border:1px solid #e2e8f0;margin:3px 0;font-size:10px}.ax-hall-cn{background:var(--c);color:#fff;font-weight:900;padding:10px;min-width:92px;text-align:center;font-size:12px;letter-spacing:.05em}
+    .ax-ov{position:fixed;inset:0;z-index:1500;background:rgba(2,20,18,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:3vh 10px;overflow:auto}.ax-ov.open{display:flex}
+    #ax-dlg{z-index:1600}
+    .ax-box{background:#fff;border-radius:18px;width:100%;max-width:760px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden;animation:axin .18s ease-out}.ax-box-xl{max-width:1180px}
+    @keyframes axin{from{transform:translateY(12px);opacity:0}}
+    .ax-mh{position:relative;overflow:hidden;padding:14px 18px;color:#fff;background:linear-gradient(120deg,#012e2a,#004d40 50%,#0d47a1);border-bottom:3px solid #d4af37}.ax-mh h3{font-family:Cinzel,'Playfair Display',serif;font-size:18px;font-weight:900}
+    .ax-x{font-size:26px;line-height:1;color:#fff;opacity:.85;padding:0 4px}.ax-x:hover{opacity:1}
+    .ax-mb{padding:14px 18px;max-height:70vh;overflow:auto}.ax-mf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 18px;border-top:1px solid #e2e8f0;background:#f8fafc}
+    .ax-fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ax-fgrid label{display:flex;flex-direction:column;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#475569}
+    .ax-fgrid input:not([type=checkbox]),.ax-fgrid select{margin-top:2px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:9px;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;color:#0f172a}
+    .ax-fgrid .col-span-2{grid-column:span 2}
+    @media(max-width:560px){.ax-fgrid{grid-template-columns:1fr}.ax-fgrid .col-span-2{grid-column:span 1}}
+    .ax-hint{text-transform:none;letter-spacing:0;color:#0d47a1;font-weight:700}
+    .ax-rec{border:1px solid #bbf7d0;background:#f0fdf4;color:#065f46;border-radius:9px;padding:4px 8px;font-size:10px;font-weight:800}.ax-rec span{font-weight:600;color:#475569;font-size:9px}.ax-rec.on{background:#047857;color:#fff}.ax-rec.on span{color:#d1fae5}
+    .ax-chkl{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px 10px;max-height:150px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px;padding:6px;font-size:11px}
+    .ax-alert{border-radius:9px;padding:6px 10px;font-size:11px;font-weight:700;margin:3px 0}.ax-alert.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}.ax-alert.warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a}.ax-alert.bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}.ax-alert a{cursor:pointer;text-decoration:underline;margin-left:4px}
+    .ax-seat{display:flex;gap:4px;margin:3px 0}.ax-seat select{flex:1;padding:6px;border:1px solid #cbd5e1;border-radius:8px;font-size:11px}.ax-seat input{width:80px;padding:6px;border:1px solid #cbd5e1;border-radius:8px}.ax-seat button{color:#b91c1c;font-weight:900;padding:0 8px}
+    .ax-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px;box-shadow:0 2px 10px rgba(0,0,0,.03)}.ax-card-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:900;color:#0f3d3a;margin-bottom:8px;border-bottom:1px solid #f1f5f9;padding-bottom:6px}
+    .ax-tbl{width:100%;border-collapse:collapse;font-size:10.5px}.ax-tbl th{background:#f1f5f9;color:#334155;text-align:left;padding:6px;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;position:sticky;top:0}.ax-tbl td{border-bottom:1px solid #f1f5f9;padding:5px 6px;vertical-align:top}.ax-tbl tr:hover td{background:#f8fafc}
+    .ax-tag{display:inline-block;font-size:9px;font-weight:900;border-radius:99px;padding:1px 8px;margin:1px}.ax-tag.green{background:#d1fae5;color:#065f46}.ax-tag.red{background:#fee2e2;color:#991b1b}.ax-tag.amber{background:#fef3c7;color:#92400e}.ax-tag.blue{background:#dbeafe;color:#1e40af}.ax-tag.gray{background:#e2e8f0;color:#334155}
+    .ax-x-sm{padding:2px 6px;border-radius:6px;background:#f1f5f9;font-size:11px}.ax-x-sm:hover{background:#e2e8f0}
+    .ax-bar{height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;width:90px}.ax-bar>div{height:100%;background:#0d47a1}
+    .ax-slot{font-size:9.5px;font-weight:800;border-left:4px solid var(--c);background:#f8fafc;border-radius:6px;padding:2px 6px}
+    .ax-cb{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0;color:#334155;flex-direction:row!important}
+    .ax-radio{display:flex;gap:6px;align-items:center;font-size:11.5px;font-weight:700;padding:5px 6px;border-radius:8px;cursor:pointer}.ax-radio:hover{background:#f1f5f9}
+    .ax-kbox{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:6px;font-size:10px;font-weight:700;color:#475569}.ax-kbox b{display:block;font-size:20px;color:#0f3d3a}
+    .ax-diff{font-family:ui-monospace,Menlo,monospace;font-size:10px;background:#0f172a;color:#e2e8f0;border-radius:9px;padding:8px;max-height:260px;overflow:auto;white-space:pre-wrap}
+    .ax-hist{border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:6px;font-size:11px}
+    .ax-sug{font-size:10.5px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:5px 8px;margin:3px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .ax-stuclash{border:1px solid #fecaca;border-radius:10px;padding:8px;margin:5px 0;font-size:11px;background:#fffafa}
+    .clickable{cursor:pointer;color:#0d47a1}.clickable:hover{text-decoration:underline}
+    .ax-notice{background:linear-gradient(90deg,#fff7ed,#fffbeb);border:1px solid #fdba74;border-left:6px solid #ea580c;border-radius:12px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:#7c2d12}
+    .ax-live{font-size:9px;color:#dc2626;letter-spacing:.1em;animation:axpulse2 1.6s infinite}@keyframes axpulse2{50%{opacity:.3}}
+    `;
+    document.head.appendChild(axCss);
 
-    // ------------------------------------------------------------------ hooks: tabs, lecturer panel, 360 card, workload hours
+    // ------------------------------------------------------------------ HOOKS into the portal
     (() => {
-        const b1 = document.getElementById('tbtn-timetable'), b2 = document.getElementById('tbtn-exam-tt');
-        if (b1) { b1.setAttribute('onclick', "window.ttOpen('class')"); b1.innerHTML = '🗓️ Timetable Studio'; }
-        if (b2) { b2.setAttribute('onclick', "window.ttOpen('exam')"); b2.innerHTML = '🎓 Exam Timetable Studio'; }
+        const t1 = document.getElementById('tbtn-timetable'); if (t1) t1.innerHTML = '🗓️ Lecture Timetable';
+        const t2 = document.getElementById('tbtn-exam-tt'); if (t2) t2.innerHTML = '📝 Exam Timetable';
     })();
-    const _rlr = renderLectRoyal;
-    renderLectRoyal = function () { _rlr(); startTT(); renderMyTT(); const hero = document.querySelector('#iq-lect-panel .iq-hero .flex.flex-wrap.gap-2.mt-3'); if (hero && !hero.querySelector('.tt-open-btn')) hero.insertAdjacentHTML('beforeend', `<button class="iq-btn-soft tt-open-btn" onclick="window.ttOpen('class','mine')">🗓️ My timetable</button>`); };
-    const _ptabs = personTabs;
-    personTabs = (p) => { const t = _ptabs(p); if (p.lid) t.splice(t.findIndex(x => x[0] === 'attendance') + 1, 0, ['timetable', '🗓️ Timetable']); return t; };
-    const _pb = personBody;
-    personBody = function () { if (S360.tab === 'timetable') { startTT(); const lid = S360.lid; const list = allClasses().filter(e => e.lecturerId === lid); const ex = allExams().filter(e => offList().some(o => o.key === e.key && o.lecturerId === lid)); return `<div class="flex justify-between items-center mb-2"><b class="text-[12px] text-[#004d40]">${list.length} class session(s) · ${Math.round(list.reduce((a, e) => a + durH(e), 0) * 10) / 10} h/week</b><button class="iq-btn-soft" onclick="window.ttExport('pdf', [{ meta: { type: 'Lecturer', lid: '${js(lid)}', title: '${js(nm(lid))}', fac: '${js(lFac(window.getLecturerById(lid)))}' }, list: window.__ttL }], 'Timetable_${js(sk(nm(lid)))}')">📄 PDF</button></div>${weekHtml(list, { click: true, noLect: true, maxH: '55vh' })}<div class="tt-sec">🎓 Exams</div>${ex.length ? examListTable(ex) : '<p class="text-[11px] text-gray-400 italic">No exams.</p>'}` + (window.__ttL = list, ''); } return _pb.apply(this, arguments); };
+    const _sw3 = window.switchTab;
+    window.switchTab = function (tabId, ...rest) {
+        const r = _sw3.call(this, tabId, ...rest);
+        try { if (tabId === 'timetable') renderStudio('CLASS'); if (tabId === 'exam-tt') renderStudio('EXAM'); } catch (e) { console.error('[AIMS]', e); }
+        return r;
+    };
+    const _tar3 = window.triggerAllRenders;
+    window.triggerAllRenders = function (...a) { LV++; const r = _tar3.apply(this, a); scheduleRender(); return r; };
+    const _rlw3 = window.renderLecturerWorkspace;
+    window.renderLecturerWorkspace = function (...a) { const r = _rlw3.apply(this, a); try { if (ensureLectPanel()) renderLectTT(); } catch (e) { console.error('[AIMS lecturer]', e); } return r; };
+    const _lo3 = window.handleLogout;
+    window.handleLogout = async function (...a) { stopTT(); return _lo3.apply(this, a); };
+    const _vpt = window.viewPersonalTimetable, _vpe = window.viewPersonalExamTimetable;
+    window.viewPersonalTimetable = (type) => { const id = type === 'student' ? window.__aimsCurStu() : currentLecturerId; if (id && Object.keys(TT).some(k => k.startsWith('tt_'))) return window.AXpersonal(type === 'student' ? 'stu' : 'lect', id, 'CLASS'); return _vpt(type); };
+    window.viewPersonalExamTimetable = (type) => { const id = type === 'student' ? window.__aimsCurStu() : currentLecturerId; if (id && Object.keys(TT).some(k => k.startsWith('tt_'))) return window.AXpersonal(type === 'student' ? 'stu' : 'lect', id, 'EXAM'); return _vpe(type); };
+    const _smd = window.showModuleDetails;
+    window.showModuleDetails = function (code, ...a) {
+        const r = _smd.call(this, code, ...a);
+        try {
+            const list = Object.values(TT).filter(d => d.id && d.id.startsWith('tt_') && d.kind === 'CLASS').flatMap(d => entsOf(d, !!(d.published && d.published.version)).filter(e => window.makeSafeId(e.code) === code));
+            const box = document.getElementById('m-info-schedule');
+            if (box && list.length) box.innerHTML = list.map(e => `<div class="bg-gray-100 p-1 rounded border mb-1"><b>${e.day}</b> ${e.start}–${e.end} · ${E(e.batch)} · 📍 ${E(vname(e.venue))} · ${E(lnames(e.lects))}</div>`).join('');
+        } catch (e) {}
+        return r;
+    };
     const _aru3 = applyRoleUI;
-    applyRoleUI = function () { const r = _aru3.apply(this, arguments); try { if (activeRole !== 'STUDENT') startTT(); } catch (e) {} return r; };
-
-    window.__iqra = { TT, offerings, classClashes, examClashes, recommendRooms, enrolment, TD, DW, S360, workloadOf, teachCardHtml, coordCardHtml, canEditHrs, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
+    applyRoleUI = function () {
+        const r = _aru3.apply(this, arguments);
+        try {
+            startTT();
+            const show = (id) => { const b = document.getElementById(id); if (b) b.style.display = 'inline-block'; };
+            if (['VC', 'REGISTRAR', 'FINANCE', 'DVC_ACAD', 'DVC_ADMIN', 'VIEWER'].includes(activeRole)) { show('tbtn-timetable'); show('tbtn-exam-tt'); }
+            if (activeRole === 'EXAM') show('tbtn-timetable');
+            if (activeRole === 'STUDENT') ensureStudentBtn();
+        } catch (e) { console.error('[AIMS role UI]', e); }
+        return r;
+    };
+    modalShell();
+    window.__aims = { TT, ST, offerings, stuIndex, checkClass, checkExam, slotsOf, pool, buildPages, renderStudio, personal, startTT, ttList };
     }
-    // =================================== END OF ADD-ON 2 (IQRA) ===================================
+    // =================================== END OF ADD-ON 3 (RASFAHI AIMS · TIMETABLE STUDIO) ===================================
 
