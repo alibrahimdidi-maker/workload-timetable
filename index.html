@@ -7868,6 +7868,974 @@
             }
         };
 
+    // =====================================================================================================
+    // ===== ADD-ON: 📊 REPORTS CENTER · 🗓️ WEEKLY LECTURER ATTENDANCE · 🕘 FULL ACTIVITY / HISTORY LOG =====
+    // ===== Paste this whole block INSIDE the main <script type="module">, just before its closing script tag
+    // ===== (right after the  window.masterReset = () => { ... };  function at the very end).
+    // =====================================================================================================
+    {
+    // ---------------------------------------------------------------- helpers
+    const RXC = { green: '#004d40', blue: '#0d47a1', purple: '#4a148c', red: '#b91c1c', gold: '#d4af37', teal: '#00695c', slate: '#334155' };
+    const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+    const r1 = (v) => Math.round((v || 0) * 10) / 10;
+    const pctOf = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const fmtDT = (iso) => iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+    const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+    const wkDate = (k) => new Date(k + 'T00:00:00');
+    const strip = (h) => String(h ?? '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+    const lName = (id) => { const l = id ? window.getLecturerById(id) : null; return l ? window.getLecturerName(l) : (id || ''); };
+    const nameLink = (id, name) => id ? `<span class="font-bold cursor-pointer hover:underline" style="color:${RXC.blue}" onclick="window.openPersonCard('${id}')">${esc(name || lName(id))}</span>` : esc(name || '—');
+    const pill = (t, kind) => { const m = { ok: ['#d1fae5', '#065f46'], warn: ['#f3e8ff', '#6b21a8'], bad: ['#fee2e2', '#b91c1c'], info: ['#dbeafe', '#1e40af'], mute: ['#f1f5f9', '#475569'] }[kind || 'mute']; return `<span class="rx-pill" style="background:${m[0]};color:${m[1]}">${t}</span>`; };
+    const pctPill = (p) => (p === null || p === undefined || isNaN(p)) ? pill('—', 'mute') : pill(p + '%', p >= 90 ? 'ok' : p >= 70 ? 'warn' : 'bad');
+    const bar = (p, c) => `<div class="rx-bar"><div style="width:${Math.min(100, Math.max(0, p || 0))}%;background:${c || (p >= 90 ? RXC.green : p >= 60 ? RXC.blue : RXC.purple)}"></div></div>`;
+    const tick = (v) => v ? '<span style="color:#065f46;font-weight:900">✔</span>' : '<span style="color:#b91c1c;font-weight:900">✘</span>';
+
+    // ---------------------------------------------------------------- semester weeks
+    let _ssk = null, _sskT = 0;
+    const semStartKey = () => {
+        if (_ssk && Date.now() - _sskT < 3000) return _ssk;
+        _ssk = semStartCalc(); _sskT = Date.now(); return _ssk;
+    };
+    const semStartCalc = () => {
+        const s = localDB.settings && localDB.settings.semesterStart;
+        if (s) return window.weekKey(new Date(s + 'T00:00:00'));
+        let min = null;
+        (localDB.checklist || []).forEach(r => Object.keys(r.attendance || {}).forEach(k => { if (!min || k < min) min = k; }));
+        (localDB.weekly_reports || []).forEach(w => { if (w.date) { const k = window.weekKey(new Date(w.date + 'T00:00:00')); if (!min || k < min) min = k; } });
+        return min || window.weekKey(addDays(new Date(), -7 * 11));
+    };
+    const semWeeks = () => parseInt((localDB.settings || {}).semesterWeeks) || 15;
+    const weekNo = (k) => Math.floor((wkDate(k) - wkDate(semStartKey())) / (7 * 864e5)) + 1;
+    const wkShort = (k) => wkDate(k).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const wkLabel = (k) => { const n = weekNo(k); return `${n >= 1 && n <= 60 ? 'Week ' + n + ': ' : ''}${wkShort(k)} – ${addDays(wkDate(k), 6).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`; };
+    const pastWk = (w) => w <= window.weekKey();
+    window.rxWeekLabel = wkLabel;
+
+    // ---------------------------------------------------------------- attendance data (row.attendance = { weekKey: {sched,taken,cancelled,mode,reason,by,byName,at} })
+    const attOf = (r) => r.attendance || {};
+    const attTaken = (r) => num(r.attendanceOpening) + Object.values(attOf(r)).reduce((a, e) => a + num(e.taken), 0);
+    const attCancelled = (r) => Object.values(attOf(r)).reduce((a, e) => a + num(e.cancelled), 0);
+    const attTotal = (r) => { const t = num(r.totalHrs); if (t > 0) return t; const w = num(modInfo(r.code, r.batch).wch); return w ? w * semWeeks() : 0; };
+    const attEst = (r) => !(num(r.totalHrs) > 0);
+    const attLast = (r) => Object.entries(attOf(r)).sort((a, b) => b[0].localeCompare(a[0]))[0];
+    const defSched = (r) => num(modInfo(r.code, r.batch).wch) || r1(scheduledHrs(r.lecturerId, r.code)) || '';
+    const lectHours = (lid) => {
+        const rows = (localDB.checklist || []).filter(r => r.lecturerId === lid).sort(rowSort);
+        const planned = rows.reduce((a, r) => a + attTotal(r), 0), taken = rows.reduce((a, r) => a + attTaken(r), 0), cancelled = rows.reduce((a, r) => a + attCancelled(r), 0);
+        const wk = window.weekKey();
+        return { rows, planned, taken, cancelled, remaining: Math.max(0, planned - taken), pct: pctOf(taken, planned), doneThis: rows.filter(r => attOf(r)[wk]).length };
+    };
+    window.attTaken = attTaken; window.lectHours = lectHours;
+
+    // ---------------------------------------------------------------- styles
+    const css = document.createElement('style');
+    css.textContent = `
+    .rx-chip{padding:6px 12px;border-radius:999px;font-size:10px;font-weight:800;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer;white-space:nowrap}
+    .rx-chip:hover{border-color:#0d47a1;color:#0d47a1}
+    .rx-chip.on{background:linear-gradient(135deg,#004d40,#0d47a1);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(13,71,161,.28)}
+    .rx-chip:focus-visible,.rx-week:focus-visible,.rx-card:focus-visible{outline:3px solid #4a148c;outline-offset:2px}
+    .rx-week{display:flex;flex-direction:column;align-items:center;min-width:78px;padding:6px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:9px;font-weight:800;color:#334155}
+    .rx-week:hover{border-color:#0d47a1}
+    .rx-week.on{border:2px solid #4a148c;background:#f5f3ff}
+    .rx-week .wn{font-size:12px;font-weight:900;color:#004d40}
+    .rx-week .dot{width:100%;height:4px;border-radius:9px;margin-top:4px;background:#e5e7eb;overflow:hidden}
+    .rx-card{cursor:pointer;border-radius:16px;padding:14px;background:#fff;border:1px solid #e2e8f0;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;text-align:left}
+    .rx-card:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(13,71,161,.16);border-color:#0d47a1}
+    .rx-card .ic{font-size:24px;line-height:1}
+    .rx-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--c)}
+    .rx-kpi{border-radius:14px;padding:12px 14px 12px 18px;background:#fff;border:1px solid #e2e8f0;position:relative;overflow:hidden}
+    .rx-kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c)}
+    .rx-kpi .v{font-size:22px;font-weight:900;color:var(--c);line-height:1.15}
+    .rx-kpi .l{font-size:10px;font-weight:800;color:#475569}
+    .rx-kpi .s{font-size:9px;color:#94a3b8;font-weight:700;margin-top:2px}
+    .rx-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:10.5px}
+    .rx-tbl thead th{position:sticky;top:0;background:#0f172a;color:#e2e8f0;font-size:9px;letter-spacing:.3px;padding:8px;text-align:left;z-index:2;white-space:nowrap}
+    .rx-tbl tbody td{padding:7px 8px;border-bottom:1px solid #eef2f7;vertical-align:top}
+    .rx-tbl tbody tr:nth-child(even) td{background:#f8fafc}
+    .rx-tbl tbody tr:hover td{background:#eef2ff}
+    .rx-bar{height:7px;background:#e5e7eb;border-radius:9px;overflow:hidden;min-width:70px}
+    .rx-bar>div{height:100%;border-radius:9px}
+    .rx-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;white-space:nowrap}
+    .rx-sec{background:#fff;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:16px;overflow:hidden}
+    .rx-sec-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+    .rx-sec-b{max-height:480px;overflow:auto}
+    .rx-body{background:#eef2f7}
+    .att-in{width:60px;padding:5px;border:1px solid #cbd5e1;border-radius:8px;text-align:center;font-weight:800;font-size:11px;outline:none;background:#fff}
+    .att-in:focus{border-color:#4a148c;box-shadow:0 0 0 2px #ede9fe}
+    .att-in:disabled{background:#f1f5f9;color:#94a3b8}
+    @media (prefers-reduced-motion: reduce){.rx-card{transition:none}.rx-card:hover{transform:none}}
+    `;
+    document.head.appendChild(css);
+
+    // ---------------------------------------------------------------- UI shells (tab, viewer modal, attendance modal)
+    const tabsBox = document.getElementById('main-tabs-container');
+    if (tabsBox && !document.getElementById('tbtn-reports')) {
+        const b = document.createElement('div');
+        b.id = 'tbtn-reports'; b.className = 'tab-btn text-[9px] md:text-[10px]'; b.innerHTML = '📊 Reports Center';
+        b.onclick = () => window.switchTab('reports');
+        tabsBox.insertBefore(b, document.getElementById('tbtn-matrix'));
+        const t = document.createElement('div'); t.id = 'tab-reports'; t.className = 'tab-content';
+        t.innerHTML = '<div id="rx-center"></div>';
+        document.getElementById('main-dashboard-controls').appendChild(t);
+    }
+    document.body.insertAdjacentHTML('beforeend', `
+    <div id="rx-viewer" class="modal-overlay" style="z-index:1100">
+        <div class="bg-white rounded-2xl w-full shadow-2xl flex flex-col overflow-hidden" style="max-width:1280px;max-height:96vh;border-top:8px solid #004d40">
+            <div class="p-3 border-b flex flex-wrap justify-between items-center gap-2 bg-white">
+                <div class="min-w-0"><h2 id="rx-title" class="text-base md:text-lg font-black truncate" style="color:#004d40"></h2><p id="rx-sub" class="text-[10px] text-gray-500 font-bold"></p></div>
+                <div class="flex gap-2 flex-wrap items-center">
+                    <button onclick="window.rxExcel()" class="bg-green-800 hover:bg-green-900 text-white px-3 py-1.5 rounded-lg text-[10px] font-black">📥 Excel</button>
+                    <button onclick="window.rxPdf()" class="btn-royal-blue px-3 py-1.5 rounded-lg text-[10px] font-black">📄 PDF</button>
+                    <button onclick="window.rxPrint()" class="bg-gray-800 hover:bg-black text-white px-3 py-1.5 rounded-lg text-[10px] font-black">🖨️ Print</button>
+                    <button onclick="window.rxClose()" class="text-gray-400 hover:text-red-600 text-3xl font-bold leading-none ml-1" aria-label="Close report">&times;</button>
+                </div>
+            </div>
+            <div id="rx-content" class="rx-body p-3 md:p-5 overflow-y-auto flex-1 min-h-0"></div>
+        </div>
+    </div>
+    <div id="att-modal" class="modal-overlay" style="z-index:1200">
+        <div class="bg-white rounded-2xl w-full shadow-2xl flex flex-col overflow-hidden" style="max-width:1200px;max-height:95vh;border-top:8px solid #004d40">
+            <div class="p-4 border-b flex justify-between items-start gap-3" style="background:linear-gradient(90deg,#f0fdf9,#eff6ff,#f5f3ff)">
+                <div><h2 class="text-lg font-black" style="color:#004d40">🗓️ Weekly Attendance & Teaching Hours</h2><p id="att-sub" class="text-[10px] text-gray-600 font-bold"></p></div>
+                <button onclick="window.closeAttendance()" class="text-gray-400 hover:text-red-600 text-3xl font-bold leading-none" aria-label="Close">&times;</button>
+            </div>
+            <div id="att-bar" class="p-3 border-b flex flex-wrap gap-2 items-center text-[10px] bg-white"></div>
+            <div id="att-body" class="p-3 md:p-4 overflow-y-auto flex-1 min-h-0 text-[10px] bg-gray-50"></div>
+            <div class="p-3 border-t flex flex-wrap justify-between items-center gap-2 bg-white">
+                <span class="text-[9px] text-gray-500 font-bold">Enter this week's hours for each module. Taken hours add up automatically; remaining = planned − taken.</span>
+                <div class="flex gap-2"><button onclick="window.closeAttendance()" class="px-4 py-2 bg-gray-200 rounded-lg font-bold text-[10px]">Close</button><button onclick="window.saveAttendance()" class="btn-royal-green px-5 py-2 rounded-lg font-black text-[10px] uppercase">💾 Save this week</button></div>
+            </div>
+        </div>
+    </div>`);
+    const pcm = document.getElementById('pc-modal'); if (pcm) pcm.style.zIndex = '1300';
+    const m2f = document.getElementById('m-2fa'); if (m2f) m2f.style.zIndex = '2000';
+
+    // ======================================================================================
+    // =============================== 🕘 ACTIVITY / HISTORY LOG =============================
+    // ======================================================================================
+    // Each entry → Firestore collection "activity_log" (one document per action).
+    // Entries are first queued in the browser, so nothing is lost when offline or during a page reload.
+    const ACT_Q = 'wl_actlog_queue';
+    const SESSION_START = Date.now();
+    const SESSION_ID = sessionStorage.getItem('wl_sid') || (() => { const s = Math.random().toString(36).slice(2, 10); sessionStorage.setItem('wl_sid', s); return s; })();
+    const ACT_CATS = { LOGIN: '🔐 Login', LOGOUT: '🚪 Logout', CHECKLIST: '📋 Checklist', ATTENDANCE: '🗓️ Attendance', REPORT: '📊 Report', TASK: '📌 Task', CONSULT: '💬 Consultation', EXAM: '🎓 Exam', COORD: '👨‍💼 Coordination', DATA: '💾 Data', USER: '👤 Users', EVENT: '🎉 Event', REQUEST: '📩 Request', ASSIGN: '🧩 Assignment', SECURITY: '🛡️ Security', TIMETABLE: '🗓️ Timetable' };
+    const deviceInfo = () => {
+        const ua = navigator.userAgent;
+        const b = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+        const os = /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : 'Other';
+        return `${b} / ${os}${/Mobi/.test(ua) ? ' (mobile)' : ''}`;
+    };
+    const readQ = () => { try { return JSON.parse(localStorage.getItem(ACT_Q) || '[]'); } catch (e) { return []; } };
+    const writeQ = (q) => { try { localStorage.setItem(ACT_Q, JSON.stringify(q.slice(-800))); } catch (e) {} };
+    let _flushP = null;
+    const flushActivity = () => _flushP || (_flushP = (async () => {
+        if (!dbCloud || !navigator.onLine || !(auth && auth.currentUser)) return;
+        try {
+            for (let guard = 0; guard < 300; guard++) {
+                const q = readQ(); if (!q.length) break;
+                await setDoc(doc(collection(dbCloud, 'activity_log')), q[0]);
+                const q2 = readQ(); q2.shift(); writeQ(q2);
+            }
+        } catch (e) { console.warn('[activity log] upload paused:', e.code || e.message); }
+    })().finally(() => { _flushP = null; }));
+    window.addEventListener('online', () => flushActivity());
+    setInterval(() => { if (readQ().length) flushActivity(); }, 60000);
+
+    window.logActivity = (category, action, details = '', extra = {}) => {
+        const u = auth && auth.currentUser; if (!u) return;
+        const me = currentLecturerId ? window.getLecturerById(currentLecturerId) : null;
+        const entry = {
+            at: new Date().toISOString(), ts: Date.now(), email: (u.email || '').toLowerCase(), uid: u.uid,
+            name: me ? window.getLecturerName(me) : ((currentUserRoleDoc && currentUserRoleDoc.name) || ''),
+            role: activeRole || '', faculty: window.scopeFaculty() || userFaculty || (me ? window.getFaculty(me) : ''),
+            lecturerId: currentLecturerId || '', category, action, details: String(details || '').slice(0, 600),
+            device: deviceInfo(), session: SESSION_ID, page: ((document.querySelector('.tab-content.active') || {}).id || '').replace('tab-', ''), ...extra
+        };
+        const q = readQ(); q.push(entry); writeQ(q);
+        flushActivity();
+    };
+
+    // --- sign-in (once per browser tab session) ---
+    if (auth) onAuthStateChanged(auth, (u) => {
+        if (!u) return;
+        const key = 'wl_login_logged_' + u.uid;
+        if (sessionStorage.getItem(key)) return;
+        let n = 0;
+        const t = setInterval(() => {
+            n++;
+            const ready = document.getElementById('app-screen').style.display === 'block' && document.getElementById('loader').style.display === 'none';
+            if (!ready && n < 80) return;
+            clearInterval(t);
+            if (!ready) return;
+            sessionStorage.setItem(key, '1');
+            window.logActivity('LOGIN', 'Signed in', `${(u.providerData || []).map(p => p.providerId === 'google.com' ? 'Google' : p.providerId === 'password' ? 'Email & password' : p.providerId).join(', ')} · ${ROLE_LABELS[activeRole] || activeRole}${userFaculty ? ' · ' + userFaculty : ''}`);
+        }, 500);
+    });
+    // --- sign-out ---
+    const _logout = window.handleLogout;
+    window.handleLogout = async function (...a) {
+        try {
+            window.logActivity('LOGOUT', 'Signed out', `Session length ${Math.max(1, Math.round((Date.now() - SESSION_START) / 60000))} min`);
+            await Promise.race([flushActivity(), new Promise(r => setTimeout(r, 2500))]);
+        } catch (e) {}
+        Object.keys(sessionStorage).filter(k => k.startsWith('wl_login_logged_')).forEach(k => sessionStorage.removeItem(k));
+        return _logout.apply(this, a);
+    };
+    // --- 2-step verification: every confirmed sensitive action (delete, untick, restore, clear...) ---
+    const _reqV = window.requireVerification;
+    window.requireVerification = function (actionText, onOk, onCancel) {
+        return _reqV.call(this, actionText, () => { const r = onOk(); try { window.logActivity('SECURITY', 'Confirmed sensitive action', actionText); } catch (e) {} return r; }, onCancel);
+    };
+    const _c2 = window.confirm2FA;
+    window.confirm2FA = async function (...a) {
+        const txt = document.getElementById('2fa-action-text').innerText;
+        await _c2.apply(this, a);
+        if (!document.getElementById('2fa-error').classList.contains('hidden')) window.logActivity('SECURITY', 'Verification failed', txt);
+    };
+
+    // --- generic wrapper: logs AFTER the action, and only if something actually changed (when a snapshot is given) ---
+    const W = (fn, cat, action, det, snap) => {
+        const o = window[fn]; if (typeof o !== 'function' || o._rxw) return;
+        const w = function (...a) {
+            let d = '', before; try { d = det ? det(...a) : ''; } catch (e) {}
+            try { before = snap ? snap(...a) : undefined; } catch (e) {}
+            const done = () => { try { if (snap && snap(...a) === before) return; window.logActivity(cat, action, d); } catch (e) {} };
+            const res = o.apply(this, a);
+            if (res && typeof res.then === 'function') res.then(done, () => {}); else done();
+            return res;
+        };
+        w._rxw = true; window[fn] = w;
+    };
+    const rowD = (id) => { const r = (localDB.checklist || []).find(x => x.id === id); return r ? `${r.code} (${r.batch})` : (id || ''); };
+    const rowF = (id) => (localDB.checklist || []).find(x => x.id === id);
+    const val = (id) => (document.getElementById(id) || {}).value || '';
+    const fileName = (ev) => (ev && ev.target && ev.target.files && ev.target.files[0]) ? ev.target.files[0].name : '';
+
+    // checklist ticks (unticks are logged by the verification wrapper)
+    const _clSet = window.clSet;
+    window.clSet = function (rowId, k, value, isWeekly = false, verified = false) {
+        const r = rowF(rowId);
+        const before = r ? JSON.stringify([r.checks, r.weekly, r[k]]) : '';
+        const res = _clSet.apply(this, arguments);
+        try {
+            if (r && JSON.stringify([r.checks, r.weekly, r[k]]) !== before && (value || verified || typeof value !== 'boolean')) {
+                const f = isWeekly ? WEEKLY_FIELDS.find(x => x.k === k) : CL_FIELDS.find(x => x.k === k);
+                window.logActivity('CHECKLIST', isWeekly ? 'Weekly item updated' : 'Checklist updated', `${(f && f.l) || k} → ${typeof value === 'boolean' ? (value ? '✔ done' : '✘ removed') : String(value).slice(0, 80)} · ${rowD(rowId)}${isWeekly ? ' · ' + wkLabel(window.weekKey()) : ''}`);
+            }
+        } catch (e) {}
+        return res;
+    };
+    W('allocateRowLecturer', 'COORD', 'Lecturer allocated to module', (id, lid) => `${rowD(id)} → ${lName(lid) || 'none'}`, (id) => (rowF(id) || {}).lecturerId);
+    W('allocateRowCoordinator', 'COORD', 'Module coordinator changed', (id, lid) => `${rowD(id)} → ${lName(lid) || 'none'}`, (id) => (rowF(id) || {}).coordinatorId);
+    W('setModuleCoordinator', 'COORD', 'Module coordinator set (all batches)', (c, code, lid) => `${code} → ${lName(lid) || 'none'}`);
+    W('setCourseCoordinator', 'COORD', 'Course / batch coordinator set', (c, key, lid) => `${key} → ${lName(lid) || 'none'}`);
+    W('setLecturerCoordinator', 'COORD', 'Lecturer linked to coordinator', (lid, cid) => `${lName(lid)} → ${lName(cid) || 'none'}`);
+    W('saveBulkCoord', 'COORD', 'Coordinator links saved', () => lName(val('bc-coord')));
+    W('submitConsultation', 'CONSULT', 'Consultation requested', (id) => `${id === 'GENERAL' ? 'General' : rowD(id)}: ${val('cons-txt-' + id).slice(0, 120)}`, () => (localDB.consultations || []).length);
+    W('resolveConsultation', 'CONSULT', 'Consultation resolved', (id) => { const c = localDB.consultations.find(x => x.id === id); return c ? `${c.lectName} · ${c.code || 'General'}` : id; }, (id) => (localDB.consultations.find(x => x.id === id) || {}).status);
+    W('efSet', 'EXAM', 'Exam document updated', (id, d, f, v) => `${rowD(id)} · ${d}${f ? '.' + f : ''} = ${v}`, (id) => JSON.stringify((rowF(id) || {}).exam || {}));
+    W('addFollowUp', 'COORD', 'Follow-up logged', (id) => `${rowD(id)} · ${val('ef-act')} → ${val('ef-resp')}`, (id) => ((rowF(id) || {}).followUps || []).length);
+    W('setCoordComment', 'COORD', 'Coordinator comment saved', (id, v) => `${rowD(id)}: ${String(v).slice(0, 100)}`);
+    W('assignTask', 'TASK', 'Task assigned', () => `${val('task-title')} · ${document.querySelectorAll('.task-assign-chk:checked').length} lecturer(s) · due ${val('task-date')}`, () => localDB.tasks.length);
+    W('assignTaskTo', 'TASK', 'Task assigned', () => `${val('tm-title')} → ${lName((typeof TM !== 'undefined' && TM.lid) || '')} · due ${val('tm-date')}`, () => localDB.tasks.length);
+    W('markTaskComplete', 'TASK', 'Task completed', (id) => (localDB.tasks.find(t => t.id === id) || {}).title, (id) => (localDB.tasks.find(t => t.id === id) || {}).status);
+    W('toggleSubtask', 'TASK', 'Subtask updated', (id, i, d) => { const t = localDB.tasks.find(x => x.id === id); return t ? `${t.title} · ${(t.subtasks[i] || {}).desc} → ${d ? '✔' : '✘'}` : id; });
+    W('createEvent', 'EVENT', 'Event created', () => `${val('ev-type')}: ${val('ev-title')} · ${val('ev-date')}`, () => localDB.events.length);
+    W('markAttendance', 'EVENT', 'Event RSVP', (id, s) => `${(localDB.events.find(e => e.id === id) || {}).title} → ${s}`);
+    W('submitRequest', 'REQUEST', 'Request submitted', () => `${val('req-type')}: ${val('req-title')} → ${val('req-target-role')}`, () => localDB.requests.length);
+    W('submitStudentRequest', 'REQUEST', 'Student request submitted', () => `${val('stu-req-type')}: ${val('stu-req-title')}`, () => localDB.requests.length);
+    W('updateRequestStatus', 'REQUEST', 'Request decided', (id, s) => `${(localDB.requests.find(r => r.id === id) || {}).title} → ${s}`, (id) => (localDB.requests.find(r => r.id === id) || {}).status);
+    W('updateAssignment', 'ASSIGN', 'Lecturer assigned to module', (m, l) => `${m} → ${lName(l) || 'unassigned'}`);
+    W('updateAssignmentMode', 'ASSIGN', 'Assignment mode changed', (m, mode) => `${m} → ${mode}`);
+    W('updateStaffTarget', 'ASSIGN', 'Workload target changed', (id, v) => `${lName(id)} → ${v} hrs`);
+    W('saveNewLecturer', 'DATA', 'Lecturer saved', () => `${val('add-lect-name')} (${val('add-lect-id')})`);
+    W('saveNewModule', 'DATA', 'Module saved', () => `${val('add-mod-code')} ${val('add-mod-name')}`);
+    W('saveNewStudent', 'DATA', 'Student saved', () => `${val('add-stu-name')} (${val('add-stu-id')})`);
+    W('markTTComplete', 'TIMETABLE', 'Timetable published', (t) => `${t}: ${val(t === 'CLASS' ? 'tt-prog-filter' : 'exam-tt-prog-filter')}`);
+    W('saveTTSettings', 'TIMETABLE', 'Timeslots / rooms saved');
+    W('importData', 'DATA', 'Bulk upload', (t, ev) => `${t} · ${fileName(ev)}`);
+    W('importChecklistExcel', 'DATA', 'Checklist Excel imported', (ev) => fileName(ev));
+    W('importDataset', 'DATA', 'Dataset import started', (k, ev) => `${k} · ${fileName(ev)}`);
+    W('importCoordSetup', 'DATA', 'Coordinator bulk upload started', (c, ev) => fileName(ev));
+    W('restoreBackup', 'DATA', 'Backup restore started', (ev) => fileName(ev));
+    W('downloadFullBackup', 'DATA', 'Full backup downloaded');
+    W('exportEverythingExcel', 'DATA', 'Full system exported to Excel');
+    W('exportDataset', 'DATA', 'Dataset exported', (k) => k);
+    W('exportChecklistExcel', 'DATA', 'Checklist exported to Excel');
+    W('exportCoordSetup', 'DATA', 'Coordination setup exported');
+    W('exportFacultyStaffFile', 'DATA', 'Faculty staff file exported');
+    W('exportLecturersCSV', 'DATA', 'Lecturers exported (CSV)');
+    W('exportModulesCSV', 'DATA', 'Modules exported (CSV)');
+    W('applyKirkSeed', 'DATA', 'KIRK official data loaded', null, (manual) => manual ? Math.random() : 1);
+    W('createSystemUser', 'USER', 'Account / role saved', () => `${val('nu-email')} → ${ROLE_LABELS[val('nu-role')] || val('nu-role')}`);
+    W('sendUserPasswordReset', 'USER', 'Password reset e-mail sent', (e) => e);
+    W('laSync', 'USER', 'Google sign-in access list synced');
+    W('laCreateLogins', 'USER', 'Password logins created', () => `${document.querySelectorAll('.la-chk:checked').length} selected`);
+    W('printChecklistReport', 'REPORT', 'Checklist report printed');
+    W('printFollowupBoard', 'REPORT', 'Follow-up board printed');
+    W('printMasterReport', 'REPORT', 'Master report printed', (t) => t);
+    W('exportAnalyticsPDF', 'REPORT', 'Analytics PDF downloaded');
+    W('exportTeamCardPdf', 'REPORT', 'Coordinator team card PDF', (c) => lName(c));
+    W('viewPersonalTimetable', 'REPORT', 'Personal timetable printed', (t) => t);
+    W('viewPersonalExamTimetable', 'REPORT', 'Personal exam timetable printed', (t) => t);
+    W('bulkExportPDF', 'REPORT', 'Bulk timetable PDF', (t) => t);
+    W('laPrintCredentials', 'REPORT', 'Credential slips printed');
+    W('openHRView', 'REPORT', 'Workload slip viewed', (id) => lName(id));
+    W('openTeamCard', 'REPORT', 'Coordinator team card viewed', (c) => lName(c));
+
+    // Weekly report submission → also becomes that week's attendance entry for the module (no double counting: one entry per week)
+    const _swr = window.submitWeeklyReport;
+    window.submitWeeklyReport = function (...a) {
+        const v = { code: val('wr-mod-select'), date: val('wr-date'), s: val('wr-hrs-sched'), t: val('wr-hrs-taken'), c: val('wr-hrs-can'), reason: val('wr-can-reason') };
+        const n0 = localDB.weekly_reports.length;
+        const res = _swr.apply(this, a);
+        if (localDB.weekly_reports.length > n0 && v.date) {
+            const wk = window.weekKey(new Date(v.date + 'T00:00:00'));
+            const rows = (localDB.checklist || []).filter(r => r.code === v.code && r.lecturerId === currentLecturerId);
+            if (rows.length) {
+                const r = rows[0];
+                if (!r.attendance) { r.attendance = {}; if (r.attendanceOpening === undefined && num(r.takenHrs) > 0) r.attendanceOpening = num(r.takenHrs); }
+                r.attendance[wk] = { sched: num(v.s), taken: num(v.t), cancelled: num(v.c), reason: v.reason, mode: modalityOf(r), by: myEmail(), byName: lName(currentLecturerId), at: nowIso(), src: 'weekly report' };
+                r.takenHrs = attTaken(r);
+                window.saveLocal(true);
+            }
+            window.logActivity('ATTENDANCE', 'Weekly report submitted', `${v.code} · ${wkLabel(wk)} · taken ${num(v.t)}h / scheduled ${num(v.s)}h${num(v.c) ? ' · cancelled ' + num(v.c) + 'h' : ''}`);
+        }
+        return res;
+    };
+
+    // ======================================================================================
+    // ======================= 🗓️ WEEKLY ATTENDANCE (hours taken / remaining) ================
+    // ======================================================================================
+    const ATT = { lid: null, wk: null };
+    const attEditableLecturers = () => {
+        const ids = new Set();
+        if (window.isManagerRole()) {
+            const sf = window.scopeFaculty();
+            (localDB.checklist || []).forEach(r => { if (r.lecturerId && (!sf || r.faculty === sf)) ids.add(r.lecturerId); });
+        } else if (currentLecturerId) {
+            ids.add(currentLecturerId);
+            (localDB.checklist || []).forEach(r => { if (r.lecturerId && (r.coordinatorId === currentLecturerId || window.courseCoordOf(r) === currentLecturerId)) ids.add(r.lecturerId); });
+        }
+        if (ATT.lid) ids.add(ATT.lid);
+        return [...ids].sort((a, b) => lName(a).localeCompare(lName(b)));
+    };
+    window.openAttendance = (lid, wk) => {
+        ATT.lid = lid || currentLecturerId || attEditableLecturers()[0];
+        if (!ATT.lid) return alert('Please verify / select the lecturer first.');
+        ATT.wk = wk || window.weekKey();
+        document.getElementById('att-modal').style.display = 'flex';
+        window.renderAttendance();
+    };
+    window.closeAttendance = () => {
+        document.getElementById('att-modal').style.display = 'none';
+        try { window.renderLectAttPanel(); } catch (e) {}
+        if (document.getElementById('tab-reports')?.classList.contains('active')) window.renderReportsCenter();
+    };
+    window.attGo = (delta) => { ATT.wk = ymd(addDays(wkDate(ATT.wk), 7 * delta)); window.renderAttendance(); };
+    window.attPick = (d) => { if (d) { ATT.wk = window.weekKey(new Date(d + 'T00:00:00')); window.renderAttendance(); } };
+    window.attLect = (lid) => { ATT.lid = lid; window.renderAttendance(); };
+    window.attLive = (id) => {
+        const r = rowF(id); if (!r) return;
+        const g = (k) => document.getElementById(`att-${k}-${id}`);
+        const e = attOf(r)[ATT.wk] || {};
+        const cum = attTaken(r) - num(e.taken) + num(g('t').value);
+        const tot = num(g('tot').value) || attTotal(r);
+        const p = pctOf(cum, tot);
+        document.getElementById('att-live-' + id).innerHTML = `<div class="flex justify-between gap-2 font-black"><span style="color:${RXC.green}">${r1(cum)} taken</span><span style="color:${RXC.purple}">${tot ? r1(Math.max(0, tot - cum)) + ' left' : '—'}</span></div>${bar(p)}<div class="text-[8px] text-gray-500 font-bold">${tot ? p + '% of ' + r1(tot) + ' hrs' : 'Set planned hours'}</div>`;
+    };
+    window.renderAttendance = () => {
+        const lid = ATT.lid, wk = ATT.wk, cur = window.weekKey();
+        const l = window.getLecturerById(lid);
+        const rows = (localDB.checklist || []).filter(r => r.lecturerId === lid).sort(rowSort);
+        const H = lectHours(lid);
+        document.getElementById('att-sub').innerText = `${lName(lid)}${l ? ' · ' + window.getFaculty(l) : ''} · ${wkLabel(wk)}${wk === cur ? ' (this week)' : ''}`;
+        const eds = attEditableLecturers();
+        const done = rows.filter(r => attOf(r)[wk]).length;
+        document.getElementById('att-bar').innerHTML = `
+            ${eds.length > 1 ? `<select onchange="window.attLect(this.value)" class="p-2 border rounded-lg font-bold outline-none max-w-[240px]">${eds.map(id => `<option value="${id}" ${id === lid ? 'selected' : ''}>${esc(lName(id))}</option>`).join('')}</select>` : ''}
+            <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button onclick="window.attGo(-1)" class="px-2 py-1 rounded bg-white font-black" aria-label="Previous week">◀</button>
+                <span class="px-2 font-black" style="color:${RXC.green}">${wkLabel(wk)}</span>
+                <button onclick="window.attGo(1)" ${wk >= cur ? 'disabled style="opacity:.35"' : ''} class="px-2 py-1 rounded bg-white font-black" aria-label="Next week">▶</button>
+            </div>
+            <input type="date" value="${wk}" onchange="window.attPick(this.value)" class="p-1.5 border rounded-lg outline-none" title="Jump to any week">
+            ${wk !== cur ? `<button onclick="window.attPick('${cur}')" class="rx-chip">This week</button>` : ''}
+            <span class="ml-auto flex gap-2 flex-wrap">${pill(`This week: ${done}/${rows.length} updated`, done === rows.length && rows.length ? 'ok' : 'bad')}${pill(`Taken ${r1(H.taken)} / ${r1(H.planned)} hrs`, 'info')}${pill(`Remaining ${r1(H.remaining)} hrs`, 'warn')}</span>`;
+        if (!rows.length) { document.getElementById('att-body').innerHTML = `<p class="text-center italic text-gray-400 py-12">${esc(lName(lid))} has no modules allocated in the Coordinator Checklist yet.</p>`; return; }
+        const modes = ['Face to Face', 'Online', 'Blended'];
+        document.getElementById('att-body').innerHTML = `<div class="bg-white border rounded-xl overflow-x-auto"><table class="rx-tbl" style="min-width:1050px"><thead><tr>
+            <th>Module</th><th title="Total hours for the semester">Planned hrs</th><th>Taken before</th><th>Scheduled this week</th><th>Taken</th><th>Cancelled</th><th>Mode</th><th>Reason / note</th><th style="min-width:150px">Progress</th><th>Saved</th></tr></thead><tbody>
+            ${rows.map(r => {
+                const e = attOf(r)[wk] || {}; const can = window.canEditRowField(r, '__weekly'); const dis = can ? '' : 'disabled';
+                const tot = attTotal(r); const md = e.mode || (modes.includes(modalityOf(r)) ? modalityOf(r) : 'Face to Face');
+                return `<tr><td><b style="color:${RXC.blue}">${esc(r.code)}</b> ${esc(r.name)}<div class="text-[9px] text-gray-500">${esc(r.batch)} · ${esc(r.course)}</div></td>
+                    <td><input id="att-tot-${r.id}" type="number" min="0" step="0.5" class="att-in" style="width:66px" value="${num(r.totalHrs) || ''}" placeholder="${tot ? '≈' + r1(tot) : 'hrs'}" ${dis} oninput="window.attLive('${r.id}')"></td>
+                    <td class="text-center font-black text-gray-700">${r1(attTaken(r) - num(e.taken))}</td>
+                    <td><input id="att-s-${r.id}" type="number" min="0" step="0.5" class="att-in" value="${e.sched ?? defSched(r)}" ${dis}></td>
+                    <td><input id="att-t-${r.id}" type="number" min="0" step="0.5" class="att-in" style="border-color:#6ee7b7" value="${e.taken ?? ''}" ${dis} oninput="window.attLive('${r.id}')"></td>
+                    <td><input id="att-c-${r.id}" type="number" min="0" step="0.5" class="att-in" style="border-color:#fca5a5" value="${e.cancelled ?? ''}" ${dis}></td>
+                    <td><select id="att-m-${r.id}" class="p-1 border rounded-lg outline-none" ${dis}>${modes.map(m => `<option ${m === md ? 'selected' : ''}>${m}</option>`).join('')}</select></td>
+                    <td><input id="att-r-${r.id}" type="text" class="p-1.5 border rounded-lg outline-none w-full min-w-[140px]" value="${esc(e.reason || '')}" placeholder="e.g. public holiday" ${dis}></td>
+                    <td id="att-live-${r.id}"></td>
+                    <td class="text-[9px]">${e.at ? `${pill('✔ saved', 'ok')}<div class="text-gray-500 mt-1">${esc((e.byName || e.by || '').split('@')[0])}<br>${fmtDT(e.at)}</div>` : pill('not yet', 'bad')}</td></tr>`;
+            }).join('')}</tbody></table></div>
+            <p class="text-[9px] text-gray-500 font-bold mt-2">Tip: fill <b>Taken</b> (and <b>Cancelled</b> if any). Leave both empty to skip a module. Emptying a saved week removes it (needs verification). Planned hours shown with ≈ are estimated from weekly hours × ${semWeeks()} weeks — type the real total to fix it.</p>`;
+        rows.forEach(r => window.attLive(r.id));
+    };
+    window.saveAttendance = () => {
+        const lid = ATT.lid, wk = ATT.wk;
+        if (wk > window.weekKey()) return alert('Attendance cannot be saved for a future week.');
+        const rows = (localDB.checklist || []).filter(r => r.lecturerId === lid);
+        const pending = [], toRemove = [], errs = []; let totChanged = 0;
+        const at = nowIso(), by = myEmail(), byName = currentLecturerId ? lName(currentLecturerId) : by;
+        rows.forEach(r => {
+            if (!window.canEditRowField(r, '__weekly')) return;
+            const g = (k) => document.getElementById(`att-${k}-${r.id}`); if (!g('t')) return;
+            const totv = g('tot').value.trim();
+            if (totv !== '' && num(totv) !== num(r.totalHrs)) { r.totalHrs = num(totv); totChanged++; }
+            const tv = g('t').value.trim(), cv = g('c').value.trim(), sv = g('s').value.trim();
+            if (tv === '' && cv === '') { if (attOf(r)[wk]) toRemove.push(r); return; }
+            const s = num(sv), t = num(tv), c = num(cv);
+            if (t < 0 || c < 0 || s < 0) errs.push(`${r.code} (${r.batch}): negative hours`);
+            if (s && t + c > s + 0.01) errs.push(`${r.code} (${r.batch}): taken + cancelled (${t + c}) is more than scheduled (${s})`);
+            pending.push([r, { sched: s || t + c, taken: t, cancelled: c, mode: g('m').value, reason: g('r').value.trim(), by, byName, at }]);
+        });
+        if (!pending.length && !toRemove.length) { if (totChanged) { window.saveLocal(true); window.showToast('Planned hours saved', 'success'); window.renderAttendance(); } else alert('Nothing to save. Enter Taken (or Cancelled) hours for at least one module.'); return; }
+        if (errs.length && !confirm('Please check these entries:\n\n' + errs.join('\n') + '\n\nSave anyway?')) return;
+        const apply = () => {
+            pending.forEach(([r, e]) => {
+                if (!r.attendance) { r.attendance = {}; if (r.attendanceOpening === undefined && num(r.takenHrs) > 0) r.attendanceOpening = num(r.takenHrs); }
+                r.attendance[wk] = e; r.takenHrs = attTaken(r); r.updatedAt = at; r.updatedBy = by;
+            });
+            toRemove.forEach(r => { delete r.attendance[wk]; r.takenHrs = attTaken(r); r.updatedAt = at; r.updatedBy = by; });
+            window.saveLocal(true);
+            const sT = pending.reduce((a, [, e]) => a + e.taken, 0), sC = pending.reduce((a, [, e]) => a + e.cancelled, 0);
+            window.logActivity('ATTENDANCE', 'Weekly attendance updated', `${lName(lid)} · ${wkLabel(wk)} · ${pending.length} module(s) · taken ${r1(sT)}h${sC ? ' · cancelled ' + r1(sC) + 'h' : ''}${toRemove.length ? ' · ' + toRemove.length + ' cleared' : ''}`);
+            window.showToast(`Attendance saved for ${wkLabel(wk)} ✔`, 'success');
+            window.renderAttendance();
+            try { window.renderLectAttPanel(); } catch (e) {}
+        };
+        if (toRemove.length) window.requireVerification(`Clear saved attendance of ${toRemove.length} module(s) – ${lName(lid)}, ${wkLabel(wk)}`, apply); else apply();
+    };
+
+    // ---------------------------------------------------------------- attendance block for record cards (inline styles → works in PDF too)
+    window.attBlockHtml = (lid) => {
+        const H = lectHours(lid); if (!H.rows.length) return '';
+        const td = 'padding:5px 6px;border:1px solid #e2e8f0;vertical-align:middle;font-size:9px;';
+        const th = (x) => `<th style="padding:6px;border:1px solid #cbd5e1;background:#0f172a;color:#e2e8f0;font-size:8px;text-align:left">${x}</th>`;
+        const k = (l, v, c) => `<div style="flex:1;min-width:92px;border:1px solid #e2e8f0;border-left:5px solid ${c};border-radius:10px;padding:6px 8px;background:#fff"><div style="font-size:8px;font-weight:800;color:#64748b">${l}</div><div style="font-size:17px;font-weight:900;color:${c}">${v}</div></div>`;
+        const b = (p, c) => `<div style="height:7px;background:#e5e7eb;border-radius:9px;overflow:hidden;min-width:60px"><div style="height:7px;width:${Math.min(100, p)}%;background:${c}"></div></div>`;
+        const wk = window.weekKey();
+        const weeks = []; for (let i = 7; i >= 0; i--) weeks.push(ymd(addDays(wkDate(wk), -7 * i)));
+        const mods = H.rows.map(r => {
+            const t = attTaken(r), tot = attTotal(r), p = pctOf(t, tot), last = attLast(r);
+            return `<tr><td style="${td}"><b style="color:#0d47a1">${esc(r.code)}</b> ${esc(r.name)}<div style="color:#64748b">${esc(r.batch)}</div></td>
+                <td style="${td}text-align:center">${tot ? r1(tot) : '—'}${attEst(r) && tot ? ' ≈' : ''}</td><td style="${td}text-align:center;font-weight:800;color:#004d40">${r1(t)}</td>
+                <td style="${td}text-align:center;font-weight:800;color:#4a148c">${tot ? r1(Math.max(0, tot - t)) : '—'}</td><td style="${td}text-align:center;color:#b91c1c">${r1(attCancelled(r)) || '–'}</td>
+                <td style="${td}">${b(p, p >= 90 ? '#004d40' : p >= 50 ? '#0d47a1' : '#4a148c')}<div style="font-size:8px;font-weight:800">${p}%</div></td>
+                <td style="${td}">${last ? wkShort(last[0]) : '<span style="color:#b91c1c;font-weight:800">not yet</span>'}</td>
+                <td style="${td}text-align:center">${attOf(r)[wk] ? '<span style="color:#065f46;font-weight:900">✔</span>' : '<span style="color:#b91c1c;font-weight:900">✘</span>'}</td></tr>`;
+        }).join('');
+        const tl = weeks.map(w => { let s = 0, t = 0, c = 0, n = 0; H.rows.forEach(r => { const e = attOf(r)[w]; if (e) { n++; s += num(e.sched); t += num(e.taken); c += num(e.cancelled); } }); return `<td style="${td}text-align:center">${n ? `<b style="color:#004d40">${r1(t)}</b><span style="color:#64748b">/${r1(s)}</span>${c ? `<div style="color:#b91c1c">−${r1(c)}</div>` : ''}<div style="font-size:7px;color:#94a3b8">${n}/${H.rows.length}</div>` : '<span style="color:#cbd5e1">—</span>'}</td>`; }).join('');
+        return `<div style="margin-top:14px;font-family:Inter,sans-serif;color:#1e293b">
+            <h3 style="font-family:'Playfair Display',serif;color:#004d40;font-size:14px;margin:0 0 6px;border-bottom:2px solid #d4af37;padding-bottom:3px">🗓️ Attendance & Teaching Hours</h3>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${k('Planned hrs', r1(H.planned), '#0d47a1')}${k('Taken', r1(H.taken), '#004d40')}${k('Remaining', r1(H.remaining), '#4a148c')}${k('Cancelled', r1(H.cancelled), '#b91c1c')}${k('Delivered', H.pct + '%', '#00695c')}${k('Updated this week', H.doneThis + '/' + H.rows.length, H.doneThis === H.rows.length ? '#004d40' : '#b91c1c')}</div>
+            <table style="width:100%;border-collapse:collapse"><thead><tr>${th('Module')}${th('Planned')}${th('Taken')}${th('Remaining')}${th('Cancelled')}${th('Progress')}${th('Last update')}${th('This week')}</tr></thead><tbody>${mods}</tbody></table>
+            <div style="font-size:9px;font-weight:800;color:#334155;margin:8px 0 4px">Last 8 weeks — taken / scheduled hours (modules updated)</div>
+            <table style="width:100%;border-collapse:collapse"><thead><tr>${weeks.map(w => th((weekNo(w) >= 1 ? 'W' + weekNo(w) + ' · ' : '') + wkShort(w))).join('')}</tr></thead><tbody><tr>${tl}</tr></tbody></table></div>`;
+    };
+    // person card, HR slip, and PDFs get the attendance block
+    const _opc = window.openPersonCard;
+    window.openPersonCard = function (id) {
+        const res = _opc.apply(this, arguments);
+        if (!id) return res;
+        const body = document.getElementById('pc-body'); if (body) body.insertAdjacentHTML('beforeend', window.attBlockHtml(id));
+        const acts = document.getElementById('pc-actions');
+        const rows = (localDB.checklist || []).filter(r => r.lecturerId === id);
+        if (acts && rows.some(r => window.canEditRowField(r, '__weekly'))) acts.insertAdjacentHTML('afterbegin', `<button onclick="window.openAttendance('${id}')" class="bg-white/90 text-green-900 px-2 py-1 rounded text-[9px] font-black">🗓️ Attendance</button>`);
+        if (acts && rows.length) acts.insertAdjacentHTML('afterbegin', `<button onclick="window.rxOpenFor('${id}','attendance')" class="bg-white/90 text-blue-900 px-2 py-1 rounded text-[9px] font-black">📊 Reports</button>`);
+        return res;
+    };
+    const _hr = window.openHRView;
+    window.openHRView = function (id) { const res = _hr.apply(this, arguments); const hc = document.getElementById('hr-coord'); if (hc) hc.insertAdjacentHTML('afterbegin', window.attBlockHtml(id)); return res; };
+    let _attPdfFor = null;
+    const _pdf = window.renderAreaToPdf;
+    window.renderAreaToPdf = async function (...a) {
+        if (_attPdfFor) { const area = document.getElementById('report-content-area'); const host = area && area.firstElementChild; if (host) host.insertAdjacentHTML('beforeend', window.attBlockHtml(_attPdfFor)); _attPdfFor = null; }
+        return _pdf.apply(this, a);
+    };
+    const _wrc = window.exportWeeklyRoyalCard;
+    window.exportWeeklyRoyalCard = async function (lectId) { _attPdfFor = lectId || currentLecturerId; window.logActivity('REPORT', 'Weekly royal card PDF', lName(_attPdfFor)); return _wrc.apply(this, arguments); };
+    const _epc = window.exportPersonCardPdf;
+    window.exportPersonCardPdf = async function (id) { _attPdfFor = id; window.logActivity('REPORT', 'Profile card PDF', lName(id)); return _epc.apply(this, arguments); };
+
+    // ---------------------------------------------------------------- lecturer dashboard panel
+    const sumBox = document.getElementById('lect-module-summary');
+    if (sumBox && !document.getElementById('lect-att-panel')) { const p = document.createElement('div'); p.id = 'lect-att-panel'; p.className = 'mb-4'; sumBox.after(p); }
+    window.renderLectAttPanel = () => {
+        const el = document.getElementById('lect-att-panel'); if (!el) return;
+        const lid = currentLecturerId; if (!lid) { el.innerHTML = ''; return; }
+        const H = lectHours(lid);
+        const team = [...new Set((localDB.checklist || []).filter(r => r.lecturerId && r.lecturerId !== lid && (r.coordinatorId === lid || window.courseCoordOf(r) === lid)).map(r => r.lecturerId))];
+        const teamPending = team.filter(t => { const h = lectHours(t); return h.doneThis < h.rows.length; }).length;
+        const tile = (l, v, s) => `<div class="rounded-xl p-3" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18)"><div class="text-[10px] font-bold opacity-80">${l}</div><div class="text-2xl font-black" style="color:#d4af37">${v}</div>${s ? `<div class="text-[9px] opacity-75 font-bold">${s}</div>` : ''}</div>`;
+        const wkDone = H.rows.length && H.doneThis === H.rows.length;
+        el.innerHTML = `<div class="rounded-2xl p-4 text-white shadow-lg" style="background:linear-gradient(135deg,#004d40,#0d47a1 55%,#4a148c)">
+            <div class="flex flex-wrap justify-between items-start gap-3 mb-3">
+                <div><h3 class="text-base font-black" style="font-family:'Playfair Display',serif">My attendance & teaching hours</h3>
+                <p class="text-[10px] font-bold opacity-80">${wkLabel(window.weekKey())} · ${H.rows.length ? (wkDone ? '✔ This week is updated' : `⚠ ${H.rows.length - H.doneThis} module(s) not updated this week`) : 'No modules allocated yet'}</p></div>
+                <div class="flex gap-2 flex-wrap">
+                    ${H.rows.length ? `<button onclick="window.openAttendance('${lid}')" class="px-4 py-2 rounded-lg text-[10px] font-black" style="background:#fff;color:#004d40">🗓️ Update this week</button>` : ''}
+                    ${team.length ? `<button onclick="window.openAttendance('${team[0]}')" class="px-3 py-2 rounded-lg text-[10px] font-black" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4)">👥 My lecturers (${team.length}${teamPending ? ` · ${teamPending} pending` : ''})</button>` : ''}
+                </div>
+            </div>
+            ${H.rows.length ? `<div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">${tile('Planned hours', r1(H.planned))}${tile('Taken', r1(H.taken), H.pct + '% delivered')}${tile('Remaining', r1(H.remaining))}${tile('Cancelled', r1(H.cancelled))}${tile('This week', H.doneThis + '/' + H.rows.length, 'modules updated')}</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">${H.rows.map(r => { const t = attTaken(r), tot = attTotal(r), p = pctOf(t, tot); return `<div class="rounded-lg p-2" style="background:rgba(255,255,255,.08)"><div class="flex justify-between text-[10px] font-bold gap-2"><span class="truncate">${esc(r.code)} · ${esc(r.batch)}</span><span>${r1(t)} / ${tot ? r1(tot) : '—'} hrs ${attOf(r)[window.weekKey()] ? '✔' : '<span style="color:#fca5a5">●</span>'}</span></div><div class="rx-bar mt-1" style="background:rgba(255,255,255,.2)"><div style="width:${Math.min(100, p)}%;background:#d4af37"></div></div></div>`; }).join('')}</div>` : ''}
+            <div class="flex flex-wrap gap-2 items-center"><span class="text-[10px] font-black opacity-80">My reports:</span>
+                ${[['attendance', '🗓️ Attendance', 'semester'], ['weeklychk', '⭐ Weekly checklist', 'week'], ['checklist', '📋 Checklist', 'semester'], ['tasks', '📌 Tasks', 'semester'], ['activity', '🕘 My activity', 'month']].map(([id, l, p]) => `<button onclick="window.rxOpenSelf('${id}','${p}')" class="px-3 py-1.5 rounded-full text-[10px] font-black" style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3)">${l}</button>`).join('')}
+            </div></div>`;
+    };
+    const _rlw = window.renderLecturerWorkspace;
+    window.renderLecturerWorkspace = function (...a) { const res = _rlw.apply(this, a); try { window.renderLectAttPanel(); } catch (e) { console.error(e); } return res; };
+
+    // ======================================================================================
+    // =================================== 📊 REPORTS CENTER =================================
+    // ======================================================================================
+    const RX = { period: 'week', weekKey: null, from: '', to: '', fac: '', course: '', lect: '', selfOnly: false, spec: null, charts: [] };
+    window.RX = RX;
+    const rxIsSelf = () => RX.selfOnly || isWorkspaceRole() || activeRole === 'STUDENT';
+    const rxFac = () => rxIsSelf() ? '' : (window.scopeFaculty() || (GLOBAL_ROLES.includes(activeRole) ? RX.fac : (userFaculty || '')));
+    const rxBaseRows = () => { if (rxIsSelf()) return window.rowsForLecturer(currentLecturerId, 'both'); const f = rxFac(); return (localDB.checklist || []).filter(r => !f || r.faculty === f); };
+    const rxRows = () => { let rows = rxBaseRows(); if (RX.course) rows = rows.filter(r => r.course === RX.course); if (RX.lect) rows = rows.filter(r => r.lecturerId === RX.lect || r.coordinatorId === RX.lect); return rows.sort(rowSort); };
+    const rxLectOK = (lid) => {
+        if (!lid) return false;
+        if (rxIsSelf()) return lid === currentLecturerId || window.rowsForLecturer(currentLecturerId, 'coord').some(r => r.lecturerId === lid);
+        if (RX.lect) return lid === RX.lect;
+        const f = rxFac(); if (!f) return true;
+        const l = window.getLecturerById(lid); return l ? window.getFaculty(l) === f : (localDB.checklist || []).some(r => r.lecturerId === lid && r.faculty === f);
+    };
+    const rxScopeLabel = () => rxIsSelf() ? `${lName(currentLecturerId) || 'Me'} (own & coordinated)` : [rxFac() || 'All faculties', RX.course, RX.lect ? lName(RX.lect) : ''].filter(Boolean).join(' / ');
+    const rxPeriod = () => {
+        const now = new Date(); let from, to, label;
+        const thisMon = wkDate(window.weekKey(now));
+        switch (RX.period) {
+            case 'lastweek': from = addDays(thisMon, -7); to = addDays(from, 6); break;
+            case 'month': from = new Date(now.getFullYear(), now.getMonth(), 1); to = new Date(now.getFullYear(), now.getMonth() + 1, 0); label = 'This month: ' + from.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); break;
+            case 'lastmonth': from = new Date(now.getFullYear(), now.getMonth() - 1, 1); to = new Date(now.getFullYear(), now.getMonth(), 0); label = 'Last month: ' + from.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }); break;
+            case 'semester': from = wkDate(semStartKey()); to = addDays(from, semWeeks() * 7 - 1); label = `Semester (${semWeeks()} weeks)`; break;
+            case 'weekkey': from = wkDate(RX.weekKey || window.weekKey()); to = addDays(from, 6); break;
+            case 'custom': from = RX.from ? new Date(RX.from + 'T00:00:00') : addDays(now, -30); to = RX.to ? new Date(RX.to + 'T00:00:00') : now; if (to < from) [from, to] = [to, from]; break;
+            default: from = thisMon; to = addDays(from, 6);
+        }
+        from.setHours(0, 0, 0, 0); to.setHours(23, 59, 59, 999);
+        const weeks = []; let w = wkDate(window.weekKey(from)); for (let g = 0; w <= to && g < 80; g++) { weeks.push(ymd(w)); w = addDays(w, 7); }
+        if (!label) label = weeks.length === 1 ? wkLabel(weeks[0]) : `${from.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} – ${to.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        return { from, to, weeks, label };
+    };
+    const inP = (iso, P) => { if (!iso) return false; const t = new Date(String(iso).length <= 10 ? iso + 'T12:00:00' : iso).getTime(); return t >= P.from.getTime() && t <= P.to.getTime(); };
+    const K = (l, v, c, s) => ({ l, v, c, s });
+
+    // ------------------------------------------------ report builders
+    const REPORTS = [
+    { id: 'attendance', icon: '🗓️', title: 'Lecturer Attendance', color: RXC.green, desc: 'Hours scheduled, taken, cancelled and remaining per lecturer, week by week.', build: (P) => {
+        const rows = rxRows().filter(r => r.lecturerId);
+        const byL = {}; rows.forEach(r => (byL[r.lecturerId] = byL[r.lecturerId] || { id: r.lecturerId, name: r.lecturerName || lName(r.lecturerId), rows: [] }).rows.push(r));
+        const weeks = P.weeks.filter(pastWk);
+        const wAgg = weeks.map(w => ({ w, s: 0, t: 0, c: 0 }));
+        let tS = 0, tT = 0, tC = 0, rep = 0, exp = 0; const detail = [], missing = [];
+        const summary = Object.values(byL).sort((a, b) => a.name.localeCompare(b.name)).map(L => {
+            let s = 0, t = 0, c = 0, lr = 0, le = 0, last = '';
+            L.rows.forEach(r => weeks.forEach((w, i) => {
+                le++; const e = attOf(r)[w];
+                if (e) { lr++; const es = num(e.sched), et = num(e.taken), ec = num(e.cancelled); s += es; t += et; c += ec; wAgg[i].s += es; wAgg[i].t += et; wAgg[i].c += ec;
+                    const d = [L.name, r.code, r.name, r.batch, wkLabel(w), es, et, ec, e.mode || '', e.reason || '', (e.byName || e.by || ''), fmtDT(e.at)]; d.id = L.id; detail.push(d); if (!last || e.at > last) last = e.at; }
+                else { const m = [L.name, r.code, r.name, r.batch, wkLabel(w), r.coordinatorName || '', lecturerPhone(L.id, r)]; m.id = L.id; missing.push(m); }
+            }));
+            tS += s; tT += t; tC += c; rep += lr; exp += le;
+            const cumT = L.rows.reduce((a, r) => a + attTaken(r), 0), tot = L.rows.reduce((a, r) => a + attTotal(r), 0);
+            const row = [L.name, L.rows.length, r1(s), r1(t), r1(c), s ? pctOf(t, s) : null, `${lr}/${le}`, r1(cumT), r1(tot), r1(Math.max(0, tot - cumT)), tot ? pctOf(cumT, tot) : null, last ? fmtDT(last) : '—']; row.id = L.id; return row;
+        });
+        const notDelivered = Math.max(0, tS - tT - tC);
+        return {
+            kpis: [K('Lecturers', summary.length, RXC.blue), K('Scheduled hrs', r1(tS), RXC.slate), K('Taken hrs', r1(tT), RXC.green, pctOf(tT, tS) + '% of scheduled'), K('Cancelled hrs', r1(tC), RXC.red), K('Entries submitted', `${rep}/${exp}`, rep === exp && exp ? RXC.green : RXC.purple, pctOf(rep, exp) + '% of module-weeks'), K('Missing entries', missing.length, missing.length ? RXC.red : RXC.green)],
+            charts: [
+                weeks.length > 1 ? { title: 'Hours per week', type: 'bar', data: { labels: wAgg.map(x => (weekNo(x.w) >= 1 ? 'W' + weekNo(x.w) : wkShort(x.w))), datasets: [{ label: 'Scheduled', data: wAgg.map(x => r1(x.s)), backgroundColor: '#93c5fd' }, { label: 'Taken', data: wAgg.map(x => r1(x.t)), backgroundColor: RXC.green }, { label: 'Cancelled', data: wAgg.map(x => r1(x.c)), backgroundColor: '#f87171' }] } }
+                    : { title: 'Taken vs scheduled by lecturer', type: 'bar', data: { labels: summary.slice(0, 25).map(r => r[0]), datasets: [{ label: 'Scheduled', data: summary.slice(0, 25).map(r => r[2]), backgroundColor: '#93c5fd' }, { label: 'Taken', data: summary.slice(0, 25).map(r => r[3]), backgroundColor: RXC.green }] }, options: { indexAxis: 'y' } },
+                { title: 'Scheduled hours breakdown', type: 'doughnut', data: { labels: ['Taken', 'Cancelled', 'Not accounted'], datasets: [{ data: [r1(tT), r1(tC), r1(notDelivered)], backgroundColor: [RXC.green, '#f87171', '#cbd5e1'], borderWidth: 0 }] } },
+                { title: 'Semester progress (taken % of planned)', type: 'bar', data: { labels: summary.slice(0, 25).map(r => r[0]), datasets: [{ label: '% delivered', data: summary.slice(0, 25).map(r => r[10] || 0), backgroundColor: summary.slice(0, 25).map(r => (r[10] || 0) >= 90 ? RXC.green : (r[10] || 0) >= 50 ? RXC.blue : RXC.purple) }] }, options: { indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true } }, plugins: { legend: { display: false } } } }
+            ],
+            sections: [
+                { title: 'Summary by lecturer', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Modules', c: 1 }, { h: 'Scheduled', c: 1 }, { h: 'Taken', c: 1, f: v => `<b style="color:${RXC.green}">${v}</b>` }, { h: 'Cancelled', c: 1, f: v => v ? `<b style="color:${RXC.red}">${v}</b>` : '–' }, { h: 'Delivery', c: 1, f: v => pctPill(v) }, { h: 'Entries', c: 1 }, { h: 'Semester taken', c: 1 }, { h: 'Planned', c: 1 }, { h: 'Remaining', c: 1, f: v => `<b style="color:${RXC.purple}">${v}</b>` }, { h: 'Progress', f: v => v === null ? '—' : `${bar(v)}<span class="text-[9px] font-black">${v}%</span>` }, { h: 'Last update' }], rows: summary },
+                { title: 'Weekly entries', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Code' }, { h: 'Module' }, { h: 'Batch' }, { h: 'Week' }, { h: 'Sched', c: 1 }, { h: 'Taken', c: 1 }, { h: 'Cancelled', c: 1, f: v => v ? `<b style="color:${RXC.red}">${v}</b>` : '–' }, { h: 'Mode' }, { h: 'Reason' }, { h: 'Saved by' }, { h: 'Saved at' }], rows: detail },
+                { title: '⚠ Not submitted', sub: 'Module-weeks in this period with no attendance entry', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Code' }, { h: 'Module' }, { h: 'Batch' }, { h: 'Week' }, { h: 'Coordinator' }, { h: 'Phone' }], rows: missing, empty: '🎉 Every module has an entry for every week in this period.' },
+                { title: 'Cancellations & reasons', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Code' }, { h: 'Batch' }, { h: 'Week' }, { h: 'Cancelled hrs', c: 1 }, { h: 'Reason' }], rows: detail.filter(d => d[7] > 0).map(d => { const x = [d[0], d[1], d[3], d[4], d[7], d[9] || '—']; x.id = d.id; return x; }), empty: 'No cancelled hours in this period.' }
+            ]
+        };
+    } },
+    { id: 'weekly', icon: '📝', title: 'Weekly Report Submissions', color: RXC.blue, desc: 'Who submitted weekly delivery reports, hours, Moodle / iSIMS / assessment ticks.', build: (P) => {
+        const f = rxFac();
+        const list = (localDB.weekly_reports || []).filter(w => inP(w.date, P) && (rxIsSelf() ? rxLectOK(w.lectId) : ((!f || String(w.fac) === f) && (!RX.lect || w.lectId === RX.lect))) && (!RX.course || rxRows().some(r => r.code === w.modCode)));
+        const expected = [...new Set(rxRows().map(r => r.lecturerId).filter(Boolean))];
+        const sub = new Set(list.map(w => w.lectId));
+        const flag = (k) => pctOf(list.filter(w => w[k]).length, list.length);
+        const byWeek = {}; list.forEach(w => { const k = window.weekKey(new Date(w.date + 'T00:00:00')); byWeek[k] = (byWeek[k] || 0) + 1; });
+        const wk = Object.keys(byWeek).sort();
+        return {
+            kpis: [K('Reports submitted', list.length, RXC.blue), K('Lecturers reporting', `${[...sub].filter(x => expected.includes(x) || !expected.length).length}/${expected.length || sub.size}`, RXC.green), K('Hours taken', r1(list.reduce((a, w) => a + num(w.hrsTaken), 0)), RXC.green), K('Hours cancelled', r1(list.reduce((a, w) => a + num(w.hrsCan), 0)), RXC.red), K('Moodle updated', flag('moodle') + '%', RXC.purple), K('iSIMS marked', flag('isims') + '%', RXC.teal)],
+            charts: [
+                { title: 'Reports per week', type: 'bar', data: { labels: wk.map(k => weekNo(k) >= 1 ? 'W' + weekNo(k) : wkShort(k)), datasets: [{ label: 'Reports', data: wk.map(k => byWeek[k]), backgroundColor: RXC.blue }] }, options: { plugins: { legend: { display: false } } } },
+                { title: 'Compliance ticks (% of reports)', type: 'bar', data: { labels: ['Moodle', 'iSIMS', 'Assessments', 'Exam task'], datasets: [{ label: '%', data: [flag('moodle'), flag('isims'), flag('assign'), flag('exam')], backgroundColor: [RXC.blue, RXC.teal, RXC.purple, RXC.green] }] }, options: { scales: { y: { max: 100, beginAtZero: true } }, plugins: { legend: { display: false } } } }
+            ],
+            sections: [
+                { title: 'Submitted reports', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Faculty' }, { h: 'Module' }, { h: 'Week of' }, { h: 'Sched', c: 1 }, { h: 'Taken', c: 1 }, { h: 'Cancelled', c: 1 }, { h: 'Reason' }, { h: 'Moodle', c: 1, f: tick }, { h: 'iSIMS', c: 1, f: tick }, { h: 'Assess.', c: 1, f: tick }, { h: 'Exam', c: 1, f: tick }, { h: 'Submitted' }],
+                    rows: list.sort((a, b) => String(b.date).localeCompare(String(a.date))).map(w => { const x = [lName(w.lectId), w.fac, w.modCode, w.date, num(w.hrsSched), num(w.hrsTaken), num(w.hrsCan), w.reason || '', !!w.moodle, !!w.isims, !!w.assign, !!w.exam, fmtDT(w.timestamp)]; x.id = w.lectId; return x; }) },
+                { title: '⚠ Lecturers with no weekly report in this period', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Modules' }, { h: 'Phone' }], rows: expected.filter(id => !sub.has(id)).map(id => { const x = [lName(id), rxRows().filter(r => r.lecturerId === id).map(r => r.code + ' ' + r.batch).join(', '), lecturerPhone(id)]; x.id = id; return x; }), empty: '🎉 Everyone submitted.' }
+            ]
+        };
+    } },
+    { id: 'weeklychk', icon: '⭐', title: 'Weekly Moodle & iSIMS Ticks', color: RXC.purple, desc: 'The weekly checklist items (Moodle activity, lesson upload, iSIMS, classes held) per week.', build: (P) => {
+        const rows = rxRows().filter(r => r.lecturerId); const weeks = P.weeks.filter(pastWk);
+        const itemD = WEEKLY_FIELDS.map(() => 0); let tot = 0, done = 0, full = 0; const byL = {}; const detail = [];
+        rows.forEach(r => weeks.forEach(w => {
+            const wv = (r.weekly && r.weekly[w]) || {}; let n = 0;
+            WEEKLY_FIELDS.forEach((f, i) => { tot++; if (wv[f.k]) { done++; n++; itemD[i]++; } });
+            if (n === WEEKLY_FIELDS.length) full++;
+            const L = (byL[r.lecturerId] = byL[r.lecturerId] || { d: 0, t: 0 }); L.d += n; L.t += WEEKLY_FIELDS.length;
+            const x = [r.lecturerName || lName(r.lecturerId), r.code, r.batch, wkLabel(w), ...WEEKLY_FIELDS.map(f => !!wv[f.k]), pctOf(n, WEEKLY_FIELDS.length)]; x.id = r.lecturerId; detail.push(x);
+        }));
+        const lrows = Object.entries(byL).map(([id, v]) => { const x = [lName(id), v.d, v.t, pctOf(v.d, v.t)]; x.id = id; return x; }).sort((a, b) => a[3] - b[3]);
+        const mw = rows.length * weeks.length;
+        return {
+            kpis: [K('Overall', pctOf(done, tot) + '%', RXC.purple), K('Ticks done', `${done}/${tot}`, RXC.green), K('Module-weeks complete', `${full}/${mw}`, RXC.blue), K('Lecturers at 100%', lrows.filter(r => r[3] === 100).length + '/' + lrows.length, RXC.teal)],
+            charts: [{ title: 'Completion by item (%)', type: 'bar', data: { labels: WEEKLY_FIELDS.map(f => f.l.replace(/^(Weekly |This week's |All )/, '')), datasets: [{ label: '%', data: itemD.map(d => pctOf(d, mw)), backgroundColor: [RXC.blue, RXC.purple, RXC.teal, RXC.green] }] }, options: { indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true } }, plugins: { legend: { display: false } } } },
+                { title: 'Lecturer completion (%)', type: 'bar', data: { labels: lrows.slice(0, 25).map(r => r[0]), datasets: [{ label: '%', data: lrows.slice(0, 25).map(r => r[3]), backgroundColor: lrows.slice(0, 25).map(r => r[3] >= 90 ? RXC.green : r[3] >= 50 ? RXC.blue : RXC.purple) }] }, options: { indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true } }, plugins: { legend: { display: false } } } }],
+            sections: [
+                { title: 'By lecturer', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Done', c: 1 }, { h: 'Expected', c: 1 }, { h: 'Completion', f: v => `${bar(v)} ${pctPill(v)}` }], rows: lrows },
+                { title: 'Module × week detail', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Code' }, { h: 'Batch' }, { h: 'Week' }, ...WEEKLY_FIELDS.map(f => ({ h: f.l.replace(/^(Weekly |This week's |All )/, '').slice(0, 26), c: 1, f: tick })), { h: '%', c: 1, f: v => pctPill(v) }], rows: detail }
+            ]
+        };
+    } },
+    { id: 'checklist', icon: '📋', title: 'Coordinator Checklist Progress', color: RXC.teal, desc: 'Module checklist completion by coordinator and lecturer, plus every tick made in the period.', build: (P) => {
+        const rows = rxRows(); const pcts = rows.map(window.rowPct);
+        const ticks = []; rows.forEach(r => Object.entries(r.checksMeta || {}).forEach(([k, m]) => { if (m && inP(m.at, P)) { const f = CL_FIELDS.find(x => x.k === k); ticks.push([fmtDT(m.at), (m.by || '').split('@')[0], r.code, r.batch, r.lecturerName || '', (f && f.l) || k, r.checks && r.checks[k] ? '✔ ticked' : '✘ removed']); } }));
+        ticks.sort((a, b) => b[0].localeCompare(a[0]));
+        const byC = {}; rows.forEach(r => { const k = r.coordinatorId || '—'; (byC[k] = byC[k] || []).push(window.rowPct(r)); });
+        const crow = Object.entries(byC).map(([id, a]) => { const x = [id === '—' ? 'No coordinator' : lName(id), a.length, Math.round(a.reduce((s, v) => s + v, 0) / a.length), a.filter(v => v === 100).length]; x.id = id === '—' ? '' : id; return x; }).sort((a, b) => a[2] - b[2]);
+        return {
+            kpis: [K('Modules', rows.length, RXC.blue), K('Average completion', (pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0) + '%', RXC.purple), K('Complete', pcts.filter(p => p === 100).length, RXC.green), K('Not started', pcts.filter(p => p === 0).length, RXC.red), K('Ticks in this period', ticks.length, RXC.teal)],
+            charts: [{ title: 'Completion by checklist item (%)', type: 'bar', h: 360, data: { labels: CL_BOOL.map(f => f.l), datasets: [{ label: '%', data: CL_BOOL.map(f => pctOf(rows.filter(r => clOn(r, f.k)).length, rows.length)), backgroundColor: RXC.teal }] }, options: { indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true }, y: { ticks: { font: { size: 8 } } } }, plugins: { legend: { display: false } } } },
+                { title: 'Average by coordinator (%)', type: 'bar', h: 360, data: { labels: crow.map(r => r[0]), datasets: [{ label: '%', data: crow.map(r => r[2]), backgroundColor: RXC.blue }] }, options: { indexAxis: 'y', scales: { x: { max: 100, beginAtZero: true }, y: { ticks: { font: { size: 8 } } } }, plugins: { legend: { display: false } } } }],
+            sections: [
+                { title: 'By coordinator', cols: [{ h: 'Coordinator', f: (v, r) => nameLink(r.id, v) }, { h: 'Modules', c: 1 }, { h: 'Average', f: v => `${bar(v)} ${pctPill(v)}` }, { h: 'Complete', c: 1 }], rows: crow },
+                { title: 'Modules', cols: [{ h: 'Course' }, { h: 'Code' }, { h: 'Module' }, { h: 'Batch' }, { h: 'Lecturer', f: (v, r) => nameLink(r.lid, v) }, { h: 'Coordinator' }, { h: '%', c: 1, f: v => pctPill(v) }, { h: 'Pending items' }], rows: rows.map(r => { const x = [r.course, r.code, r.name, r.batch, r.lecturerName || '—', r.coordinatorName || '—', window.rowPct(r), CL_BOOL.filter(f => !clOn(r, f.k)).map(f => f.l).join(', ')]; x.lid = r.lecturerId; return x; }) },
+                { title: 'Ticks made in this period', cols: [{ h: 'When' }, { h: 'By' }, { h: 'Code' }, { h: 'Batch' }, { h: 'Lecturer' }, { h: 'Item' }, { h: 'Change' }], rows: ticks, empty: 'No checklist changes in this period.' }
+            ]
+        };
+    } },
+    { id: 'tasks', icon: '📌', title: 'Tasks & Deadlines', color: RXC.slate, desc: 'Tasks assigned, completed, pending and overdue in the period.', build: (P) => {
+        const now = new Date();
+        const list = (localDB.tasks || []).filter(t => rxLectOK(t.lectId) && (inP(t.createdAt, P) || inP(t.deadline, P) || inP(t.completedAt, P)));
+        const st = (t) => t.status === 'Completed' ? 'Completed' : (new Date(t.deadline) < now ? 'Overdue' : 'Pending');
+        const c = { Completed: 0, Pending: 0, Overdue: 0 }; list.forEach(t => c[st(t)]++);
+        const done = list.filter(t => t.status === 'Completed'); const ontime = done.filter(t => t.completedAt && new Date(t.completedAt) <= new Date(t.deadline)).length;
+        const cats = {}; list.forEach(t => cats[t.category || 'General'] = (cats[t.category || 'General'] || 0) + 1);
+        return {
+            kpis: [K('Tasks in period', list.length, RXC.blue), K('Completed', c.Completed, RXC.green), K('Pending', c.Pending, RXC.purple), K('Overdue', c.Overdue, RXC.red), K('On-time completion', pctOf(ontime, done.length) + '%', RXC.teal)],
+            charts: [{ title: 'Status', type: 'doughnut', data: { labels: Object.keys(c), datasets: [{ data: Object.values(c), backgroundColor: [RXC.green, RXC.purple, '#f87171'], borderWidth: 0 }] } },
+                { title: 'By category', type: 'bar', data: { labels: Object.keys(cats), datasets: [{ label: 'Tasks', data: Object.values(cats), backgroundColor: RXC.blue }] }, options: { plugins: { legend: { display: false } } } }],
+            sections: [{ title: 'Tasks', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Task' }, { h: 'Category' }, { h: 'Assigned by' }, { h: 'Assigned' }, { h: 'Deadline' }, { h: 'Status', f: v => pill(v, v === 'Completed' ? 'ok' : v === 'Overdue' ? 'bad' : 'warn') }, { h: 'Completed' }, { h: 'Subtasks', c: 1 }],
+                rows: list.sort((a, b) => new Date(a.deadline) - new Date(b.deadline)).map(t => { const x = [lName(t.lectId), t.title, t.category || 'General', (t.assignedBy || '').split('@')[0], fmtDT(t.createdAt), fmtDT(t.deadline), st(t), t.completedAt ? fmtDT(t.completedAt) : '—', `${(t.subtasks || []).filter(s => s.done).length}/${(t.subtasks || []).length}`]; x.id = t.lectId; return x; }) }]
+        };
+    } },
+    { id: 'consult', icon: '💬', title: 'Consultations', color: RXC.red, desc: 'Requests to Faculty / Dean / ARC raised in the period and how fast they were resolved.', build: (P) => {
+        const f = rxFac();
+        const list = (localDB.consultations || []).filter(c => inP(c.date, P) && (rxIsSelf() ? rxLectOK(c.lectId) : ((!f || c.faculty === f) && (!RX.lect || c.lectId === RX.lect))));
+        const res = list.filter(c => c.status === 'Resolved'); const days = res.filter(c => c.repliedAt).map(c => (new Date(c.repliedAt) - new Date(c.date)) / 864e5);
+        const tg = (t) => list.filter(c => (c.targets || []).includes(t)).length;
+        return {
+            kpis: [K('Raised', list.length, RXC.blue), K('Open', list.length - res.length, RXC.red), K('Resolved', res.length, RXC.green), K('Avg days to resolve', days.length ? r1(days.reduce((a, b) => a + b, 0) / days.length) : '—', RXC.purple), K('To Dean / ARC', `${tg('DEAN')} / ${tg('ARC')}`, RXC.slate)],
+            charts: [{ title: 'Sent to', type: 'doughnut', data: { labels: ['Faculty', 'Dean', 'ARC'], datasets: [{ data: [tg('FACULTY'), tg('DEAN'), tg('ARC')], backgroundColor: [RXC.blue, RXC.purple, RXC.teal], borderWidth: 0 }] } }],
+            sections: [{ title: 'Consultations', cols: [{ h: 'Raised' }, { h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Module' }, { h: 'Matter' }, { h: 'To' }, { h: 'Status', f: v => pill(v, v === 'Resolved' ? 'ok' : 'bad') }, { h: 'Reply' }, { h: 'Resolved by' }, { h: 'Resolved at' }],
+                rows: list.sort((a, b) => new Date(b.date) - new Date(a.date)).map(c => { const x = [fmtDT(c.date), c.lectName, `${c.code || 'General'} ${c.batch || ''}`, c.text, (c.targets || []).join(', '), c.status, c.reply || '', (c.repliedBy || '').split('@')[0], c.repliedAt ? fmtDT(c.repliedAt) : '—']; x.id = c.lectId; return x; }) }]
+        };
+    } },
+    { id: 'exam', icon: '🎓', title: 'Exam Documents', color: RXC.purple, desc: 'Test papers, marking schemes, moderation kits, vetting and exam-portal upload status.', build: (P) => {
+        const rows = rxRows().filter(r => window.examDocs(r).required);
+        const cnt = (i) => rows.filter(r => window.examDocs(r).items[i].ok).length;
+        const recv = rows.filter(r => window.examDocs(r).items.some(it => it.date && inP(it.date, P))).length;
+        const cell = (it) => it.ok ? `✔ ${it.date || ''}${it.via ? ' (' + it.via + ')' : ''}` : '✘';
+        const fmt = (v) => String(v).startsWith('✔') ? `<span class="doc-ok">${esc(v)}</span>` : `<span class="doc-no">${esc(v)}</span>`;
+        return {
+            kpis: [K('Modules with final exam', rows.length, RXC.blue), K('Papers received', `${cnt(0)}/${rows.length}`, RXC.green), K('Marking schemes', cnt(1), RXC.teal), K('Moderation kits', cnt(2), RXC.purple), K('Vetted', cnt(3), RXC.slate), K('On exam portal', cnt(4), RXC.green), K('Received in period', recv, RXC.blue)],
+            charts: [{ title: 'Documents received vs required', type: 'bar', data: { labels: ['Test paper', 'Marking scheme', 'Moderation kit', 'Vetted', 'Exam portal'], datasets: [{ label: 'Done', data: [0, 1, 2, 3, 4].map(cnt), backgroundColor: RXC.green }, { label: 'Pending', data: [0, 1, 2, 3, 4].map(i => rows.length - cnt(i)), backgroundColor: '#f87171' }] }, options: { scales: { x: { stacked: true }, y: { stacked: true } } } }],
+            sections: [{ title: 'Exam documents by module', cols: [{ h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Code' }, { h: 'Module' }, { h: 'Batch' }, { h: 'Coordinator' }, { h: 'Test paper', f: fmt }, { h: 'Marking scheme', f: fmt }, { h: 'Mod. kit', f: fmt }, { h: 'Vetted', f: fmt }, { h: 'Portal', f: fmt }, { h: 'Status' }, { h: 'Coordinator comment' }],
+                rows: rows.map(r => { const ed = window.examDocs(r); const x = [r.lecturerName || '—', r.code, r.name, r.batch, r.coordinatorName || '—', cell(ed.items[0]), cell(ed.items[1]), cell(ed.items[2]), cell(ed.items[3]), cell(ed.items[4]), ed.status.t, r.coordComment || '']; x.id = r.lecturerId; return x; }) }]
+        };
+    } },
+    { id: 'followups', icon: '📞', title: 'Coordinator Follow-ups', color: RXC.blue, desc: 'Every call, message and reminder logged by coordinators in the period, with responses.', build: (P) => {
+        const list = []; rxRows().forEach(r => (r.followUps || []).forEach(f => { if (inP(f.date, P)) { const x = [fmtDT(f.date), (f.by || '').split('@')[0], r.lecturerName || '—', r.code, r.batch, f.action, f.response, f.promised || '', (f.about || []).join(', '), f.note || '']; x.id = r.lecturerId; x.ts = f.date; list.push(x); } }));
+        list.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+        const cntBy = (i) => { const o = {}; list.forEach(x => o[x[i]] = (o[x[i]] || 0) + 1); return o; };
+        const A = cntBy(5), R = cntBy(6);
+        return {
+            kpis: [K('Follow-ups', list.length, RXC.blue), K('Lecturers followed', new Set(list.map(x => x.id)).size, RXC.purple), K('No response', R['No response'] || 0, RXC.red), K('Documents submitted', R['Documents submitted'] || 0, RXC.green), K('Promised by date', R['Promised to send by date'] || 0, RXC.teal)],
+            charts: [{ title: 'What was done', type: 'bar', data: { labels: Object.keys(A), datasets: [{ label: 'Count', data: Object.values(A), backgroundColor: RXC.blue }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } } } },
+                { title: 'Responses', type: 'doughnut', data: { labels: Object.keys(R), datasets: [{ data: Object.values(R), backgroundColor: [RXC.green, '#f87171', RXC.purple, RXC.blue, RXC.teal, '#94a3b8', RXC.slate], borderWidth: 0 }] } }],
+            sections: [{ title: 'Follow-up log', cols: [{ h: 'When' }, { h: 'By' }, { h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Code' }, { h: 'Batch' }, { h: 'Action' }, { h: 'Response', f: v => pill(esc(v), v === 'No response' || v === 'Phone unreachable' ? 'bad' : v === 'Documents submitted' || v === 'Response received' ? 'ok' : 'info') }, { h: 'Promised' }, { h: 'About' }, { h: 'Note' }], rows: list, empty: 'No follow-ups logged in this period.' }]
+        };
+    } },
+    { id: 'events', icon: '🎉', title: 'Events Attendance', color: RXC.green, desc: 'Meetings, forums and PD sessions in the period with attendance per event.', build: (P) => {
+        const f = rxFac();
+        const evs = (localDB.events || []).filter(e => inP(e.date, P) && (!f || e.targetRole === 'ALL' || e.targetRole === f));
+        const detail = []; let A = 0, X = 0, S = 0, N = 0;
+        const rows = evs.map(e => {
+            const inv = localDB.lecturers.filter(l => (e.targetRole === 'ALL' || window.getFaculty(l) === e.targetRole) && rxLectOK(window.lecIdOf(l)));
+            const c = { Attended: 0, Excused: 0, Sick: 0, None: 0 };
+            inv.forEach(l => { const s = (e.responses || {})[window.lecIdOf(l)] || 'None'; c[s] = (c[s] || 0) + 1; const x = [e.date, e.title, window.getLecturerName(l), window.getFaculty(l), s === 'None' ? 'No response' : s]; x.id = window.lecIdOf(l); detail.push(x); });
+            A += c.Attended; X += c.Excused; S += c.Sick; N += c.None;
+            return [e.date, e.type, e.title, e.targetRole, inv.length, c.Attended, c.Excused, c.Sick, c.None, pctOf(c.Attended, inv.length)];
+        });
+        return {
+            kpis: [K('Events', evs.length, RXC.blue), K('Attended', A, RXC.green), K('Excused', X, RXC.slate), K('Sick', S, RXC.purple), K('No response', N, RXC.red), K('Attendance rate', pctOf(A, A + X + S + N) + '%', RXC.teal)],
+            charts: [{ title: 'Responses', type: 'doughnut', data: { labels: ['Attended', 'Excused', 'Sick', 'No response'], datasets: [{ data: [A, X, S, N], backgroundColor: [RXC.green, '#94a3b8', RXC.purple, '#f87171'], borderWidth: 0 }] } }],
+            sections: [{ title: 'Events', cols: [{ h: 'Date' }, { h: 'Type' }, { h: 'Title' }, { h: 'For' }, { h: 'Invited', c: 1 }, { h: 'Attended', c: 1 }, { h: 'Excused', c: 1 }, { h: 'Sick', c: 1 }, { h: 'No response', c: 1 }, { h: 'Rate', c: 1, f: v => pctPill(v) }], rows },
+                { title: 'Who attended', cols: [{ h: 'Date' }, { h: 'Event' }, { h: 'Lecturer', f: (v, r) => nameLink(r.id, v) }, { h: 'Faculty' }, { h: 'Response', f: v => pill(v, v === 'Attended' ? 'ok' : v === 'No response' ? 'bad' : 'mute') }], rows: detail }]
+        };
+    } },
+    { id: 'activity', icon: '🕘', title: 'Activity History Log', color: RXC.slate, desc: 'Everyone’s sign-ins, sign-outs, reports, ticks, uploads and changes — with date, time and device.', build: async (P) => {
+        let list = [], err = null;
+        try { list = await fetchActivity(P); } catch (e) { err = e; }
+        if (err) return { kpis: [], sections: [], note: `<b>The activity log could not be read.</b><br>${esc(window.fbErrorHelp(err))}<br><br>Publish the Firestore rule for <code>activity_log</code> (see the setup notes), then try again. Entries are still being saved in this browser and will upload once allowed.` };
+        const users = {}; list.forEach(e => { const u = (users[e.email] = users[e.email] || { name: e.name, role: e.role, fac: e.faculty, logins: 0, reports: 0, changes: 0, first: e.at, last: e.at, dev: new Set() }); if (e.category === 'LOGIN') u.logins++; else if (e.category === 'REPORT') u.reports++; else if (e.category !== 'LOGOUT') u.changes++; if (e.at < u.first) u.first = e.at; if (e.at > u.last) u.last = e.at; if (e.name) u.name = e.name; u.dev.add(e.device); });
+        const byDay = {}; list.forEach(e => { const d = e.at.slice(0, 10); byDay[d] = (byDay[d] || 0) + 1; });
+        const days = Object.keys(byDay).sort();
+        const cats = {}; list.forEach(e => cats[e.category] = (cats[e.category] || 0) + 1);
+        const catFmt = (v) => `<span class="rx-pill" style="background:#eef2ff;color:#312e81">${ACT_CATS[v] || v}</span>`;
+        return {
+            kpis: [K('Actions logged', list.length, RXC.blue), K('Active users', Object.keys(users).length, RXC.purple), K('Sign-ins', cats.LOGIN || 0, RXC.green), K('Reports viewed / exported', cats.REPORT || 0, RXC.teal), K('Changes made', list.length - (cats.LOGIN || 0) - (cats.LOGOUT || 0) - (cats.REPORT || 0), RXC.slate), K('Waiting to upload', list.filter(e => e._pending).length, RXC.red, 'saved in this browser')],
+            charts: [{ title: 'Actions per day', type: 'bar', data: { labels: days.map(d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })), datasets: [{ label: 'Actions', data: days.map(d => byDay[d]), backgroundColor: RXC.blue }] }, options: { plugins: { legend: { display: false } } } },
+                { title: 'By type', type: 'doughnut', data: { labels: Object.keys(cats).map(k => ACT_CATS[k] || k), datasets: [{ data: Object.values(cats), backgroundColor: [RXC.green, RXC.blue, RXC.purple, RXC.teal, '#f87171', RXC.slate, '#93c5fd', '#c4b5fd', '#6ee7b7', '#94a3b8', '#a5b4fc', '#fca5a5', '#5eead4', '#cbd5e1'], borderWidth: 0 }] } }],
+            sections: [
+                { title: 'Full history', sub: 'Newest first. Use the search box to filter by name, action, module or date.', cols: [{ h: 'Date & time' }, { h: 'User' }, { h: 'Name' }, { h: 'Role' }, { h: 'Faculty' }, { h: 'Type', f: catFmt }, { h: 'Action', f: v => `<b>${esc(v)}</b>` }, { h: 'Details' }, { h: 'Device' }, { h: 'Session' }],
+                    rows: list.map(e => [fmtDT(e.at) + (e._pending ? ' ⏳' : ''), e.email, e.name || '', ROLE_LABELS[e.role] || e.role || '', e.faculty || '', e.category, e.action, e.details || '', e.device || '', e.session || '']) },
+                { title: 'By user', cols: [{ h: 'User' }, { h: 'Name' }, { h: 'Role' }, { h: 'Faculty' }, { h: 'Sign-ins', c: 1 }, { h: 'Changes', c: 1 }, { h: 'Reports', c: 1 }, { h: 'First seen' }, { h: 'Last seen' }, { h: 'Devices' }],
+                    rows: Object.entries(users).sort((a, b) => b[1].last.localeCompare(a[1].last)).map(([em, u]) => [em, u.name || '', ROLE_LABELS[u.role] || u.role, u.fac || '', u.logins, u.changes, u.reports, fmtDT(u.first), fmtDT(u.last), [...u.dev].join(', ')]) },
+                { title: 'Sign-ins & sign-outs', cols: [{ h: 'Date & time' }, { h: 'User' }, { h: 'Name' }, { h: 'Event', f: v => pill(v, v === 'Signed in' ? 'ok' : 'mute') }, { h: 'Details' }, { h: 'Device' }],
+                    rows: list.filter(e => e.category === 'LOGIN' || e.category === 'LOGOUT').map(e => [fmtDT(e.at), e.email, e.name || '', e.action, e.details || '', e.device || '']) }
+            ]
+        };
+    } },
+    { id: 'summary', icon: '👑', title: 'Executive Summary', color: RXC.gold, desc: 'All key numbers for the period on one page — ideal for the Dean or Academic Affairs.', build: async (P) => {
+        const parts = ['attendance', 'weekly', 'weeklychk', 'checklist', 'tasks', 'consult', 'exam', 'followups'].map(id => { const R = REPORTS.find(x => x.id === id); return { R, S: R.build(P) }; });
+        const html = parts.map(({ R, S }) => `<div class="rx-sec"><div class="rx-sec-h"><b class="text-[12px]" style="color:#004d40">${R.icon} ${R.title}</b><button class="rx-noprint rx-chip" onclick="window.rxOpen('${R.id}')">Open full report</button></div><div class="p-3" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px">${S.kpis.map(kpiHtml).join('')}</div></div>`).join('');
+        const att = parts[0].S;
+        return { kpis: att.kpis.slice(0, 3).concat(parts[3].S.kpis.slice(1, 2), parts[4].S.kpis.slice(3, 4), parts[5].S.kpis.slice(1, 2)), charts: [att.charts[0], parts[4].S.charts[0]], html, sections: [att.sections[0], att.sections[2]] };
+    } }
+    ];
+
+    // ------------------------------------------------ activity fetch
+    let _fs = null; const fsx = async () => _fs || (_fs = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'));
+    const fetchActivity = async (P) => {
+        const me = myEmail().toLowerCase();
+        const manager = !rxIsSelf() && (window.isManagerRole() || GLOBAL_ROLES.includes(activeRole));
+        let out = [];
+        if (dbCloud && navigator.onLine) {
+            const F = await fsx();
+            const q = manager
+                ? F.query(collection(dbCloud, 'activity_log'), F.where('ts', '>=', P.from.getTime()), F.where('ts', '<=', P.to.getTime()), F.orderBy('ts', 'desc'), F.limit(4000))
+                : F.query(collection(dbCloud, 'activity_log'), F.where('email', '==', me), F.limit(3000));
+            (await getDocs(q)).forEach(d => out.push(d.data()));
+        }
+        readQ().forEach(e => out.push({ ...e, _pending: true }));
+        out = out.filter(e => e.ts >= P.from.getTime() && e.ts <= P.to.getTime());
+        if (!manager) out = out.filter(e => e.email === me);
+        else {
+            const sf = window.scopeFaculty(); const f = sf || RX.fac;
+            if (f) out = out.filter(e => e.faculty === f);
+            if (RX.lect) out = out.filter(e => e.lecturerId === RX.lect);
+        }
+        return out.sort((a, b) => b.ts - a.ts);
+    };
+
+    // ------------------------------------------------ viewer
+    const kpiHtml = (k) => `<div class="rx-kpi" style="--c:${k.c || RXC.blue}"><div class="l">${k.l}</div><div class="v">${k.v}</div>${k.s ? `<div class="s">${k.s}</div>` : ''}</div>`;
+    const destroyRxCharts = () => { RX.charts.forEach(c => { try { c.destroy(); } catch (e) {} }); RX.charts = []; };
+    window.rxOpen = async (id) => {
+        const R = REPORTS.find(x => x.id === id); if (!R) return;
+        const P = rxPeriod();
+        document.getElementById('rx-viewer').style.display = 'flex';
+        document.getElementById('rx-title').innerText = `${R.icon} ${R.title}`;
+        document.getElementById('rx-sub').innerText = `${P.label} · ${rxScopeLabel()}`;
+        destroyRxCharts();
+        document.getElementById('rx-content').innerHTML = '<div class="py-24 text-center text-gray-500 font-bold"><div class="animate-spin rounded-full h-10 w-10 border-t-4 mx-auto mb-3" style="border-color:#004d40"></div>Preparing the report…</div>';
+        let S;
+        try { S = await R.build(P); } catch (e) { console.error(e); document.getElementById('rx-content').innerHTML = `<p class="p-10 text-center text-red-700 font-bold">This report could not be built: ${esc(e.message)}</p>`; return; }
+        RX.spec = { ...S, id, P, title: R.title, icon: R.icon, scope: rxScopeLabel() };
+        rxRender();
+        window.logActivity('REPORT', 'Report viewed', `${R.title} · ${P.label} · ${rxScopeLabel()}`);
+    };
+    window.rxOpenSelf = (id, period) => { RX.selfOnly = true; RX.course = ''; RX.lect = ''; if (period) RX.period = period; window.rxOpen(id); };
+    window.rxOpenFor = (lid, id) => { RX.selfOnly = false; RX.lect = lid; RX.course = ''; RX.period = 'semester'; window.rxOpen(id); };
+    window.rxClose = () => { destroyRxCharts(); document.getElementById('rx-viewer').style.display = 'none'; RX.selfOnly = false; };
+    const rxRender = () => {
+        const S = RX.spec; const box = document.getElementById('rx-content');
+        const charts = (S.charts || []).filter(Boolean);
+        box.innerHTML = `
+            <div class="rounded-2xl p-5 mb-4 text-white" style="background:linear-gradient(135deg,#004d40,#0d47a1 60%,#4a148c)">
+                <div class="text-[10px] font-bold" style="color:#d4af37;letter-spacing:2px">Islamic University of Maldives</div>
+                <div class="text-2xl md:text-3xl font-black mt-1" style="font-family:'Playfair Display',serif">${S.icon} ${esc(S.title)}</div>
+                <div class="flex flex-wrap gap-2 mt-3 text-[10px] font-bold">
+                    <span class="px-3 py-1 rounded-full" style="background:rgba(255,255,255,.14)">📅 ${esc(S.P.label)}</span>
+                    <span class="px-3 py-1 rounded-full" style="background:rgba(255,255,255,.14)">🎯 ${esc(S.scope)}</span>
+                    <span class="px-3 py-1 rounded-full" style="background:rgba(255,255,255,.14)">🕒 Generated ${fmtDT(nowIso())} by ${esc(myEmail())}</span>
+                </div>
+            </div>
+            ${S.note ? `<div class="rx-sec p-4 text-[11px] text-red-800" style="background:#fef2f2;border-color:#fecaca">${S.note}</div>` : ''}
+            ${(S.kpis || []).length ? `<div class="mb-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">${S.kpis.map(kpiHtml).join('')}</div>` : ''}
+            ${charts.length ? `<div class="mb-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px">${charts.map((c, i) => `<div class="rx-sec p-3" style="margin:0"><div class="text-[11px] font-black mb-2" style="color:#004d40">${c.title}</div><div style="height:${c.h || 260}px"><canvas id="rxc-${i}"></canvas></div></div>`).join('')}</div>` : ''}
+            ${S.html || ''}
+            ${(S.sections || []).map((sec, i) => `<div class="rx-sec">
+                <div class="rx-sec-h"><div><b class="text-[12px]" style="color:#004d40">${sec.title}</b> <span class="text-[10px] text-gray-500 font-bold">${sec.rows.length} row${sec.rows.length === 1 ? '' : 's'}</span>${sec.sub ? `<div class="text-[9px] text-gray-500 font-bold">${sec.sub}</div>` : ''}</div>
+                ${sec.rows.length > 6 ? `<input class="rx-noprint p-1.5 border rounded-lg text-[10px] outline-none min-w-[200px]" placeholder="🔍 Search in this table" oninput="window.rxFilter(${i}, this.value)">` : ''}</div>
+                <div class="rx-sec-b"><table class="rx-tbl" id="rx-t-${i}"><thead><tr>${sec.cols.map(c => `<th>${c.h}</th>`).join('')}</tr></thead><tbody>${sec.rows.length ? sec.rows.map(r => `<tr>${sec.cols.map((c, j) => `<td${c.c ? ' style="text-align:center"' : ''}>${c.f ? c.f(r[j], r) : esc(r[j] ?? '')}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${sec.cols.length}" class="text-center italic text-gray-400" style="padding:28px">${sec.empty || 'Nothing recorded for this period.'}</td></tr>`}</tbody></table></div></div>`).join('')}`;
+        charts.forEach((c, i) => {
+            const el = document.getElementById('rxc-' + i); if (!el) return;
+            const base = { responsive: true, maintainAspectRatio: false, animation: { duration: 300 }, plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, boxWidth: 10 } } } };
+            const o = c.options || {};
+            RX.charts.push(new Chart(el, { type: c.type, data: c.data, options: { ...base, ...o, plugins: { ...base.plugins, ...(o.plugins || {}) } } }));
+        });
+    };
+    window.rxFilter = (i, q) => { q = String(q || '').toLowerCase(); document.querySelectorAll(`#rx-t-${i} tbody tr`).forEach(tr => { tr.style.display = !q || tr.innerText.toLowerCase().includes(q) ? '' : 'none'; }); };
+    const rxPrintableHtml = () => {
+        const live = document.getElementById('rx-content'); const clone = live.cloneNode(true);
+        const lc = live.querySelectorAll('canvas');
+        clone.querySelectorAll('canvas').forEach((c, i) => { const img = document.createElement('img'); try { img.src = lc[i].toDataURL('image/png'); } catch (e) {} img.style.width = '100%'; img.style.height = 'auto'; c.parentElement.style.height = 'auto'; c.replaceWith(img); });
+        clone.querySelectorAll('.rx-sec-b').forEach(e => { e.style.maxHeight = 'none'; e.style.overflow = 'visible'; });
+        clone.querySelectorAll('.rx-tbl thead th').forEach(e => { e.style.position = 'static'; });
+        clone.querySelectorAll('.rx-noprint').forEach(e => e.remove());
+        return `<div style="font-family:Inter,sans-serif">${clone.innerHTML}<div style="text-align:center;font-size:8px;color:#94a3b8;margin-top:12px">Presidential Executive Workload Portal · ${esc(RX.spec.title)} · ${esc(RX.spec.P.label)}</div></div>`;
+    };
+    window.rxPdf = async () => {
+        if (!RX.spec) return;
+        document.getElementById('report-content-area').innerHTML = rxPrintableHtml();
+        window.logActivity('REPORT', 'Report exported (PDF)', `${RX.spec.title} · ${RX.spec.P.label} · ${RX.spec.scope}`);
+        await window.renderAreaToPdf(`${RX.spec.title.replace(/[^a-z0-9]+/gi, '_')}_${ymd(RX.spec.P.from)}_to_${ymd(RX.spec.P.to)}.pdf`, 'Designing your report…');
+    };
+    window.rxPrint = () => {
+        if (!RX.spec) return;
+        document.getElementById('print-date').innerText = new Date().toLocaleString();
+        document.getElementById('print-report-subtitle').innerText = `${RX.spec.title} — ${RX.spec.P.label}`;
+        document.getElementById('print-filter-info').innerHTML = `<span class="print-filter-badge">${esc(RX.spec.scope)}</span>`;
+        document.getElementById('print-table-head').innerHTML = ''; document.getElementById('print-table-body').innerHTML = '';
+        document.getElementById('print-content-custom').innerHTML = rxPrintableHtml();
+        window.logActivity('REPORT', 'Report printed', `${RX.spec.title} · ${RX.spec.P.label}`);
+        document.body.classList.add('is-printing-master');
+        setTimeout(() => { window.print(); document.body.classList.remove('is-printing-master'); document.getElementById('print-content-custom').innerHTML = ''; }, 600);
+    };
+    window.rxExcel = () => {
+        const S = RX.spec; if (!S) return; if (!window.XLSX) return alert('Excel library not loaded.');
+        const wb = XLSX.utils.book_new(); const used = new Set();
+        const sheetName = (t) => { let n = strip(t).replace(/[\\/?*[\]:]/g, '').replace(/[^\w\s&()-]/g, '').trim().slice(0, 28) || 'Sheet'; let x = n, i = 2; while (used.has(x)) x = n.slice(0, 25) + ' ' + i++; used.add(x); return x; };
+        const info = [[S.title], ['Period', S.P.label], ['From', ymd(S.P.from), 'To', ymd(S.P.to)], ['Scope', S.scope], ['Generated', new Date().toLocaleString(), myEmail()], [], ['Indicator', 'Value', 'Note'], ...(S.kpis || []).map(k => [strip(k.l), strip(k.v), strip(k.s)])];
+        const ws0 = XLSX.utils.aoa_to_sheet(info); ws0['!cols'] = [{ wch: 30 }, { wch: 28 }, { wch: 28 }, { wch: 14 }];
+        XLSX.utils.book_append_sheet(wb, ws0, sheetName('Summary'));
+        (S.sections || []).forEach(sec => {
+            const aoa = [sec.cols.map(c => strip(c.h)), ...sec.rows.map(r => sec.cols.map((c, j) => { const v = r[j]; return v === null || v === undefined ? '' : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : typeof v === 'object' ? JSON.stringify(v) : v; }))];
+            const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!cols'] = sec.cols.map(c => ({ wch: Math.max(10, strip(c.h).length + 2, 16) }));
+            XLSX.utils.book_append_sheet(wb, ws, sheetName(sec.title));
+        });
+        XLSX.writeFile(wb, `${S.title.replace(/[^a-z0-9]+/gi, '_')}_${ymd(S.P.from)}_to_${ymd(S.P.to)}.xlsx`);
+        window.logActivity('REPORT', 'Report exported (Excel)', `${S.title} · ${S.P.label} · ${S.scope}`);
+    };
+
+    // ------------------------------------------------ Reports Center tab
+    window.rxSet = (k, v) => { RX[k] = v; if (k === 'fac') { RX.course = ''; RX.lect = ''; } window.renderReportsCenter(); };
+    window.rxPickWeek = (k) => { RX.period = 'weekkey'; RX.weekKey = k; window.renderReportsCenter(); };
+    window.rxSaveSemester = () => {
+        const s = val('rx-sem-start'), n = parseInt(val('rx-sem-weeks')) || 15;
+        if (!s) return alert('Choose the first day of the semester.');
+        localDB.settings.semesterStart = s; localDB.settings.semesterWeeks = n; _ssk = null;
+        window.saveLocal(true); window.logActivity('DATA', 'Semester calendar set', `${s} · ${n} weeks`);
+        window.showToast('Semester calendar saved — weeks are now numbered from it.', 'success'); window.renderReportsCenter();
+    };
+    window.renderReportsCenter = () => {
+        const box = document.getElementById('rx-center'); if (!box) return;
+        RX.selfOnly = false;
+        const P = rxPeriod(); const cur = window.weekKey();
+        const manager = window.isManagerRole();
+        const facs = GLOBAL_ROLES.includes(activeRole) && !window.scopeFaculty();
+        const base = rxBaseRows();
+        const courses = [...new Set(base.map(r => r.course).filter(Boolean))].sort();
+        const lects = [...new Set(base.flatMap(r => [r.lecturerId, r.coordinatorId]).filter(Boolean))].sort((a, b) => lName(a).localeCompare(lName(b)));
+        // week strip
+        const teach = base.filter(r => r.lecturerId);
+        const weeks = []; { let w = wkDate(semStartKey()); const end = wkDate(cur); for (let g = 0; w <= end && g < 60; g++) { weeks.push(ymd(w)); w = addDays(w, 7); } if (!weeks.length) weeks.push(cur); }
+        const weekStrip = weeks.map(k => { const d = teach.filter(r => attOf(r)[k]).length; const p = pctOf(d, teach.length); const on = (RX.period === 'weekkey' && RX.weekKey === k) || (RX.period === 'week' && k === cur); return `<button class="rx-week ${on ? 'on' : ''}" onclick="window.rxPickWeek('${k}')" title="${wkLabel(k)} — attendance ${d}/${teach.length}"><span class="wn">${weekNo(k) >= 1 ? 'W' + weekNo(k) : '·'}</span><span>${wkShort(k)}</span><span class="dot"><span style="display:block;height:100%;width:${p}%;background:${p >= 90 ? RXC.green : p >= 50 ? RXC.blue : RXC.purple}"></span></span></button>`; }).join('');
+        // at-a-glance numbers
+        const g1 = REPORTS[0].build(P), g2 = REPORTS[1].build(P), g5 = REPORTS[4].build(P), g6 = REPORTS[5].build(P);
+        const glance = [{ ...g1.kpis[2], id: 'attendance' }, { ...g1.kpis[5], id: 'attendance' }, { ...g2.kpis[0], id: 'weekly' }, { ...g5.kpis[3], id: 'tasks' }, { ...g6.kpis[1], l: 'Open consultations', id: 'consult' }];
+        const periods = [['week', 'This week'], ['lastweek', 'Last week'], ['month', 'This month'], ['lastmonth', 'Last month'], ['semester', 'Whole semester'], ['custom', 'Custom dates']];
+        box.innerHTML = `<div class="card p-4 md:p-6 shadow-lg" style="border-top:8px solid #0d47a1">
+            <div class="flex flex-col lg:flex-row justify-between lg:items-end gap-3 mb-4">
+                <div><h2 class="text-2xl font-black" style="color:#004d40;font-family:'Playfair Display',serif">Reports Center</h2>
+                <p class="text-[11px] text-gray-500 font-bold">Pick a period, then open any report. Every report can be printed, saved as PDF or exported to Excel.</p></div>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="window.rxOpen('summary')" class="btn-royal-green px-4 py-2 rounded-lg text-[10px] font-black">👑 Executive summary</button>
+                    <button onclick="window.rxOpen('activity')" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg text-[10px] font-black">🕘 Activity history</button>
+                    ${manager ? `<button onclick="window.openAttendance()" class="btn-royal-blue px-4 py-2 rounded-lg text-[10px] font-black">🗓️ Update attendance</button>` : ''}
+                </div>
+            </div>
+            <div class="rounded-2xl border p-3 mb-3 bg-white">
+                <div class="flex flex-wrap gap-2 items-center">
+                    ${periods.map(([k, l]) => `<button class="rx-chip ${RX.period === k ? 'on' : ''}" onclick="window.rxSet('period','${k}')">${l}</button>`).join('')}
+                    ${RX.period === 'custom' ? `<span class="flex items-center gap-1 text-[10px] font-bold"><input type="date" value="${RX.from}" onchange="window.rxSet('from', this.value)" class="p-1.5 border rounded-lg outline-none"> to <input type="date" value="${RX.to}" onchange="window.rxSet('to', this.value)" class="p-1.5 border rounded-lg outline-none"></span>` : ''}
+                    <span class="ml-auto text-[11px] font-black" style="color:#4a148c">📅 ${esc(P.label)}</span>
+                </div>
+                <div class="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Semester weeks">${weekStrip}</div>
+                <p class="text-[9px] text-gray-400 font-bold mt-1">Each week button shows how many modules have their attendance updated for that week. Click a week to open that week's reports.</p>
+            </div>
+            <div class="flex flex-wrap gap-2 items-center mb-4 text-[10px]">
+                ${facs ? `<select onchange="window.rxSet('fac', this.value)" class="p-2 border rounded-lg font-bold outline-none"><option value="">All faculties</option>${FACULTIES.map(f => `<option ${RX.fac === f ? 'selected' : ''}>${f}</option>`).join('')}</select>` : `<span class="px-3 py-2 rounded-lg bg-gray-100 font-black">${esc(rxFac() || 'My records')}</span>`}
+                <select onchange="window.rxSet('course', this.value)" class="p-2 border rounded-lg outline-none max-w-[260px]"><option value="">All courses</option>${courses.map(c => `<option value="${esc(c)}" ${RX.course === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
+                <select onchange="window.rxSet('lect', this.value)" class="p-2 border rounded-lg outline-none max-w-[220px]"><option value="">All lecturers & coordinators</option>${lects.map(id => `<option value="${id}" ${RX.lect === id ? 'selected' : ''}>${esc(lName(id))}</option>`).join('')}</select>
+                ${RX.course || RX.lect ? `<button class="rx-chip" onclick="window.rxSet('course',''); window.rxSet('lect','')">Clear filters</button>` : ''}
+            </div>
+            <div class="mb-5" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">${glance.map(k => `<button class="text-left" style="all:unset;cursor:pointer" onclick="window.rxOpen('${k.id}')">${kpiHtml(k)}</button>`).join('')}</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px">
+                ${REPORTS.map(R => `<button class="rx-card" style="--c:${R.color}" onclick="window.rxOpen('${R.id}')"><div class="flex items-start gap-3"><span class="ic">${R.icon}</span><div><div class="text-[13px] font-black" style="color:#0f172a">${R.title}</div><div class="text-[10px] text-gray-500 font-bold mt-1 leading-snug">${R.desc}</div></div></div></button>`).join('')}
+            </div>
+            ${manager ? `<details class="mt-5 rounded-xl border p-3 bg-gray-50"><summary class="cursor-pointer text-[11px] font-black" style="color:#004d40">⚙️ Semester calendar (week numbering)</summary>
+                <div class="flex flex-wrap gap-2 items-end mt-3 text-[10px]">
+                    <label class="font-bold">First day of semester<input id="rx-sem-start" type="date" value="${esc((localDB.settings || {}).semesterStart || '')}" class="block p-2 border rounded-lg outline-none"></label>
+                    <label class="font-bold">Number of weeks<input id="rx-sem-weeks" type="number" min="1" max="30" value="${semWeeks()}" class="block p-2 border rounded-lg outline-none w-24"></label>
+                    <button onclick="window.rxSaveSemester()" class="btn-royal-green px-4 py-2 rounded-lg font-black">Save calendar</button>
+                    <span class="text-gray-500 font-bold">Used for Week 1, Week 2… labels and for estimating planned hours (weekly hours × weeks).</span>
+                </div></details>` : ''}
+        </div>`;
+    };
+
+    // ------------------------------------------------ hook into existing navigation / roles
+    const _sw = window.switchTab;
+    window.switchTab = function (tabId) { const res = _sw.apply(this, arguments); if (tabId === 'reports') window.renderReportsCenter(); return res; };
+    const _aru = applyRoleUI;
+    applyRoleUI = function () {
+        const res = _aru.apply(this, arguments);
+        const b = document.getElementById('tbtn-reports');
+        if (b) b.style.display = (isWorkspaceRole() || activeRole === 'STUDENT') ? 'none' : 'inline-block';
+        return res;
+    };
+    // quick buttons in existing screens
+    const wkTools = document.querySelector('#tab-weekly [data-ds-tools]');
+    if (wkTools) wkTools.insertAdjacentHTML('beforebegin', `<button onclick="window.switchTab('reports')" class="btn-royal-green px-3 py-1.5 rounded-lg text-[10px] font-black mr-2">📊 Reports by week / period</button>`);
+    const adm = document.querySelector('#admin-controls .flex.gap-2');
+    if (adm) adm.insertAdjacentHTML('afterbegin', `<button onclick="window.rxOpen('activity')" class="bg-gray-800 hover:bg-black text-white font-bold px-4 py-2 rounded shadow text-[9px] uppercase">🕘 Activity History</button>`);
+    const coordTools = document.querySelector('#tab-coordinators [data-ds-tools]');
+    if (coordTools) coordTools.insertAdjacentHTML('beforebegin', `<button onclick="window.openAttendance()" class="bg-green-800 hover:bg-green-900 text-white px-3 py-1.5 rounded text-[9px] font-black">🗓️ Weekly Attendance</button>`);
+    }
+    // ===================================== END OF ADD-ON =====================================
+
     </script>
 
 </body>
