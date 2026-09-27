@@ -6946,7 +6946,7 @@
         short: 'IQRA',
         arabic: 'اقْرَأْ',
         long: 'Integrated Quality, Resources & Academic Administration System',
-        inst: 'Islamic University of Maldives'
+        inst: 'ZAAD HOLDINGS PVT LTD'
     };
     window.IQRA_APP = IQ;
 
