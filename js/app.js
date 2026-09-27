@@ -6934,3 +6934,1121 @@
     }
     // ===================================== END OF ADD-ON =====================================
 
+
+    // =====================================================================================================
+    // ======  ADD-ON 2 : IQRA — Integrated Quality, Resources & Academic Administration System  =========
+    // ======  Staff 360 cards · Faculty 360 · Task Desk (with attachments) · Daily Works ·           =========
+    // ======  DVC / View-only roles · role change on user cards · royal header · lecturer workload card ====
+    // =====================================================================================================
+    if (!window.__iqraAddon) { window.__iqraAddon = true;
+
+    const IQ = {
+        short: 'IQRA',
+        arabic: 'اقْرَأْ',
+        long: 'Integrated Quality, Resources & Academic Administration System',
+        inst: 'Islamic University of Maldives'
+    };
+    window.IQRA_APP = IQ;
+
+    // ------------------------------------------------------------------ new roles
+    Object.assign(ROLE_LABELS, {
+        DVC_ACAD: 'Deputy Vice Chancellor (Academic)',
+        DVC_ADMIN: 'Deputy Vice Chancellor (Administration)',
+        VIEWER: 'View-only (All features)'
+    });
+    ['DVC_ACAD', 'DVC_ADMIN', 'VIEWER'].forEach(r => { if (!GLOBAL_ROLES.includes(r)) GLOBAL_ROLES.push(r); if (!NEW_ROLES.includes(r)) NEW_ROLES.push(r); });
+    Object.assign(ROLE_STYLE, { DVC_ACAD: ['#0d47a1', '#dbeafe', '🎖️'], DVC_ADMIN: ['#004d40', '#ccfbf1', '🏢'], VIEWER: ['#475569', '#f1f5f9', '👁️'] });
+    if (!ROLE_ORDER.includes('DVC_ACAD')) { ROLE_ORDER.splice(ROLE_ORDER.indexOf('VC') + 1, 0, 'DVC_ACAD', 'DVC_ADMIN'); ROLE_ORDER.push('VIEWER'); }
+    const OVERSIGHT = ['ALL', 'VC', 'REGISTRAR', 'DVC_ACAD', 'DVC_ADMIN', 'VIEWER'];   // see every faculty & every person
+    const READONLY = ['VIEWER', 'DVC_ACAD', 'DVC_ADMIN'];                              // cannot change master data
+    const LEADER_ROLES = ['DVC_ACAD', 'DVC_ADMIN', 'VC', 'REGISTRAR', 'DEAN', 'HOD', 'SECRETARY', 'EXAM', 'FINANCE'];
+    const isOversight = () => OVERSIGHT.includes(activeRole);
+    const isReadOnly = () => READONLY.includes(activeRole);
+    const isViewer = () => activeRole === 'VIEWER';
+    const facManaged = () => FACULTIES.includes(activeRole) ? activeRole : (FACULTY_SCOPED.includes(activeRole) ? userFaculty : '');
+    const meEmail = () => String(myEmail() || '').toLowerCase();
+    const meLect = () => currentLecturerId ? window.getLecturerById(currentLecturerId) : null;
+    const meName = () => (currentUserRoleDoc && currentUserRoleDoc.name) || (meLect() ? window.getLecturerName(meLect()) : '') || meEmail().split('@')[0];
+    const meFac = () => facManaged() || userFaculty || (meLect() ? window.getFaculty(meLect()) : '');
+    const lFac = (l) => { const f = l ? window.getFaculty(l) : ''; return f === 'UNKNOWN' ? '' : f; };
+    const nm = (lid) => { const l = window.getLecturerById(lid); return l ? window.getLecturerName(l) : lid; };
+    const ek = (e) => String(e || '').toLowerCase().replace(/\./g, ',');          // e-mail as a Firestore map key
+    const newId = (p) => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const log = (cat, act, det) => { try { window.logActivity && window.logActivity(cat, act, det); } catch (e) {} };
+    const fmtDT = (v) => { if (!v) return ''; const d = new Date(v); return isNaN(d) ? '' : d.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+    const fmtDay = (s) => { if (!s) return ''; const d = new Date(String(s).length <= 10 ? s + 'T00:00:00' : s); return isNaN(d) ? s : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); };
+    const ymdL = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    const sizeTxt = (b) => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
+    const initials = (n) => { const w = String(n || '?').replace(/\b(dr|uz|uza|mr|ms)\b\.?/gi, '').trim().split(/\s+/); return ((w[0] || '?')[0] + ((w[1] || '')[0] || '')).toUpperCase(); };
+    const n1 = (v) => { const x = parseFloat(v); return isNaN(x) ? 0 : x; };
+    const js = (s) => esc(String(s ?? '')).replace(/\\/g, '\\\\').replace(/&#39;/g, "\\'");   // safe inside onclick='...'
+
+    // ------------------------------------------------------------------ Firestore helpers (query, where, updateDoc...)
+    let _FS = null;
+    const FSX = async () => { if (window.__iqraFS) return window.__iqraFS; if (!_FS) _FS = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'); return _FS; };
+
+    // ------------------------------------------------------------------ files: any format, stored in Firestore chunks
+    const CHUNK = 450 * 1024, MAX_FILE = 15 * 1024 * 1024;
+    const toB64 = (buf) => { let s = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+    const uploadFile = async (file, ctx, onProg) => {
+        if (file.size > MAX_FILE) throw new Error(`"${file.name}" is ${sizeTxt(file.size)} – the limit is ${sizeTxt(MAX_FILE)} per file.`);
+        const id = newId('f');
+        const buf = file.arrayBuffer ? await file.arrayBuffer() : await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = () => no(fr.error); fr.readAsArrayBuffer(file); });
+        const n = Math.max(1, Math.ceil(buf.byteLength / CHUNK));
+        const meta = { name: file.name, type: file.type || 'application/octet-stream', size: file.size, chunks: n, by: meEmail(), byName: meName(), at: Date.now(), ctx: ctx || '' };
+        await setDoc(doc(dbCloud, 'iqra_files', id), meta);
+        for (let i = 0; i < n; i++) {
+            await setDoc(doc(dbCloud, 'iqra_files', id, 'chunks', String(i)), { d: toB64(buf.slice(i * CHUNK, (i + 1) * CHUNK)) });
+            if (onProg) onProg((i + 1) / n);
+        }
+        return { id, name: meta.name, type: meta.type, size: meta.size, by: meta.by, at: meta.at };
+    };
+    const uploadAll = async (files, ctx) => {
+        const out = [];
+        const lt = document.getElementById('loader-text'); const ld = document.getElementById('loader');
+        if (files.length) ld.style.display = 'flex';
+        try {
+            for (let i = 0; i < files.length; i++) out.push(await uploadFile(files[i], ctx, (p) => { if (lt) lt.innerText = `Uploading ${i + 1}/${files.length}: ${files[i].name} – ${Math.round(p * 100)}%`; }));
+        } finally { ld.style.display = 'none'; }
+        return out;
+    };
+    const fetchFileBlob = async (id) => {
+        const m = await getDoc(doc(dbCloud, 'iqra_files', id));
+        if (!m.exists()) throw new Error('File not found (it may have been removed).');
+        const meta = m.data(); const parts = [];
+        for (let i = 0; i < meta.chunks; i++) {
+            const c = await getDoc(doc(dbCloud, 'iqra_files', id, 'chunks', String(i)));
+            const bin = atob(c.data().d); const u = new Uint8Array(bin.length);
+            for (let j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+            parts.push(u);
+        }
+        return { meta, blob: new Blob(parts, { type: meta.type }) };
+    };
+    window.iqraFile = async (id, open) => {
+        const ld = document.getElementById('loader'); ld.style.display = 'flex'; document.getElementById('loader-text').innerText = 'Downloading attachment…';
+        try {
+            const { meta, blob } = await fetchFileBlob(id);
+            const url = URL.createObjectURL(blob);
+            if (open) window.open(url, '_blank');
+            else { const a = document.createElement('a'); a.href = url; a.download = meta.name; document.body.appendChild(a); a.click(); a.remove(); }
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+            log('DATA', open ? 'Attachment opened' : 'Attachment downloaded', meta.name);
+        } catch (e) { alert('❌ ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+        finally { ld.style.display = 'none'; }
+    };
+    const fileIcon = (n, t) => { const x = String(n).split('.').pop().toLowerCase(); return /pdf/.test(x) ? '📕' : /docx?|odt|rtf/.test(x) ? '📘' : /xlsx?|csv|ods/.test(x) ? '📗' : /pptx?|odp|key/.test(x) ? '📙' : /png|jpe?g|gif|webp|svg|bmp|heic/.test(x) ? '🖼️' : /mp4|mov|avi|mkv|webm/.test(x) ? '🎞️' : /mp3|wav|m4a|ogg/.test(x) ? '🎧' : /zip|rar|7z|tar|gz/.test(x) ? '🗜️' : '📄'; };
+    const canPreview = (t, n) => /^(image\/|application\/pdf|text\/)/.test(t || '') || /\.(pdf|png|jpe?g|gif|webp|txt)$/i.test(n || '');
+    const filesHtml = (files) => (files || []).length ? `<div class="flex flex-wrap gap-1.5 mt-1">${files.map(f => `<span class="iq-file"><span>${fileIcon(f.name, f.type)}</span><b title="${esc(f.name)}">${esc(f.name)}</b><i>${sizeTxt(f.size || 0)}</i>${canPreview(f.type, f.name) ? `<button title="Open" onclick="window.iqraFile('${f.id}', true)">👁</button>` : ''}<button title="Download" onclick="window.iqraFile('${f.id}')">⬇</button></span>`).join('')}</div>` : '';
+
+    // attachment picker: any format, add as many as needed ("add more")
+    const PICK = {};
+    const pickerHtml = (key, label = 'Attach files') => { PICK[key] = PICK[key] || []; return `<div class="iq-pick" id="iq-pick-${key}"><label class="iq-btn-soft cursor-pointer">📎 ${label}<input type="file" multiple class="hidden" onchange="window.iqPickAdd('${key}', this)"></label><div id="iq-pick-list-${key}" class="flex flex-wrap gap-1.5 mt-1.5"></div><div class="text-[9px] text-gray-400 font-bold mt-1">Any format (PDF, Word, Excel, PowerPoint, images, zip…) · up to ${sizeTxt(MAX_FILE)} each · press again to add more</div></div>`; };
+    const pickerRefresh = (key) => { const el = document.getElementById('iq-pick-list-' + key); if (el) el.innerHTML = (PICK[key] || []).map((f, i) => `<span class="iq-file"><span>${fileIcon(f.name)}</span><b>${esc(f.name)}</b><i>${sizeTxt(f.size)}</i><button title="Remove" onclick="window.iqPickDel('${key}', ${i})">✖</button></span>`).join(''); };
+    window.iqPickAdd = (key, input) => {
+        const big = [...input.files].filter(f => f.size > MAX_FILE);
+        if (big.length) alert(`These files are larger than ${sizeTxt(MAX_FILE)} and were skipped:\n` + big.map(f => `• ${f.name} (${sizeTxt(f.size)})`).join('\n') + '\n\nTip: share very large files as a Google Drive / OneDrive link in the details.');
+        PICK[key] = (PICK[key] || []).concat([...input.files].filter(f => f.size <= MAX_FILE));
+        input.value = ''; pickerRefresh(key);
+    };
+    window.iqPickDel = (key, i) => { (PICK[key] || []).splice(i, 1); pickerRefresh(key); };
+
+    // ------------------------------------------------------------------ people directory (for sending tasks & leadership lists)
+    let PEOPLE = null, PEOPLE_AT = 0;
+    const loadPeople = async (force) => {
+        if (PEOPLE && !force && Date.now() - PEOPLE_AT < 120000) return PEOPLE;
+        const map = {};
+        const put = (e, o) => { e = String(e || '').toLowerCase().trim(); if (!e || !e.includes('@')) return; map[e] = { ...(map[e] || {}), ...Object.fromEntries(Object.entries(o).filter(([, v]) => v !== '' && v != null)), email: e }; };
+        put('academic.affairs@' + ALLOWED_DOMAIN, { name: 'Academic Affairs', role: 'ALL' });
+        put('examinations@' + ALLOWED_DOMAIN, { name: 'Examination Department', role: 'EXAM' });
+        FACULTIES.forEach(f => put(f.toLowerCase() + '@' + ALLOWED_DOMAIN, { name: `Faculty of ${f} (office)`, role: f, faculty: f }));
+        localDB.lecturers.forEach(l => { const e = window.getLecturerEmail(l); if (e) put(e, { name: window.getLecturerName(l), role: window.roleFromPositions(l), faculty: lFac(l), lecturerId: window.lecIdOf(l) }); });
+        try {
+            if (dbCloud) (await getDocs(collection(dbCloud, 'registered_emails'))).forEach(d => {
+                if (d.id === 'healthcheck-test') return; const u = d.data();
+                put(d.id, { name: u.name, role: u.role, faculty: u.faculty, lecturerId: u.lecturerId, disabled: !!u.disabled });
+            });
+        } catch (e) { /* lecturers cannot list the access list – that is fine */ }
+        PEOPLE = Object.values(map).filter(p => !p.disabled).map(p => ({ ...p, name: p.name || p.email }));
+        PEOPLE_AT = Date.now();
+        return PEOPLE;
+    };
+    const personByEmail = (e) => (PEOPLE || []).find(p => p.email === String(e || '').toLowerCase()) || null;
+    const nameOfEmail = (e) => { const p = personByEmail(e); if (p) return p.name; const l = localDB.lecturers.find(x => window.getLecturerEmail(x) === String(e || '').toLowerCase()); return l ? window.getLecturerName(l) : String(e || '').split('@')[0]; };
+    const emailOfLid = (lid) => { const l = window.getLecturerById(lid); return l ? window.getLecturerEmail(l) : ''; };
+    const lidOfEmail = (e) => { const p = personByEmail(e); if (p && p.lecturerId) return p.lecturerId; const l = localDB.lecturers.find(x => window.getLecturerEmail(x) === String(e || '').toLowerCase()); return l ? window.lecIdOf(l) : ''; };
+
+    // ------------------------------------------------------------------ TASK DESK data (collection iqra_tasks, live)
+    const TASK_TYPES = ['Task', 'Outline amendment', 'Document request', 'Report request', 'Meeting / follow-up', 'Issue to coordinator', 'Other'];
+    const TYPE_ICON = { 'Task': '📌', 'Outline amendment': '📝', 'Document request': '📂', 'Report request': '📊', 'Meeting / follow-up': '🤝', 'Issue to coordinator': '🚩', 'Other': '📨' };
+    const ST_COLOR = { New: '#0d47a1', Seen: '#475569', 'In progress': '#7e22ce', Submitted: '#00695c', Completed: '#065f46', Returned: '#b91c1c', Open: '#0d47a1', Cancelled: '#64748b' };
+    const PRI_COLOR = { Normal: '#475569', High: '#7e22ce', Urgent: '#b91c1c' };
+    const TD = { list: {}, unsubs: [], started: false, ready: false, view: 'inbox', status: '', q: '', type: '', open: null };
+    const DW = { list: {}, unsubs: [], started: false, from: '', to: '', fac: '', who: '', q: '', edit: null };
+    const stopLive = () => { [...TD.unsubs, ...DW.unsubs].forEach(u => { try { u(); } catch (e) {} }); TD.unsubs = []; DW.unsubs = []; TD.started = DW.started = false; TD.list = {}; DW.list = {}; };
+
+    const liveQueries = async (col, byEmailField) => {
+        const F = await FSX(); const c = collection(dbCloud, col);
+        if (isOversight()) return [c];
+        const qs = [F.query(c, F.where(byEmailField, byEmailField === 'participants' ? 'array-contains' : '==', meEmail()))];
+        const f = facManaged(); if (f) qs.push(F.query(c, F.where('faculty', '==', f)));
+        return qs;
+    };
+    const listen = (queries, store, unsubs, onChange, label) => queries.forEach(q => unsubs.push(onSnapshot(q, (snap) => {
+        snap.docChanges().forEach(ch => { if (ch.type === 'removed') delete store[ch.doc.id]; else store[ch.doc.id] = { ...ch.doc.data(), id: ch.doc.id }; });
+        onChange();
+    }, (err) => { console.warn('[IQRA ' + label + ']', err.code || err); if (String(err.code || '').includes('permission')) window.showToast(`${label}: publish the latest firestore.rules to enable this feature.`, 'warning'); })));
+
+    const startDesk = async () => {
+        if (TD.started || !dbCloud || !auth || !auth.currentUser || activeRole === 'STUDENT') return;
+        TD.started = true;
+        try { listen(await liveQueries('iqra_tasks', 'participants'), TD.list, TD.unsubs, onDeskChange, 'Task Desk'); } catch (e) { TD.started = false; console.warn(e); }
+    };
+    const startDaily = async () => {
+        if (DW.started || !dbCloud || !auth || !auth.currentUser || activeRole === 'STUDENT') return;
+        DW.started = true;
+        try { listen(await liveQueries('iqra_daily', 'email'), DW.list, DW.unsubs, onDailyChange, 'Daily Works'); } catch (e) { DW.started = false; console.warn(e); }
+    };
+
+    const myStatus = (t) => (t.statusBy || {})[ek(meEmail())] || '';
+    const isAssignee = (t) => (t.assignees || []).includes(meEmail());
+    const isCreator = (t) => t.createdBy === meEmail();
+    const overallStatus = (t) => {
+        if (t.cancelled) return 'Cancelled';
+        const v = (t.assignees || []).map(a => (t.statusBy || {})[ek(a)] || 'New');
+        if (!v.length) return 'Open';
+        if (v.every(s => s === 'Completed')) return 'Completed';
+        if (v.some(s => s === 'Returned')) return 'Returned';
+        if (v.every(s => ['Submitted', 'Completed'].includes(s))) return 'Submitted';
+        if (v.some(s => ['In progress', 'Submitted', 'Completed'].includes(s))) return 'In progress';
+        if (v.some(s => s === 'Seen')) return 'Seen';
+        return 'New';
+    };
+    const isOverdue = (t) => t.due && !['Completed', 'Cancelled'].includes(overallStatus(t)) && new Date(t.due + 'T23:59:59') < new Date();
+    const unreadCount = () => Object.values(TD.list).filter(t => isAssignee(t) && (myStatus(t) || 'New') === 'New' && !t.cancelled).length;
+    let _deskSeen = null;
+    function onDeskChange() {
+        const ids = new Set(Object.values(TD.list).filter(t => isAssignee(t) && (myStatus(t) || 'New') === 'New').map(t => t.id));
+        if (_deskSeen) { const fresh = [...ids].filter(i => !_deskSeen.has(i)); if (fresh.length) window.showToast(`📨 ${fresh.length} new task(s) for you in the Task Desk: ${esc(TD.list[fresh[0]].title)}`, 'info'); }
+        _deskSeen = ids; TD.ready = true;
+        refreshBadges();
+        if (document.getElementById('iq-panel')?.dataset.view === 'desk') renderDesk();
+        if (S360.open && ['tasks', 'overview'].includes(S360.tab)) render360Body();
+    }
+    function onDailyChange() {
+        if (document.getElementById('iq-panel')?.dataset.view === 'daily') renderDaily();
+        if (S360.open && ['daily', 'overview'].includes(S360.tab)) render360Body();
+    }
+    const refreshBadges = () => {
+        const n = unreadCount();
+        document.querySelectorAll('.iq-desk-badge').forEach(b => { b.innerText = n; b.style.display = n ? 'inline-flex' : 'none'; });
+    };
+
+    const createTask = async (data) => {
+        const F = await FSX();
+        const id = newId('t');
+        const assignees = [...new Set((data.to || []).map(e => String(e).toLowerCase().trim()).filter(Boolean))];
+        const statusBy = {}; assignees.forEach(a => statusBy[ek(a)] = 'New');
+        const names = {}; assignees.forEach(a => names[ek(a)] = nameOfEmail(a));
+        const firstFac = (personByEmail(assignees[0]) || {}).faculty || '';
+        const t = {
+            title: data.title, details: data.details || '', type: data.type || 'Task', priority: data.priority || 'Normal', due: data.due || '',
+            module: data.module || '', createdAt: Date.now(), updatedAt: Date.now(), createdBy: meEmail(), createdByName: meName(), createdByRole: activeRole,
+            faculty: meFac() || firstFac || '', assignees, assigneeNames: names, participants: [...new Set([meEmail(), ...assignees])], statusBy,
+            files: data.files || [], thread: [{ by: meEmail(), byName: meName(), at: Date.now(), text: 'Task created', status: 'New', files: [] }]
+        };
+        await setDoc(doc(dbCloud, 'iqra_tasks', id), t);
+        TD.list[id] = { ...t, id }; onDeskChange();
+        log('TASK', 'Task Desk – task sent', `${t.type}: ${t.title} → ${assignees.map(nameOfEmail).join(', ')}${t.files.length ? ` · ${t.files.length} attachment(s)` : ''}`);
+        return id;
+    };
+    const updateTask = async (id, patch, entry) => {
+        const F = await FSX();
+        const t = TD.list[id] || {};
+        const upd = { ...patch, updatedAt: Date.now() };
+        if (entry) upd.thread = F.arrayUnion({ by: meEmail(), byName: meName(), at: Date.now(), files: [], ...entry });
+        const merged = { ...t, ...patch, statusBy: { ...(t.statusBy || {}) } };
+        Object.keys(patch).forEach(k => { if (k.startsWith('statusBy.')) merged.statusBy[k.slice(9)] = patch[k]; });
+        upd.status = overallStatus(merged);
+        await F.updateDoc(doc(dbCloud, 'iqra_tasks', id), upd);
+    };
+
+    // ------------------------------------------------------------------ DAILY WORKS data (collection iqra_daily, live)
+    const DW_CATS = ['Teaching', 'Coordination', 'Administration', 'Meeting', 'Research', 'Student support', 'Curriculum / Outline', 'Exam work', 'Community / Event', 'Other'];
+    const saveDaily = async (data, id) => {
+        const rec = { ...data, email: meEmail(), name: meName(), role: activeRole, faculty: meFac() || '', lecturerId: currentLecturerId || '', ts: Date.now(), at: new Date().toISOString() };
+        const key = id || newId('d');
+        await setDoc(doc(dbCloud, 'iqra_daily', key), rec, { merge: !!id });
+        DW.list[key] = { ...(DW.list[key] || {}), ...rec, id: key }; onDailyChange();
+        log('DATA', id ? 'Daily work updated' : 'Daily work added', `${rec.date} · ${rec.category} · ${rec.title}${rec.hours ? ' · ' + rec.hours + 'h' : ''}`);
+    };
+
+    // ------------------------------------------------------------------ styles (royal green & blue – no yellow)
+    const starSvg = encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><g fill='none' stroke='white' stroke-width='1'><rect x='18' y='18' width='28' height='28'/><rect x='18' y='18' width='28' height='28' transform='rotate(45 32 32)'/><circle cx='32' cy='32' r='5'/><path d='M0 32h8M56 32h8M32 0v8M32 56v8'/></g></svg>");
+    const iqCss = document.createElement('style');
+    iqCss.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap');
+    :root { --iq-g1:#00261f; --iq-g2:#004d40; --iq-g3:#00695c; --iq-b1:#0d47a1; --iq-b2:#0a2472; --iq-silver:#dbeafe; }
+    #app-screen > header.bg-gradient-royal { background: radial-gradient(ellipse at 18% -10%, rgba(255,255,255,.16), transparent 55%), radial-gradient(ellipse at 95% 110%, rgba(56,189,248,.28), transparent 55%), linear-gradient(115deg, var(--iq-g1) 0%, var(--iq-g2) 26%, var(--iq-g3) 42%, var(--iq-b1) 70%, var(--iq-b2) 100%) !important; border-bottom: 3px solid #7dd3fc; overflow:hidden; }
+    #app-screen > header .iq-pattern { position:absolute; inset:0; background-image:url("data:image/svg+xml,${starSvg}"); opacity:.07; pointer-events:none; }
+    #app-screen > header .text-gold { color:#bae6fd !important; }
+    .iq-brand { position:relative; z-index:5; margin: 8px auto 18px; max-width: 900px; }
+    .iq-inst { font-family:'Cinzel',serif; font-size:10px; letter-spacing:6px; text-transform:uppercase; color:#bae6fd; font-weight:700; }
+    .iq-title { font-family:'Cinzel',serif; font-weight:900; font-size:clamp(38px,6vw,68px); letter-spacing:.22em; line-height:1; margin:6px 0 4px; background:linear-gradient(180deg,#ffffff 0%,#e0f2fe 45%,#93c5fd 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 2px 18px rgba(147,197,253,.25); }
+    .iq-title small { font-family:'Amiri','Traditional Arabic',serif; font-size:.42em; letter-spacing:0; vertical-align:middle; margin-left:.3em; color:#e0f2fe; -webkit-text-fill-color:#e0f2fe; }
+    .iq-long { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:700; font-size:clamp(14px,1.8vw,20px); color:#e0f2fe; letter-spacing:.04em; }
+    .iq-rule { display:flex; align-items:center; gap:10px; justify-content:center; margin-top:8px; color:#7dd3fc; font-size:9px; }
+    .iq-rule:before, .iq-rule:after { content:''; height:1px; width:120px; background:linear-gradient(90deg,transparent,#7dd3fc,transparent); }
+    .iq-login-brand .iq-title { background:linear-gradient(180deg,#004d40,#0d47a1); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; font-size:44px; }
+    .iq-login-brand .iq-title small { color:#004d40; -webkit-text-fill-color:#004d40; }
+    .iq-login-brand .iq-long { color:#0d47a1; font-size:15px; }
+    .iq-login-brand .iq-inst { color:#00695c; letter-spacing:4px; }
+
+    .iq-side-btn { position:fixed; left:0; top:38%; z-index:1040; writing-mode:vertical-rl; transform:rotate(180deg); background:linear-gradient(180deg,#004d40,#0d47a1); color:white; font-family:'Cinzel',serif; font-weight:900; font-size:11px; letter-spacing:3px; padding:14px 7px; border-radius:0 12px 12px 0; box-shadow:0 6px 20px rgba(13,71,161,.35); border:1px solid #7dd3fc; border-left:none; cursor:pointer; display:none; }
+    .iq-side-btn .iq-desk-badge { transform:rotate(180deg); }
+    .iq-side { position:fixed; top:0; left:0; bottom:0; width:320px; max-width:88vw; background:#f8fafc; z-index:1060; transform:translateX(-102%); transition:transform .25s ease; box-shadow:8px 0 30px rgba(2,6,23,.25); display:flex; flex-direction:column; }
+    .iq-side.open { transform:none; }
+    .iq-side-head { background:linear-gradient(120deg,#00261f,#004d40 40%,#0d47a1); color:white; padding:14px; }
+    .iq-side-sec { font-size:9px; font-weight:900; letter-spacing:2px; text-transform:uppercase; color:#004d40; margin:14px 0 6px; display:flex; align-items:center; gap:6px; }
+    .iq-side-sec:after { content:''; flex:1; height:1px; background:#cbd5e1; }
+    .iq-side-item { display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:7px 8px; border-radius:10px; background:white; border:1px solid #e2e8f0; margin-bottom:4px; font-size:11px; cursor:pointer; transition:.15s; }
+    .iq-side-item:hover { border-color:#0d47a1; box-shadow:0 2px 10px rgba(13,71,161,.12); }
+    .iq-av { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:900; flex-shrink:0; background:#e0f2fe; color:#0d47a1; }
+    body.iq-pinned #app-screen { padding-left:320px; }
+    body.iq-pinned .iq-side { transform:none; }
+    body.iq-pinned .iq-side-btn { display:none !important; }
+    .iq-scrim { position:fixed; inset:0; background:rgba(2,6,23,.35); z-index:1055; display:none; }
+
+    .iq-ov { position:fixed; inset:0; background:rgba(2,6,23,.6); z-index:1100; display:none; align-items:center; justify-content:center; padding:10px; }
+    .iq-box { background:#f8fafc; width:100%; max-width:1200px; max-height:96vh; border-radius:18px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 30px 80px rgba(0,0,0,.45); border:2px solid #7dd3fc; }
+    .iq-head { background:radial-gradient(ellipse at 10% 0%,rgba(255,255,255,.15),transparent 50%),linear-gradient(115deg,#00261f,#004d40 35%,#0d47a1 80%,#0a2472); color:white; padding:14px 18px; position:relative; }
+    .iq-head h2 { font-family:'Cinzel',serif; font-weight:900; letter-spacing:.08em; font-size:18px; }
+    .iq-x { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); width:34px; height:34px; border-radius:10px; font-size:20px; line-height:1; color:white; }
+    .iq-tabs { display:flex; gap:4px; flex-wrap:wrap; padding:8px 12px 0; background:#e2e8f0; border-bottom:1px solid #cbd5e1; }
+    .iq-tab { padding:7px 12px; font-size:11px; font-weight:800; border-radius:10px 10px 0 0; color:#334155; background:transparent; }
+    .iq-tab.on { background:#f8fafc; color:#004d40; box-shadow:0 -2px 0 #0d47a1 inset; }
+    .iq-body { padding:16px; overflow:auto; flex:1; min-height:0; }
+    .iq-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+    .iq-kpi { background:white; border:1px solid #e2e8f0; border-radius:14px; padding:10px 12px; border-left:5px solid var(--c,#0d47a1); }
+    .iq-kpi p { font-size:9px; font-weight:900; text-transform:uppercase; color:#64748b; letter-spacing:.5px; }
+    .iq-kpi h3 { font-size:22px; font-weight:900; color:var(--c,#0d47a1); line-height:1.2; }
+    .iq-kpi span { font-size:9px; color:#64748b; font-weight:700; }
+    .iq-card { background:white; border:1px solid #e2e8f0; border-radius:14px; padding:12px; }
+    .iq-h { font-family:'Cinzel',serif; font-weight:800; color:#004d40; font-size:13px; letter-spacing:.05em; margin:4px 0 8px; }
+    .iq-tbl { width:100%; border-collapse:collapse; font-size:10.5px; }
+    .iq-tbl th { background:linear-gradient(90deg,#004d40,#0d47a1); color:white; text-align:left; padding:7px; font-size:9px; text-transform:uppercase; letter-spacing:.5px; position:sticky; top:0; }
+    .iq-tbl td { padding:6px 7px; border-bottom:1px solid #eef2f7; vertical-align:top; }
+    .iq-tbl tr:hover td { background:#f0f9ff; }
+    .iq-bar { height:7px; border-radius:6px; background:#e2e8f0; overflow:hidden; }
+    .iq-bar > div { height:100%; border-radius:6px; }
+    .iq-chip { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:9px; font-weight:900; }
+    .iq-btn { background:linear-gradient(120deg,#004d40,#0d47a1); color:white; font-weight:900; font-size:11px; padding:8px 14px; border-radius:10px; box-shadow:0 4px 12px rgba(13,71,161,.25); }
+    .iq-btn:disabled { opacity:.5; }
+    .iq-btn-soft { display:inline-flex; align-items:center; gap:6px; background:white; border:1px solid #cbd5e1; color:#0f172a; font-weight:800; font-size:10.5px; padding:6px 11px; border-radius:10px; }
+    .iq-btn-soft:hover { border-color:#0d47a1; color:#0d47a1; }
+    .iq-in { width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:10px; font-size:12px; outline:none; background:white; }
+    .iq-in:focus { border-color:#0d47a1; box-shadow:0 0 0 3px rgba(13,71,161,.12); }
+    .iq-lbl { font-size:9px; font-weight:900; text-transform:uppercase; color:#475569; letter-spacing:.5px; display:block; margin-bottom:3px; }
+    .iq-file { display:inline-flex; align-items:center; gap:5px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:3px 7px; font-size:10px; max-width:100%; }
+    .iq-file b { max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .iq-file i { color:#64748b; font-style:normal; font-size:9px; }
+    .iq-file button { font-size:11px; padding:0 3px; border-radius:4px; }
+    .iq-file button:hover { background:#dbeafe; }
+    .iq-desk-badge { display:none; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 4px; border-radius:999px; background:#dc2626; color:white; font-size:9px; font-weight:900; font-family:Inter,sans-serif; letter-spacing:0; }
+    .iq-task { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:10px; cursor:pointer; border-left:5px solid var(--c,#0d47a1); transition:.15s; }
+    .iq-task:hover, .iq-task.on { box-shadow:0 4px 16px rgba(13,71,161,.15); border-color:#93c5fd; }
+    .iq-msg { border-left:3px solid #93c5fd; padding:6px 10px; margin:6px 0; background:white; border-radius:0 10px 10px 0; }
+    .iq-hero { border-radius:16px; padding:16px; color:white; background:radial-gradient(ellipse at 90% 0%,rgba(125,211,252,.35),transparent 50%),linear-gradient(120deg,#00261f,#004d40 40%,#0d47a1); position:relative; overflow:hidden; }
+    .iq-hero .iq-pattern { position:absolute; inset:0; background-image:url("data:image/svg+xml,${starSvg}"); opacity:.08; pointer-events:none; }
+    .iq-ring { width:84px; height:84px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:conic-gradient(#7dd3fc calc(var(--p)*1%), rgba(255,255,255,.18) 0); position:relative; }
+    .iq-ring:after { content:''; position:absolute; inset:7px; border-radius:50%; background:#003a52; }
+    .iq-ring b, .iq-ring i { position:relative; z-index:1; }
+    .iq-ring b { font-size:19px; font-weight:900; }
+    .iq-ring i { font-size:7px; font-style:normal; letter-spacing:1px; }
+    .iq-grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
+    .iq-role-sel { font-size:9px; font-weight:800; padding:2px 4px; border:1px dashed #94a3b8; border-radius:6px; background:white; max-width:150px; }
+    body.iq-readonly .iq-hide-ro { display:none !important; }
+    @media (max-width: 1100px) { body.iq-pinned #app-screen { padding-left:0; } body.iq-pinned .iq-side { transform:translateX(-102%); } body.iq-pinned .iq-side.open { transform:none; } body.iq-pinned .iq-side-btn { display:block !important; } }
+    `;
+    document.head.appendChild(iqCss);
+
+    // ------------------------------------------------------------------ branding: title, login screen and royal header
+    document.title = `${IQ.short} · ${IQ.long} – ${IQ.inst}`;
+    const brandHtml = (cls = '') => `<div class="iq-brand ${cls}"><div class="iq-inst">${IQ.inst}</div><h1 class="iq-title">${IQ.short}<small>${IQ.arabic}</small></h1><div class="iq-long">${IQ.long}</div><div class="iq-rule">◆</div></div>`;
+    (() => {
+        const hdr = document.querySelector('#app-screen > header');
+        if (hdr && !hdr.querySelector('.iq-brand')) {
+            const pat = document.createElement('div'); pat.className = 'iq-pattern'; hdr.prepend(pat);
+            const h1 = [...hdr.querySelectorAll('h1')].find(h => /workload/i.test(h.textContent));
+            if (h1) h1.outerHTML = brandHtml('mt-12 md:mt-2');
+        }
+        const lh = document.querySelector('#login-screen h1');
+        if (lh && !document.querySelector('#login-screen .iq-brand')) lh.outerHTML = brandHtml('iq-login-brand');
+    })();
+
+    // ------------------------------------------------------------------ overlays (360 card, panel, composer) + sidebar
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="iq-360" class="iq-ov"><div class="iq-box">
+            <div class="iq-head"><div class="iq-pattern"></div><div class="flex items-start justify-between gap-3 relative">
+                <div class="min-w-0"><div class="text-[9px] font-black tracking-[4px] uppercase text-sky-200" id="iq-360-kicker"></div><h2 id="iq-360-title"></h2><div id="iq-360-sub" class="text-[11px] text-sky-100 font-bold"></div></div>
+                <div class="flex items-center gap-2 flex-wrap justify-end"><div id="iq-360-actions" class="flex gap-2 flex-wrap"></div><button class="iq-x" onclick="window.iqClose360()">&times;</button></div>
+            </div></div>
+            <div class="iq-tabs" id="iq-360-tabs"></div>
+            <div class="iq-body" id="iq-360-body"></div>
+        </div></div>
+        <div id="iq-panel" class="iq-ov"><div class="iq-box" style="max-width:1320px">
+            <div class="iq-head"><div class="iq-pattern"></div><div class="flex items-center justify-between gap-3 relative">
+                <div><div class="text-[9px] font-black tracking-[4px] uppercase text-sky-200">${IQ.short} · ${IQ.inst}</div><h2 id="iq-panel-title"></h2></div>
+                <div class="flex items-center gap-2"><div id="iq-panel-actions" class="flex gap-2 flex-wrap"></div><button class="iq-x" onclick="window.iqClosePanel()">&times;</button></div>
+            </div></div>
+            <div class="iq-body" id="iq-panel-body"></div>
+        </div></div>
+        <div id="iq-compose" class="iq-ov" style="z-index:1150"><div class="iq-box" style="max-width:860px">
+            <div class="iq-head"><div class="iq-pattern"></div><div class="flex items-center justify-between relative"><h2>📨 New task / request</h2><button class="iq-x" onclick="window.iqCloseCompose()">&times;</button></div></div>
+            <div class="iq-body" id="iq-compose-body"></div>
+        </div></div>
+        <button id="iq-side-btn" class="iq-side-btn" onclick="window.iqSide(true)">☰ ${IQ.short} 360 <span class="iq-desk-badge"></span></button>
+        <div id="iq-scrim" class="iq-scrim" onclick="window.iqSide(false)"></div>
+        <aside id="iq-side" class="iq-side">
+            <div class="iq-side-head">
+                <div class="flex items-center justify-between"><div><div style="font-family:Cinzel,serif;font-weight:900;font-size:20px;letter-spacing:.2em">${IQ.short} 360</div><div class="text-[9px] font-bold text-sky-200 tracking-widest uppercase">People · Faculties · Reports</div></div>
+                <div class="flex gap-1"><button title="Pin / unpin this column" onclick="window.iqPin()" class="iq-x" style="font-size:13px">📌</button><button onclick="window.iqSide(false)" class="iq-x">&times;</button></div></div>
+                <input id="iq-side-q" oninput="window.iqRenderSide()" placeholder="🔍 Search people or faculties…" class="iq-in mt-3" style="background:rgba(255,255,255,.95)">
+            </div>
+            <div id="iq-side-body" class="p-3 overflow-y-auto flex-1"></div>
+        </aside>`);
+
+    window.iqSide = (open) => {
+        document.getElementById('iq-side').classList.toggle('open', !!open);
+        document.getElementById('iq-scrim').style.display = open && !document.body.classList.contains('iq-pinned') ? 'block' : 'none';
+        if (open) { window.iqRenderSide(); loadPeople().then(() => window.iqRenderSide()); }
+    };
+    window.iqPin = () => {
+        const on = !document.body.classList.contains('iq-pinned');
+        document.body.classList.toggle('iq-pinned', on);
+        try { localStorage.setItem('iq_pinned', on ? '1' : ''); } catch (e) {}
+        window.iqSide(on);
+    };
+
+    // ------------------------------------------------------------------ who may see whom
+    const canView = (lid, email) => {
+        if (isOversight() || activeRole === 'EXAM') return true;
+        if (lid && lid === currentLecturerId) return true;
+        if (email && email === meEmail()) return true;
+        const f = facManaged();
+        const pf = lid ? lFac(window.getLecturerById(lid)) : ((personByEmail(email) || {}).faculty || '');
+        if (f && pf === f) return true;
+        if (f && lid && window.rowsForLecturer(lid, 'teach').some(r => r.faculty === f)) return true;
+        if (currentLecturerId && lid && (window.teamOf(currentLecturerId).includes(lid) || window.rowsForLecturer(currentLecturerId, 'coord').some(r => r.lecturerId === lid))) return true;
+        return false;
+    };
+    const canViewFaculty = (f) => isOversight() || activeRole === 'EXAM' || facManaged() === f;
+
+    // ------------------------------------------------------------------ workload maths
+    const facOfModule = (code, batch) => {
+        const ms = localDB.modules.filter(m => window.makeSafeId(window.getSafeVal(m, ['ModuleCode', 'Code'])) === window.makeSafeId(code));
+        const m = ms.find(x => String(window.getSafeVal(x, ['OfferedBatch', 'Batch'])).trim() === String(batch || '').trim()) || ms[0];
+        const f = m ? window.getFaculty(m) : ''; return f === 'UNKNOWN' ? '' : f;
+    };
+    const teachRows = (lid) => teachingList(lid).map(x => {
+        const sched = scheduledHrs(lid, x.code);
+        const wchN = n1(x.wch) || Math.round(sched * 10) / 10 || (n1(x.totalHrs) ? Math.round(n1(x.totalHrs) / ((localDB.settings || {}).semesterWeeks ? parseInt(localDB.settings.semesterWeeks) : 15) * 10) / 10 : 0);
+        return { ...x, fac: (x.r && x.r.faculty) || facOfModule(x.code, x.batch) || '', wchN, wchSrc: n1(x.wch) ? 'module' : sched ? 'timetable' : wchN ? 'total hrs' : '', coord: x.r ? (x.r.coordinatorName || (x.r.coordinatorId ? nm(x.r.coordinatorId) : '')) : '', coordId: x.r ? (x.r.coordinatorId || window.courseCoordOf(x.r) || '') : '' };
+    });
+    const workloadOf = (lid) => {
+        const l = window.getLecturerById(lid); const home = lFac(l);
+        const rows = teachRows(lid);
+        const hrsTotal = rows.reduce((a, r) => a + r.wchN, 0);
+        const byCount = hrsTotal === 0;                              // no hours recorded anywhere yet → measure by number of modules
+        const val = (r) => byCount ? 1 : r.wchN;
+        const byFac = {}; rows.forEach(r => { const f = r.fac || 'Unspecified'; byFac[f] = Math.round(((byFac[f] || 0) + val(r)) * 10) / 10; });
+        const total = Math.round(rows.reduce((a, r) => a + val(r), 0) * 10) / 10;
+        const own = Math.round(rows.filter(r => r.fac && r.fac === home).reduce((a, r) => a + val(r), 0) * 10) / 10;
+        const ownPct = total ? Math.round(own / total * 100) : 0;
+        const cl = rows.filter(r => r.pct !== null && r.pct !== undefined);
+        return { l, home, rows, byFac, total, own, other: Math.round((total - own) * 10) / 10, ownPct, otherPct: total ? 100 - ownPct : 0, unit: byCount ? 'modules' : 'WCH', byCount, wch: Math.round(hrsTotal * 10) / 10, target: l ? window.getDefaultTarget(l) : 0, clAvg: cl.length ? Math.round(cl.reduce((a, r) => a + r.pct, 0) / cl.length) : null };
+    };
+    const pctColor = (p) => p === null || p === undefined ? '#94a3b8' : p >= 80 ? '#065f46' : p >= 50 ? '#0d47a1' : p >= 25 ? '#7e22ce' : '#b91c1c';
+    const barHtml = (p, c) => `<div class="iq-bar"><div style="width:${Math.max(0, Math.min(100, p || 0))}%;background:${c || pctColor(p)}"></div></div>`;
+    const kpi = (label, val, c, sub = '') => `<div class="iq-kpi" style="--c:${c}"><p>${label}</p><h3>${val}</h3>${sub ? `<span>${sub}</span>` : ''}</div>`;
+    const FAC_COLORS = ['#004d40', '#0d47a1', '#4a148c', '#00695c', '#1565c0', '#6a1b9a', '#00838f', '#283593', '#2e7d32', '#ad1457', '#37474f', '#5e35b1'];
+    const IQC = {};
+    const chart = (id, cfg) => { if (IQC[id]) { try { IQC[id].destroy(); } catch (e) {} } const c = document.getElementById(id); if (!c || typeof Chart === 'undefined') return; try { IQC[id] = new Chart(c, cfg); } catch (e) { console.warn('chart', e); } };
+    const groupProgress = (r) => CL_GROUPS.filter(g => g.id !== 'concerns').map(g => { const fs = CL_FIELDS.filter(f => f.g === g.id && f.t === 'bool'); const d = fs.filter(f => clOn(r, f.k)).length; return { ...g, done: d, total: fs.length, pct: fs.length ? Math.round(d / fs.length * 100) : 0, pending: fs.filter(f => !clOn(r, f.k)).map(f => f.l) }; });
+
+    // =====================================================================================================
+    // ============================================ STAFF 360 CARD =========================================
+    // =====================================================================================================
+    const S360 = { open: false, kind: '', lid: '', email: '', fac: '', tab: 'overview' };
+    window.iqClose360 = () => { document.getElementById('iq-360').style.display = 'none'; S360.open = false; };
+    window.iqOpen360 = async (lid, email, tab) => {
+        lid = lid || ''; email = String(email || '').toLowerCase();
+        if (!email && lid) email = emailOfLid(lid);
+        if (!lid && email) lid = lidOfEmail(email);
+        if (!lid && !email) return window.showToast('This person is not linked to a lecturer record or e-mail yet.', 'warning');
+        if (!canView(lid, email)) return window.showToast('You can only open cards of people in your own faculty / team.', 'warning');
+        Object.assign(S360, { open: true, kind: 'person', lid, email, fac: '', tab: tab || 'overview' });
+        document.getElementById('iq-360').style.display = 'flex';
+        startDesk(); startDaily();
+        render360();
+        log('REPORT', 'Staff 360 card opened', lid ? nm(lid) : email);
+        if (!PEOPLE) { await loadPeople(); if (S360.open) render360(); }
+    };
+    window.iqOpenFaculty360 = (fac, tab) => {
+        if (!fac) return;
+        if (!canViewFaculty(fac)) return window.showToast('You can only open your own faculty.', 'warning');
+        Object.assign(S360, { open: true, kind: 'faculty', lid: '', email: '', fac, tab: tab || 'overview' });
+        document.getElementById('iq-360').style.display = 'flex';
+        startDesk(); startDaily();
+        render360();
+        log('REPORT', 'Faculty 360 opened', fac);
+        if (!PEOPLE) loadPeople().then(() => { if (S360.open) render360(); });
+    };
+    window.iq360Tab = (t) => { S360.tab = t; render360(); };
+
+    const personTabs = (p) => [
+        ['overview', '👑 Overview'], ...(p.lid ? [['modules', '📚 Modules & Workload'], ['coord', '🧭 Coordinator Updates'], ['attendance', '🗓️ Hours & Attendance']] : []),
+        ...(p.lead ? [['faculty', '🏛️ Faculty']] : []), ['tasks', '📌 Tasks'], ['daily', '🗒️ Daily Works'], ...(p.lid ? [['profile', '📜 Royal Profile']] : [])
+    ];
+    const facTabs = [['overview', '🏛️ Overview'], ['staff', '👨‍🏫 Staff'], ['coordination', '🧭 Coordination'], ['tasks', '📌 Tasks'], ['weekly', '📝 Weekly Reports'], ['consult', '💬 Consultations'], ['exam', '🎓 Exam Papers'], ['attendance', '🗓️ Hours'], ['daily', '🗒️ Daily Works']];
+    const personInfo = () => {
+        const l = S360.lid ? window.getLecturerById(S360.lid) : null;
+        const pp = personByEmail(S360.email) || {};
+        const role = pp.role || (l ? window.roleFromPositions(l) : '');
+        const fac = l ? lFac(l) : (pp.faculty || (FACULTIES.includes(role) ? role : ''));
+        return { l, lid: S360.lid, email: S360.email, name: l ? window.getLecturerName(l) : (pp.name || S360.email), role, fac, lead: LEADER_ROLES.includes(role) || FACULTIES.includes(role) || (l && window.getPositions(l).some(x => ['DEAN', 'HOD', 'SECRETARY'].includes(x))), phone: l ? String(window.getSafeVal(l, ['MobileNumber', 'Mobile', 'Phone']) || '').replace(/\.0$/, '') : '', type: l ? window.getSafeVal(l, ['LecturerType']) : '' };
+    };
+    function render360() {
+        const tabsEl = document.getElementById('iq-360-tabs');
+        if (S360.kind === 'faculty') {
+            document.getElementById('iq-360-kicker').textContent = 'Faculty 360 · ' + IQ.short;
+            document.getElementById('iq-360-title').textContent = 'Faculty of ' + S360.fac;
+            const ls = localDB.lecturers.filter(l => lFac(l) === S360.fac);
+            document.getElementById('iq-360-sub').textContent = `${ls.length} staff · ${localDB.modules.filter(m => window.getFaculty(m) === S360.fac).length} modules · ${(localDB.checklist || []).filter(r => r.faculty === S360.fac).length} checklist rows`;
+            document.getElementById('iq-360-actions').innerHTML = `${!isViewer() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ facultyTo: '${js(S360.fac)}' })">📨 Send task to this faculty</button>` : ''}<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`;
+            tabsEl.innerHTML = facTabs.map(([k, l]) => `<button class="iq-tab ${S360.tab === k ? 'on' : ''}" onclick="window.iq360Tab('${k}')">${l}</button>`).join('');
+        } else {
+            const p = personInfo();
+            document.getElementById('iq-360-kicker').textContent = 'Staff 360 · ' + (ROLE_LABELS[p.role] || p.role || 'Staff');
+            document.getElementById('iq-360-title').textContent = p.name;
+            document.getElementById('iq-360-sub').textContent = [p.fac, p.type, p.email, p.phone ? '📞 ' + p.phone : ''].filter(Boolean).join(' · ');
+            const ph = String(p.phone || '').replace(/\D/g, '');
+            document.getElementById('iq-360-actions').innerHTML = [
+                ph ? `<a class="iq-btn-soft" href="tel:+960${ph}">📞 Call</a><a class="iq-btn-soft" target="_blank" href="https://wa.me/960${ph}">💬 WhatsApp</a>` : '',
+                p.email ? `<a class="iq-btn-soft" href="mailto:${esc(p.email)}">✉ Email</a>` : '',
+                !isViewer() && p.email && p.email !== meEmail() ? `<button class="iq-btn-soft" onclick="window.iqraCompose({ to: ['${js(p.email)}'] })">📨 Assign task</button>` : '',
+                p.lid ? `<button class="iq-btn-soft" onclick="window.exportPersonCardPdf('${js(p.lid)}')">📜 PDF</button>` : '',
+                `<button class="iq-btn-soft" onclick="window.iqPrint360()">🖨️ Print</button>`
+            ].join('');
+            const tabs = personTabs(p); if (!tabs.some(t => t[0] === S360.tab)) S360.tab = 'overview';
+            tabsEl.innerHTML = tabs.map(([k, l]) => `<button class="iq-tab ${S360.tab === k ? 'on' : ''}" onclick="window.iq360Tab('${k}')">${l}</button>`).join('');
+        }
+        render360Body();
+    }
+    function render360Body() {
+        const body = document.getElementById('iq-360-body'); if (!body) return;
+        try { body.innerHTML = S360.kind === 'faculty' ? facultyBody() : personBody(); }
+        catch (e) { console.error(e); body.innerHTML = `<p class="text-red-600 text-xs">Could not build this view: ${esc(e.message)}</p>`; }
+        setTimeout(() => (S360.afterRender || (() => {}))(), 30);
+    }
+    window.iqPrint360 = () => {
+        document.getElementById('print-date').innerText = new Date().toLocaleString();
+        document.getElementById('print-report-subtitle').innerText = document.getElementById('iq-360-kicker').textContent + ' – ' + document.getElementById('iq-360-title').textContent;
+        document.getElementById('print-filter-info').innerHTML = `<span class="print-filter-badge">${esc((document.querySelector('#iq-360-tabs .iq-tab.on') || {}).innerText || '')}</span>`;
+        document.getElementById('print-table-head').innerHTML = ''; document.getElementById('print-table-body').innerHTML = '';
+        document.getElementById('print-content-custom').innerHTML = `<div style="font-size:10px">${document.getElementById('iq-360-body').innerHTML.replace(/<canvas[^>]*><\/canvas>/g, '').replace(/<button[\s\S]*?<\/button>/g, '')}</div>`;
+        document.body.classList.add('is-printing-master');
+        setTimeout(() => { window.print(); document.body.classList.remove('is-printing-master'); }, 500);
+    };
+
+    const taskRowsFor = (email, lid) => ({
+        portal: (localDB.tasks || []).filter(t => lid && t.lectId === lid).sort((a, b) => new Date(a.deadline) - new Date(b.deadline)),
+        desk: Object.values(TD.list).filter(t => email && ((t.participants || []).includes(email))).sort((a, b) => b.updatedAt - a.updatedAt)
+    });
+    const deskMiniHtml = (list, forEmail) => list.length ? list.map(t => { const st = forEmail && (t.assignees || []).includes(forEmail) ? ((t.statusBy || {})[ek(forEmail)] || 'New') : overallStatus(t); return `<div class="iq-task mb-2" style="--c:${ST_COLOR[st] || '#0d47a1'}" onclick="window.iqOpenDesk('${t.id}')">
+        <div class="flex justify-between gap-2"><b class="text-[12px]">${TYPE_ICON[t.type] || '📨'} ${esc(t.title)}</b><span class="iq-chip" style="background:${ST_COLOR[st]}1a;color:${ST_COLOR[st]}">${st}</span></div>
+        <div class="text-[10px] text-gray-500 font-bold mt-1">From ${esc(t.createdByName || t.createdBy)} → ${(t.assignees || []).map(a => esc((t.assigneeNames || {})[ek(a)] || nameOfEmail(a))).join(', ')}${t.due ? ` · due ${fmtDay(t.due)}` : ''}${isOverdue(t) ? ' · <span class="text-red-600">OVERDUE</span>' : ''} · ${(t.files || []).length} 📎 · updated ${fmtDT(t.updatedAt)}</div></div>`; }).join('') : '<p class="text-gray-400 italic text-[11px] p-3 text-center">No Task Desk items.</p>';
+    const portalTaskTbl = (list, showWho) => list.length ? `<table class="iq-tbl"><thead><tr>${showWho ? '<th>Staff</th>' : ''}<th>Task</th><th>Category</th><th>Assigned by</th><th>Deadline</th><th>Sub-tasks</th><th>Status</th></tr></thead><tbody>${list.map(t => { const od = t.status !== 'Completed' && new Date(t.deadline) < new Date(); return `<tr>${showWho ? `<td><b class="clickable-name" onclick="window.iqOpen360('${js(t.lectId)}')">${esc(nm(t.lectId))}</b></td>` : ''}<td><b>${esc(t.title)}</b>${t.description ? `<div class="text-gray-500">${esc(t.description)}</div>` : ''}</td><td>${esc(t.category || 'General')}</td><td>${esc(String(t.assignedBy || '').split('@')[0])}</td><td>${fmtDT(t.deadline)}</td><td>${(t.subtasks || []).filter(s => s.done).length}/${(t.subtasks || []).length}</td><td><span class="iq-chip" style="background:${t.status === 'Completed' ? '#dcfce7' : od ? '#fee2e2' : '#ede9fe'};color:${t.status === 'Completed' ? '#065f46' : od ? '#b91c1c' : '#5b21b6'}">${t.status === 'Completed' ? 'Completed' : od ? 'Overdue' : 'Pending'}</span></td></tr>`; }).join('')}</tbody></table>` : '<p class="text-gray-400 italic text-[11px] p-3 text-center">No faculty tasks.</p>';
+    const dailyListHtml = (list, showWho) => {
+        if (!list.length) return '<p class="text-gray-400 italic text-[11px] p-4 text-center">No daily work entries yet.</p>';
+        const byDay = {}; list.forEach(d => (byDay[d.date] = byDay[d.date] || []).push(d));
+        return Object.keys(byDay).sort().reverse().map(day => `<div class="mb-3"><div class="text-[10px] font-black text-[#004d40] uppercase tracking-wider mb-1">📅 ${fmtDay(day)} · ${byDay[day].reduce((a, d) => a + n1(d.hours), 0)} h</div>${byDay[day].sort((a, b) => b.ts - a.ts).map(d => `<div class="iq-card mb-1.5 !p-2.5">
+            <div class="flex justify-between gap-2 items-start"><div class="min-w-0"><b class="text-[12px]">${esc(d.title)}</b> <span class="iq-chip" style="background:#e0f2fe;color:#0d47a1">${esc(d.category)}</span> <span class="iq-chip" style="background:${d.status === 'Done' ? '#dcfce7' : '#ede9fe'};color:${d.status === 'Done' ? '#065f46' : '#5b21b6'}">${esc(d.status || 'Done')}</span>
+            ${showWho ? `<div class="text-[10px] font-bold text-gray-500"><span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(d.lecturerId)}','${js(d.email)}')">${esc(d.name || d.email)}</span> · ${esc(ROLE_LABELS[d.role] || d.role || '')} ${d.faculty ? '· ' + esc(d.faculty) : ''}</div>` : ''}</div>
+            <div class="text-right shrink-0"><b class="text-[13px] text-[#0d47a1]">${d.hours ? esc(d.hours) + ' h' : ''}</b><div class="text-[9px] text-gray-400">${fmtDT(d.ts)}</div>${d.email === meEmail() && !isViewer() ? `<div class="flex gap-1 justify-end mt-1"><button class="iq-btn-soft !py-0.5 !px-1.5" onclick="window.iqDailyEdit('${d.id}')">✏️</button><button class="iq-btn-soft !py-0.5 !px-1.5" onclick="window.iqDailyDel('${d.id}')">🗑️</button></div>` : ''}</div></div>
+            ${d.details ? `<div class="text-[11px] text-gray-700 whitespace-pre-wrap mt-1">${esc(d.details)}</div>` : ''}${filesHtml(d.files)}</div>`).join('')}</div>`).join('');
+    };
+
+    function personBody() {
+        const p = personInfo(); const tab = S360.tab; S360.afterRender = null;
+        const W = p.lid ? workloadOf(p.lid) : null;
+        const T = taskRowsFor(p.email, p.lid);
+        const daily = Object.values(DW.list).filter(d => d.email === p.email || (p.lid && d.lecturerId === p.lid));
+        const wkAgo = Date.now() - 7 * 864e5;
+        if (tab === 'overview') {
+            const hrs = p.lid && window.lectHours ? window.lectHours(p.lid) : null;
+            const openPortal = T.portal.filter(t => t.status !== 'Completed').length, openDesk = T.desk.filter(t => !['Completed', 'Cancelled'].includes(overallStatus(t))).length;
+            const coordRows = p.lid ? window.rowsForLecturer(p.lid, 'coord') : [];
+            const hero = `<div class="iq-hero mb-3"><div class="iq-pattern"></div><div class="relative flex flex-wrap items-center gap-4 justify-between">
+                <div class="flex items-center gap-3"><div class="iq-av" style="width:56px;height:56px;font-size:18px;background:rgba(255,255,255,.15);color:white;border:2px solid #7dd3fc">${initials(p.name)}</div>
+                <div><div style="font-family:Cinzel,serif;font-weight:900;font-size:20px;letter-spacing:.04em">${esc(p.name)}</div><div class="text-[11px] text-sky-100 font-bold">${esc(ROLE_LABELS[p.role] || p.role || 'Staff')} ${p.fac ? '· Faculty of ' + esc(p.fac) : ''} ${p.l ? '· ' + (window.getPositions(p.l).map(x => POSITION_LABELS[x]).join(', ') || 'Lecturer') : ''}</div></div></div>
+                ${W ? `<div class="flex gap-4 items-center"><div class="iq-ring" style="--p:${W.target ? Math.min(100, Math.round(W.wch / W.target * 100)) : 0}"><b>${W.wch}</b><i>OF ${W.target} WCH</i></div><div class="iq-ring" style="--p:${W.ownPct}"><b>${W.ownPct}%</b><i>OWN FACULTY</i></div><div class="iq-ring" style="--p:${W.clAvg || 0}"><b>${W.clAvg === null ? '–' : W.clAvg + '%'}</b><i>CHECKLIST</i></div></div>` : ''}
+            </div></div>`;
+            let html = hero + `<div class="iq-kpis mb-3">${[
+                W ? kpi('Modules taught', W.rows.length, '#0d47a1', `${Object.keys(W.byFac).length} faculty(ies)`) : '',
+                W ? kpi('Weekly contact hrs', W.wch || '—', '#004d40', W.wch ? `target ${W.target} · ${W.wch >= W.target ? 'met' : (W.target - W.wch).toFixed(1) + ' short'}` : 'set WCH in Modules / Timetable') : '',
+                W ? kpi('Own faculty', W.ownPct + '%', '#00695c', `${W.own} ${W.unit} in ${esc(W.home || '—')}`) : '',
+                W ? kpi('Other faculties', W.otherPct + '%', '#4a148c', `${W.other} ${W.unit} elsewhere`) : '',
+                hrs ? kpi('Hours taken', `${Math.round(hrs.taken)}/${Math.round(hrs.planned)}`, '#1565c0', `${Math.round(hrs.remaining)} h remaining`) : '',
+                coordRows.length ? kpi('Coordinates', coordRows.length, '#6a1b9a', 'modules as coordinator') : '',
+                kpi('Open tasks', openPortal + openDesk, openPortal + openDesk ? '#b91c1c' : '#065f46', `${openPortal} faculty · ${openDesk} desk`),
+                kpi('Daily works (7 days)', daily.filter(d => d.ts >= wkAgo).length, '#00838f', `${daily.filter(d => d.ts >= wkAgo).reduce((a, d) => a + n1(d.hours), 0)} h logged`)
+            ].join('')}</div>`;
+            if (W && W.rows.length) {
+                html += `<div class="iq-grid2 mb-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'Modules (no weekly hours recorded yet)' : 'Weekly contact hours by module'}</div><div style="height:230px"><canvas id="iq-c-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">Workload by faculty (${W.unit})</div><div style="height:230px"><canvas id="iq-c-fac"></canvas></div></div></div>
+                <div class="iq-card"><div class="iq-h">Checklist progress by module (updated by coordinators)</div><div style="height:${Math.max(160, W.rows.length * 26)}px"><canvas id="iq-c-cl"></canvas></div></div>`;
+                S360.afterRender = () => drawWorkloadCharts(W, 'iq-c-mod', 'iq-c-fac', 'iq-c-cl');
+            } else if (p.lid) html += '<p class="text-gray-400 italic text-center p-4">No modules assigned yet. As faculties assign modules, they appear here automatically.</p>';
+            if (p.lead && p.fac) html += `<div class="iq-card mt-3 flex flex-wrap items-center justify-between gap-2"><div><div class="iq-h !mb-0">🏛️ Faculty of ${esc(p.fac)}</div><div class="text-[10px] text-gray-500 font-bold">${esc(ROLE_LABELS[p.role] || p.role)} – open the full faculty view</div></div><button class="iq-btn" onclick="window.iqOpenFaculty360('${js(p.fac)}')">Open Faculty 360 →</button></div>`;
+            return html;
+        }
+        if (tab === 'modules') {
+            if (!W.rows.length) return '<p class="text-gray-400 italic text-center p-6">No modules assigned yet.</p>';
+            return `<div class="iq-kpis mb-3">${kpi('Total WCH', W.wch || '—', '#004d40', 'target ' + W.target)}${Object.entries(W.byFac).map(([f, v], i) => kpi(f + (f === W.home ? ' (own)' : ''), v + ' ' + W.unit, FAC_COLORS[i % FAC_COLORS.length], (W.total ? Math.round(v / W.total * 100) : 0) + '% of workload')).join('')}</div>
+            <div class="iq-card overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Credit</th><th>Students</th><th>Coordinator</th><th>Checklist</th><th>Exam paper</th><th>Source</th></tr></thead><tbody>${W.rows.map(r => `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')} ${r.fac === W.home ? '· own' : '· other'}</span></td><td class="font-black text-center">${r.wchN || '–'}${r.wchSrc && r.wchSrc !== 'module' ? `<div class="text-[8px] text-gray-400 font-bold">from ${r.wchSrc}</div>` : ''}</td><td class="text-center">${esc(r.credit || '–')}</td><td class="text-center">${esc(r.students || '–')}</td><td>${r.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.coordId)}')">${esc(r.coord || nm(r.coordId))}</span>` : esc(r.coord || '—')}</td><td style="min-width:90px">${r.pct === null ? '<span class="text-gray-400">–</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td>${esc(r.exam || '—')}</td><td class="text-gray-500">${r.src === 'checklist' ? 'Checklist' : 'Assignment matrix'}</td></tr>`).join('')}</tbody></table></div>`;
+        }
+        if (tab === 'coord') {
+            const rows = W ? W.rows.filter(r => r.r) : [];
+            const self = p.lid === currentLecturerId;
+            let html = `<p class="text-[11px] text-gray-600 font-bold mb-2">Everything the Subject Coordinator ticks for each module appears here as soon as it is saved. ${self ? 'If something is wrong, press <b>🚩 Flag to coordinator</b> – the coordinator gets it in their Task Desk and can correct it.' : ''}</p>`;
+            html += rows.map(x => { const r = x.r; const gp = groupProgress(r); const wk = window.weekKey(); const wkv = (r.weekly || {})[wk] || {};
+                const coordEmail = x.coordId ? emailOfLid(x.coordId) : '';
+                return `<div class="iq-card mb-3"><div class="flex flex-wrap justify-between gap-2 items-start"><div><b class="text-[#0d47a1] text-[13px]">${esc(r.code)}</b> <b class="text-[12px]">${esc(r.name)}</b><div class="text-[10px] text-gray-500 font-bold">${esc(r.course)} · ${esc(r.batch)} · Coordinator: ${x.coordId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(x.coordId)}')">${esc(x.coord || nm(x.coordId))}</span>` : '—'} · Last update ${r.updatedAt ? fmtDT(r.updatedAt) + ' by ' + esc(String(r.updatedBy || '').split('@')[0]) : '—'}</div></div>
+                <div class="text-right"><b class="text-2xl" style="color:${pctColor(window.rowPct(r))}">${window.rowPct(r)}%</b>${self && coordEmail && coordEmail !== meEmail() && !isViewer() ? `<div><button class="iq-btn-soft mt-1" onclick="window.iqraCompose({ to: ['${js(coordEmail)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩 Flag to coordinator</button></div>` : ''}</div></div>
+                <div class="grid gap-2 mt-2" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">${gp.map(g => `<div class="rounded-lg border p-2" style="border-color:${g.color}33"><div class="flex justify-between text-[10px] font-black" style="color:${g.color}"><span>${g.label}</span><span>${g.done}/${g.total}</span></div>${barHtml(g.pct, g.color)}${g.pending.length ? `<div class="text-[9px] text-gray-500 mt-1">Pending: ${g.pending.map(esc).join(', ')}</div>` : '<div class="text-[9px] text-green-700 font-bold mt-1">✔ all done</div>'}</div>`).join('')}</div>
+                <div class="flex flex-wrap gap-1 mt-2">${WEEKLY_FIELDS.map(f => `<span class="iq-chip" style="background:${wkv[f.k] ? '#dcfce7' : '#fee2e2'};color:${wkv[f.k] ? '#065f46' : '#b91c1c'}">${wkv[f.k] ? '✔' : '✘'} ${esc(f.l)}</span>`).join('')}<span class="text-[9px] text-gray-400 font-bold self-center">this week</span></div>
+                ${['contentDelivery', 'aboutLecturer', 'comments'].filter(k => r[k]).map(k => `<div class="text-[10px] mt-1.5 bg-slate-50 rounded p-1.5"><b>${esc((CL_FIELDS.find(f => f.k === k) || {}).l || k)}:</b> ${esc(r[k])}</div>`).join('')}
+                ${(r.followUps || []).length ? `<details class="mt-2"><summary class="text-[10px] font-black cursor-pointer text-[#004d40]">Follow-ups (${r.followUps.length})</summary>${r.followUps.slice().reverse().map(f => `<div class="text-[10px] border-l-2 border-sky-300 pl-2 my-1"><b>${esc(f.action || '')}</b> ${esc(f.response || '')} ${f.note ? '– ' + esc(f.note) : ''} <span class="text-gray-400">${fmtDT(f.date)}</span></div>`).join('')}</details>` : ''}
+                </div>`; }).join('') || '<p class="text-gray-400 italic text-center p-4">No checklist modules as lecturer.</p>';
+            const coordRows = p.lid ? window.rowsForLecturer(p.lid, 'coord').sort(rowSort) : [];
+            if (coordRows.length) html += `<div class="iq-card"><div class="iq-h">As Subject Coordinator – ${coordRows.length} modules</div><table class="iq-tbl"><thead><tr><th>Lecturer</th><th>Module</th><th>Batch</th><th>Checklist</th><th>Last update</th></tr></thead><tbody>${coordRows.map(r => `<tr><td>${r.lecturerId ? `<b class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.lecturerId)}', '', 'coord')">${esc(r.lecturerName || nm(r.lecturerId))}</b>` : esc(r.lecturerName || 'Not allocated')}</td><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td>${esc(r.batch)}</td><td style="min-width:90px"><b style="color:${pctColor(window.rowPct(r))}">${window.rowPct(r)}%</b>${barHtml(window.rowPct(r))}</td><td>${fmtDT(r.updatedAt)}</td></tr>`).join('')}</tbody></table></div>`;
+            return html;
+        }
+        if (tab === 'attendance') return (window.attBlockHtml ? window.attBlockHtml(p.lid) : '') || '<p class="text-gray-400 italic text-center p-6">No attendance records yet.</p>';
+        if (tab === 'faculty') return `<div class="iq-card text-center p-6"><div class="iq-h">🏛️ Faculty of ${esc(p.fac || '—')}</div><p class="text-[11px] text-gray-500 font-bold mb-3">Staff, coordination, tasks, weekly reports, consultations, exam papers and daily works of the whole faculty.</p>${p.fac ? `<button class="iq-btn" onclick="window.iqOpenFaculty360('${js(p.fac)}')">Open Faculty 360 →</button>` : ''}</div>`;
+        if (tab === 'tasks') return `<div class="iq-grid2"><div class="iq-card"><div class="iq-h">📨 Task Desk (with attachments)</div>${deskMiniHtml(T.desk, p.email)}${!TD.ready ? '<p class="text-[10px] text-gray-400 text-center">Loading…</p>' : ''}</div><div class="iq-card overflow-x-auto"><div class="iq-h">📌 Faculty / Dean tasks</div>${portalTaskTbl(T.portal)}</div></div>`;
+        if (tab === 'daily') return `<div class="iq-kpis mb-3">${kpi('Entries', daily.length, '#0d47a1')}${kpi('Hours (7 days)', daily.filter(d => d.ts >= wkAgo).reduce((a, d) => a + n1(d.hours), 0), '#004d40')}${kpi('Hours (all)', daily.reduce((a, d) => a + n1(d.hours), 0), '#4a148c')}</div>${dailyListHtml(daily.sort((a, b) => String(b.date).localeCompare(String(a.date))), false)}`;
+        if (tab === 'profile') { const html = personCardHtml(personData(p.lid)); return `<div class="iq-card">${html}${window.attBlockHtml ? window.attBlockHtml(p.lid) : ''}</div>`; }
+        return '';
+    }
+    const drawWorkloadCharts = (W, cMod, cFac, cCl) => {
+        const facs = Object.keys(W.byFac);
+        if (cMod) chart(cMod, { type: 'bar', data: { labels: W.rows.map(r => r.code + (r.batch ? ' · ' + r.batch : '')), datasets: [{ label: W.byCount ? 'Module' : 'Weekly contact hours', data: W.rows.map(r => W.byCount ? 1 : r.wchN), backgroundColor: W.rows.map(r => r.fac === W.home ? '#004d40' : '#4a148c'), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: (c) => { const r = W.rows[c.dataIndex]; return `${r.name}\nFaculty: ${r.fac || '—'} (${r.fac === W.home ? 'own' : 'other'})`; } } } }, scales: { y: { beginAtZero: true } } } });
+        if (cFac) chart(cFac, { type: 'doughnut', data: { labels: facs.map(f => f + (f === W.home ? ' (own)' : '')), datasets: [{ data: facs.map(f => W.byFac[f] || 0.0001), backgroundColor: facs.map((f, i) => f === W.home ? '#004d40' : FAC_COLORS[(i + 1) % FAC_COLORS.length]) }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: (c) => ` ${c.label}: ${W.byFac[facs[c.dataIndex]]} ${W.unit} (${W.total ? Math.round(W.byFac[facs[c.dataIndex]] / W.total * 100) : 0}%)` } } } } });
+        const cl = W.rows.filter(r => r.pct !== null && r.pct !== undefined);
+        if (cCl) chart(cCl, { type: 'bar', data: { labels: cl.map(r => r.code + ' · ' + r.batch), datasets: [{ label: 'Checklist %', data: cl.map(r => r.pct), backgroundColor: cl.map(r => pctColor(r.pct)), borderRadius: 5 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100 } } } });
+    };
+    window.iqDrawWorkloadCharts = drawWorkloadCharts;
+
+    // =====================================================================================================
+    // ============================================ FACULTY 360 ============================================
+    // =====================================================================================================
+    function facultyBody() {
+        const f = S360.fac, tab = S360.tab; S360.afterRender = null;
+        const lects = localDB.lecturers.filter(l => lFac(l) === f).sort((a, b) => window.getLecturerName(a).localeCompare(window.getLecturerName(b)));
+        const ids = new Set(lects.map(l => window.lecIdOf(l)));
+        const mods = localDB.modules.filter(m => window.getFaculty(m) === f);
+        const rows = (localDB.checklist || []).filter(r => r.faculty === f).sort(rowSort);
+        const ptasks = (localDB.tasks || []).filter(t => ids.has(t.lectId) || t.faculty === f);
+        const dtasks = Object.values(TD.list).filter(t => t.faculty === f || (t.assignees || []).some(a => (personByEmail(a) || {}).faculty === f));
+        const daily = Object.values(DW.list).filter(d => d.faculty === f);
+        const cons = (localDB.consultations || []).filter(c => c.faculty === f);
+        if (tab === 'overview') {
+            let tot = 0, asg = 0, internal = 0, external = 0;
+            mods.forEach(m => { const w = n1(window.getSafeVal(m, ['WCH', 'WeeklyContactHours'])); tot += w; const a = localDB.assignments[window.makeSafeId(window.getSafeVal(m, ['ModuleCode']))]; if (a && a.id) { asg += w; const al = window.getLecturerById(a.id); if (al && lFac(al) === f) internal += w; else external += w; } });
+            const avg = rows.length ? Math.round(rows.reduce((a, r) => a + window.rowPct(r), 0) / rows.length) : 0;
+            const ft = lects.filter(l => window.isFullTime(l)).length;
+            const over = ptasks.filter(t => t.status !== 'Completed' && new Date(t.deadline) < new Date()).length;
+            const html = `<div class="iq-kpis mb-3">${[
+                kpi('Staff', lects.length, '#0d47a1', `${ft} full-time · ${lects.length - ft} part-time`), kpi('Modules', mods.length, '#004d40', `${tot.toFixed(1)} WCH`),
+                kpi('Assigned', (tot ? Math.round(asg / tot * 100) : 0) + '%', '#00695c', `${(tot - asg).toFixed(1)} WCH unassigned`), kpi('Checklist avg', avg + '%', pctColor(avg), `${rows.length} modules`),
+                kpi('Open consultations', cons.filter(c => c.status !== 'Resolved').length, '#b91c1c'), kpi('Overdue tasks', over, over ? '#b91c1c' : '#065f46', `${ptasks.filter(t => t.status !== 'Completed').length} open`),
+                kpi('Task Desk open', dtasks.filter(t => !['Completed', 'Cancelled'].includes(overallStatus(t))).length, '#4a148c'), kpi('Daily works (7 days)', daily.filter(d => d.ts >= Date.now() - 7 * 864e5).length, '#00838f')
+            ].join('')}</div>
+            <div class="iq-grid2"><div class="iq-card"><div class="iq-h">Progress by category (all staff)</div><div style="height:240px"><canvas id="iq-f-cat"></canvas></div></div><div class="iq-card"><div class="iq-h">Who teaches this faculty's modules</div><div style="height:240px"><canvas id="iq-f-src"></canvas></div></div></div>
+            <div class="iq-card mt-3"><div class="iq-h">Workload of each lecturer – own vs other faculties (WCH, or number of modules where hours are not set)</div><div style="height:${Math.max(200, Math.min(900, lects.length * 20))}px"><canvas id="iq-f-wl"></canvas></div></div>`;
+            S360.afterRender = () => {
+                const cats = {}; CATS.forEach(c => cats[c.id] = { d: 0, t: 0 });
+                lects.forEach(l => { const pr = window.progressFor(window.lecIdOf(l)); Object.entries(pr.cats).forEach(([k, v]) => { if (cats[k]) { cats[k].d += v.done; cats[k].t += v.total; } }); });
+                chart('iq-f-cat', { type: 'bar', data: { labels: CATS.map(c => c.l), datasets: [{ label: '% done', data: CATS.map(c => cats[c.id].t ? Math.round(cats[c.id].d / cats[c.id].t * 100) : 0), backgroundColor: CATS.map(c => c.color === '#b45309' ? '#1565c0' : c.color), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } } });
+                chart('iq-f-src', { type: 'doughnut', data: { labels: ['Own faculty staff', 'Other faculties', 'Unassigned'], datasets: [{ data: [internal, external, Math.max(0, tot - asg)], backgroundColor: ['#004d40', '#4a148c', '#b91c1c'] }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'right' } } } });
+                const wl = lects.map(l => ({ l, w: workloadOf(window.lecIdOf(l)) })).sort((a, b) => b.w.total - a.w.total);
+                chart('iq-f-wl', { type: 'bar', data: { labels: wl.map(x => window.getLecturerName(x.l)), datasets: [{ label: 'Own faculty', data: wl.map(x => x.w.own), backgroundColor: '#004d40' }, { label: 'Other faculties', data: wl.map(x => x.w.other), backgroundColor: '#4a148c' }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, onClick: (e, els) => { if (els[0]) window.iqOpen360(window.lecIdOf(wl[els[0].index].l)); } } });
+            };
+            return html;
+        }
+        if (tab === 'staff') {
+            const leaders = (PEOPLE || []).filter(pp => pp.faculty === f && (LEADER_ROLES.includes(pp.role) || pp.role === f));
+            return `${leaders.length ? `<div class="iq-h">Leadership & admin staff</div><div class="grid gap-2 mb-4" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">${leaders.map(pp => `<button class="iq-side-item" onclick="window.iqOpen360('${js(pp.lecturerId || '')}','${js(pp.email)}')"><span class="iq-av">${initials(pp.name)}</span><span class="min-w-0"><b class="block truncate">${esc(pp.name)}</b><span class="text-[9px] text-gray-500 font-bold">${esc(ROLE_LABELS[pp.role] || pp.role)}</span></span></button>`).join('')}</div>` : ''}
+            <div class="iq-h">Lecturers (${lects.length})</div><div class="grid gap-2" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${lects.map(l => { const id = window.lecIdOf(l); const w = workloadOf(id); const pr = window.progressFor(id); return `<div class="iq-card cursor-pointer hover:shadow-md" onclick="window.iqOpen360('${js(id)}')"><div class="flex justify-between gap-2"><div class="min-w-0"><b class="text-[12px] text-[#0d47a1] block truncate">${esc(window.getLecturerName(l))}</b><div class="text-[9px] font-bold text-gray-500">${window.isFullTime(l) ? 'Full-time' : 'Part-time'} · ${window.getPositions(l).map(x => POSITION_LABELS[x]).join(', ') || 'Lecturer'}</div></div><b class="text-lg" style="color:${pctColor(pr.pct)}">${pr.pct}%</b></div>${barHtml(pr.pct)}<div class="flex justify-between text-[9px] font-bold text-gray-500 mt-1"><span>📚 ${w.rows.length} modules · ${w.total}/${w.target} WCH</span><span>${w.ownPct}% own</span></div></div>`; }).join('') || '<p class="text-gray-400 italic">No staff.</p>'}</div>`;
+        }
+        if (tab === 'coordination') {
+            const byC = {}; rows.forEach(r => { const c = r.coordinatorId || '__none'; (byC[c] = byC[c] || []).push(r); });
+            const cc = Object.values((localDB.settings || {}).courseCoordinators || {}).filter(c => c.faculty === f);
+            return `<div class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr))">${Object.entries(byC).sort((a, b) => b[1].length - a[1].length).map(([cid, rs]) => { const avg = Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length); return `<div class="iq-card"><div class="flex justify-between items-start gap-2"><div>${cid === '__none' ? '<b class="text-red-700">No coordinator set</b>' : `<b class="clickable-name text-[#0d47a1] text-[12px]" onclick="window.iqOpen360('${js(cid)}', '', 'coord')">${esc(nm(cid))}</b>`}<div class="text-[9px] text-gray-500 font-bold">${rs.length} modules · ${new Set(rs.map(r => r.lecturerId).filter(Boolean)).size} lecturers</div></div><b class="text-xl" style="color:${pctColor(avg)}">${avg}%</b></div>${barHtml(avg)}
+                <table class="iq-tbl mt-2"><tbody>${rs.map(r => `<tr><td><b>${esc(r.code)}</b> <span class="text-gray-500">${esc(r.batch)}</span></td><td>${r.lecturerId ? `<span class="clickable-name" onclick="window.iqOpen360('${js(r.lecturerId)}', '', 'coord')">${esc(r.lecturerName || nm(r.lecturerId))}</span>` : '<i class="text-gray-400">not allocated</i>'}</td><td style="width:70px"><b style="color:${pctColor(window.rowPct(r))}">${window.rowPct(r)}%</b></td></tr>`).join('')}</tbody></table></div>`; }).join('') || '<p class="text-gray-400 italic">No checklist rows for this faculty.</p>'}</div>
+            ${cc.length ? `<div class="iq-card mt-3"><div class="iq-h">Course / batch coordinators</div><table class="iq-tbl"><thead><tr><th>Course</th><th>Batch</th><th>Coordinator</th></tr></thead><tbody>${cc.map(c => `<tr><td>${esc(c.course)}</td><td>${esc(c.batch)}</td><td>${c.coordinatorId ? `<span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(c.coordinatorId)}')">${esc(nm(c.coordinatorId))}</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+        }
+        if (tab === 'tasks') return `<div class="iq-grid2"><div class="iq-card"><div class="iq-h">📨 Task Desk</div>${deskMiniHtml(dtasks.sort((a, b) => b.updatedAt - a.updatedAt))}</div><div class="iq-card overflow-x-auto"><div class="iq-h">📌 Faculty / Dean tasks (${ptasks.length})</div>${portalTaskTbl(ptasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline)), true)}</div></div>`;
+        if (tab === 'weekly') {
+            const wr = (localDB.weekly_reports || []).filter(r => r.fac === f || ids.has(r.lectId)).sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 200);
+            return `<div class="iq-card overflow-x-auto">${wr.length ? `<table class="iq-tbl"><thead><tr><th>Date</th><th>Lecturer</th><th>Module</th><th>Hrs sched.</th><th>Taken</th><th>Cancelled</th><th>Reason</th><th>Moodle</th><th>iSIMS</th></tr></thead><tbody>${wr.map(r => `<tr><td>${esc(r.date)}</td><td><span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(r.lectId)}')">${esc(nm(r.lectId))}</span></td><td><b>${esc(r.modCode)}</b></td><td>${esc(r.hrsSched)}</td><td class="text-green-700 font-black">${esc(r.hrsTaken)}</td><td class="text-red-700 font-black">${esc(r.hrsCan)}</td><td>${esc(r.reason || '')}</td><td>${r.moodle ? '✔' : '✘'}</td><td>${r.isims ? '✔' : '✘'}</td></tr>`).join('')}</tbody></table>` : '<p class="text-gray-400 italic text-center p-4">No weekly reports.</p>'}</div>`;
+        }
+        if (tab === 'consult') return cons.length ? cons.sort((a, b) => (a.status === 'Resolved') - (b.status === 'Resolved') || new Date(b.date) - new Date(a.date)).map(c => consHtml(c, false)).join('') : '<p class="text-gray-400 italic text-center p-4">No consultations.</p>';
+        if (tab === 'exam') return `<div class="iq-card overflow-x-auto"><table class="iq-tbl"><thead><tr><th>Module</th><th>Batch</th><th>Lecturer</th><th>Coordinator</th><th>Exam paper status</th></tr></thead><tbody>${rows.map(r => { const s = window.examDocs(r).status.t; return `<tr><td><b>${esc(r.code)}</b> ${esc(r.name)}</td><td>${esc(r.batch)}</td><td>${esc(r.lecturerName || '')}</td><td>${esc(r.coordinatorName || '')}</td><td><b style="color:${s.includes('✔') ? '#065f46' : s.startsWith('No final') ? '#94a3b8' : '#7e22ce'}">${esc(s)}</b></td></tr>`; }).join('')}</tbody></table></div>`;
+        if (tab === 'attendance') {
+            const hs = lects.map(l => ({ l, h: window.lectHours ? window.lectHours(window.lecIdOf(l)) : null })).filter(x => x.h && x.h.rows.length);
+            return `<div class="iq-card overflow-x-auto">${hs.length ? `<table class="iq-tbl"><thead><tr><th>Lecturer</th><th>Modules</th><th>Planned hrs</th><th>Taken</th><th>Cancelled</th><th>Remaining</th><th>Progress</th><th>This week</th></tr></thead><tbody>${hs.map(({ l, h }) => `<tr><td><span class="clickable-name text-royal-blue" onclick="window.iqOpen360('${js(window.lecIdOf(l))}', '', 'attendance')">${esc(window.getLecturerName(l))}</span></td><td>${h.rows.length}</td><td>${Math.round(h.planned)}</td><td class="text-green-700 font-black">${Math.round(h.taken)}</td><td class="text-red-700">${Math.round(h.cancelled)}</td><td>${Math.round(h.remaining)}</td><td style="min-width:100px"><b>${h.pct}%</b>${barHtml(h.pct)}</td><td>${h.doneThis}/${h.rows.length} updated</td></tr>`).join('')}</tbody></table>` : '<p class="text-gray-400 italic text-center p-4">No attendance data yet.</p>'}</div>`;
+        }
+        if (tab === 'daily') return dailyListHtml(daily.sort((a, b) => String(b.date).localeCompare(String(a.date))), true);
+        return '';
+    }
+
+    // =====================================================================================================
+    // ============================================ TASK DESK ==============================================
+    // =====================================================================================================
+    const openPanel = (view, title) => {
+        const p = document.getElementById('iq-panel'); p.dataset.view = view; p.style.display = 'flex';
+        document.getElementById('iq-panel-title').innerHTML = title;
+    };
+    window.iqClosePanel = () => { const p = document.getElementById('iq-panel'); p.style.display = 'none'; p.dataset.view = ''; };
+    window.iqOpenDesk = (taskId, view) => {
+        if (activeRole === 'STUDENT') return;
+        startDesk();
+        if (view) TD.view = view;
+        if (taskId) { TD.open = taskId; const t = TD.list[taskId]; if (t && !isAssignee(t) && !isCreator(t)) TD.view = isOversight() ? 'all' : (facManaged() ? 'faculty' : TD.view); }
+        openPanel('desk', '📨 Task Desk');
+        document.getElementById('iq-panel-actions').innerHTML = isViewer() ? '' : `<button class="iq-btn-soft" onclick="window.iqraCompose({})">➕ New task / request</button>`;
+        renderDesk();
+        log('TASK', 'Task Desk opened', taskId ? (TD.list[taskId] || {}).title || taskId : TD.view);
+    };
+    window.iqDeskSet = (k, v) => { TD[k] = v; if (k === 'view') TD.open = null; renderDesk(); };
+    window.iqDeskOpen = (id) => {
+        TD.open = id; const t = TD.list[id];
+        if (t && isAssignee(t) && (myStatus(t) || 'New') === 'New' && !isViewer()) updateTask(id, { [`statusBy.${ek(meEmail())}`]: 'Seen' }, { text: 'Opened / seen', status: 'Seen' }).catch(e => console.warn(e));
+        renderDesk();
+    };
+    const deskViews = () => [['inbox', '📥 Inbox – assigned to me'], ['sent', '📤 Sent by me'], ...(facManaged() ? [['faculty', '🏛️ My faculty']] : []), ...(isOversight() ? [['all', '🌐 All tasks']] : [])];
+    const deskFiltered = () => {
+        const q = TD.q.toLowerCase();
+        return Object.values(TD.list).filter(t => {
+            if (TD.view === 'inbox' && !isAssignee(t)) return false;
+            if (TD.view === 'sent' && !isCreator(t)) return false;
+            if (TD.view === 'faculty' && t.faculty !== facManaged() && !(t.assignees || []).some(a => (personByEmail(a) || {}).faculty === facManaged())) return false;
+            const st = TD.view === 'inbox' ? (myStatus(t) || 'New') : overallStatus(t);
+            if (TD.status === 'OPEN' && ['Completed', 'Cancelled'].includes(st)) return false;
+            if (TD.status === 'OVERDUE' && !isOverdue(t)) return false;
+            if (TD.status && !['OPEN', 'OVERDUE'].includes(TD.status) && st !== TD.status) return false;
+            if (TD.type && t.type !== TD.type) return false;
+            if (q && ![t.title, t.details, t.type, t.createdByName, t.module, ...Object.values(t.assigneeNames || {})].join(' ').toLowerCase().includes(q)) return false;
+            return true;
+        }).sort((a, b) => (isOverdue(b) - isOverdue(a)) || (b.updatedAt - a.updatedAt));
+    };
+    function renderDesk() {
+        const body = document.getElementById('iq-panel-body'); if (!body) return;
+        if (!deskViews().some(v => v[0] === TD.view)) TD.view = 'inbox';
+        const all = Object.values(TD.list);
+        const counts = { inbox: all.filter(isAssignee).length, sent: all.filter(isCreator).length, faculty: all.filter(t => t.faculty === facManaged()).length, all: all.length };
+        const list = deskFiltered();
+        const t = TD.open ? TD.list[TD.open] : null;
+        body.innerHTML = `<div class="flex flex-wrap gap-2 items-center mb-3">
+                ${deskViews().map(([k, l]) => `<button onclick="window.iqDeskSet('view','${k}')" class="iq-chip !text-[10.5px] !px-3 !py-1.5" style="${TD.view === k ? 'background:linear-gradient(120deg,#004d40,#0d47a1);color:white' : 'background:white;color:#0f172a;border:1px solid #cbd5e1'}">${l} <span class="opacity-70">${counts[k] || 0}</span></button>`).join('')}
+                <select class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.iqDeskSet('status', this.value)"><option value="">All statuses</option><option value="OPEN" ${TD.status === 'OPEN' ? 'selected' : ''}>Open (not completed)</option><option value="OVERDUE" ${TD.status === 'OVERDUE' ? 'selected' : ''}>Overdue</option>${['New', 'Seen', 'In progress', 'Submitted', 'Returned', 'Completed', 'Cancelled'].map(s => `<option ${TD.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
+                <select class="iq-in !w-auto !py-1.5 !text-[11px]" onchange="window.iqDeskSet('type', this.value)"><option value="">All types</option>${TASK_TYPES.map(s => `<option ${TD.type === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
+                <input class="iq-in !w-56 !py-1.5 !text-[11px]" placeholder="🔍 Search tasks…" value="${esc(TD.q)}" oninput="TD_q_set(this.value)">
+            </div>
+            <div class="grid gap-3" style="grid-template-columns:minmax(260px,420px) 1fr">
+                <div class="space-y-2 overflow-y-auto pr-1" style="max-height:70vh">${list.map(x => { const st = TD.view === 'inbox' ? (myStatus(x) || 'New') : overallStatus(x); return `<div class="iq-task ${TD.open === x.id ? 'on' : ''}" style="--c:${ST_COLOR[st] || '#0d47a1'}" onclick="window.iqDeskOpen('${x.id}')">
+                    <div class="flex justify-between gap-2 items-start"><b class="text-[12px] leading-tight">${TYPE_ICON[x.type] || '📨'} ${esc(x.title)}</b><span class="iq-chip shrink-0" style="background:${ST_COLOR[st]}1a;color:${ST_COLOR[st]}">${st}</span></div>
+                    <div class="text-[10px] text-gray-500 font-bold mt-1">${isCreator(x) ? 'To ' + (x.assignees || []).map(a => esc((x.assigneeNames || {})[ek(a)] || nameOfEmail(a))).join(', ') : 'From ' + esc(x.createdByName || x.createdBy)}</div>
+                    <div class="flex flex-wrap gap-1 mt-1 items-center">${x.priority !== 'Normal' ? `<span class="iq-chip" style="background:${PRI_COLOR[x.priority]}1a;color:${PRI_COLOR[x.priority]}">${esc(x.priority)}</span>` : ''}${x.due ? `<span class="iq-chip" style="background:${isOverdue(x) ? '#fee2e2' : '#f1f5f9'};color:${isOverdue(x) ? '#b91c1c' : '#334155'}">⏰ ${fmtDay(x.due)}${isOverdue(x) ? ' · overdue' : ''}</span>` : ''}${(x.files || []).length ? `<span class="iq-chip" style="background:#e0f2fe;color:#0d47a1">📎 ${x.files.length}</span>` : ''}${(x.thread || []).length > 1 ? `<span class="iq-chip" style="background:#f1f5f9;color:#334155">💬 ${x.thread.length - 1}</span>` : ''}<span class="text-[9px] text-gray-400 ml-auto">${fmtDT(x.updatedAt)}</span></div></div>`; }).join('') || `<p class="text-center text-gray-400 italic text-[11px] p-6">${TD.ready ? 'Nothing here.' : 'Loading…'}</p>`}</div>
+                <div class="iq-card overflow-y-auto" style="max-height:70vh" id="iq-desk-detail">${t ? taskDetailHtml(t) : `<div class="text-center p-10 text-gray-400"><div class="text-4xl mb-2">📨</div><b>Select a task</b><p class="text-[11px]">Dean → admin staff, Faculty → lecturers, lecturers → coordinators… every request with its files, replies and status in one place.</p></div>`}</div>
+            </div>`;
+    }
+    window.TD_q_set = (v) => { TD.q = v; clearTimeout(window._tdq); window._tdq = setTimeout(() => { renderDesk(); const i = document.querySelector('#iq-panel-body input[placeholder^="🔍"]'); if (i) { i.focus(); i.setSelectionRange(v.length, v.length); } }, 250); };
+    const taskDetailHtml = (t) => {
+        const me = meEmail(), assignee = isAssignee(t), creator = isCreator(t);
+        const mgr = facManaged() && t.faculty === facManaged();
+        const canAct = !isViewer() && (assignee || creator || activeRole === 'ALL' || mgr);
+        const st = overallStatus(t);
+        return `<div class="flex flex-wrap justify-between gap-2 items-start"><div><div class="text-[10px] font-black uppercase tracking-wider text-[#004d40]">${TYPE_ICON[t.type] || '📨'} ${esc(t.type)} ${t.module ? '· ' + esc(t.module) : ''}</div><h3 class="text-[17px] font-black text-slate-900 leading-tight">${esc(t.title)}</h3>
+            <div class="text-[10.5px] text-gray-500 font-bold mt-1">From <b class="text-[#0d47a1]">${esc(t.createdByName || t.createdBy)}</b> (${esc(ROLE_LABELS[t.createdByRole] || t.createdByRole || '')}) · ${fmtDT(t.createdAt)} ${t.faculty ? '· ' + esc(t.faculty) : ''}</div></div>
+            <div class="text-right"><span class="iq-chip !text-[11px]" style="background:${ST_COLOR[st]}1a;color:${ST_COLOR[st]}">${st}</span><div class="text-[10px] font-bold mt-1" style="color:${PRI_COLOR[t.priority] || '#475569'}">${esc(t.priority)} priority</div>${t.due ? `<div class="text-[10px] font-bold ${isOverdue(t) ? 'text-red-600' : 'text-gray-600'}">Due ${fmtDay(t.due)}</div>` : ''}</div></div>
+            ${t.details ? `<div class="mt-3 text-[12px] whitespace-pre-wrap bg-slate-50 border rounded-lg p-3">${esc(t.details)}</div>` : ''}
+            ${(t.files || []).length ? `<div class="mt-2"><span class="iq-lbl">Attachments</span>${filesHtml(t.files)}</div>` : ''}
+            <div class="mt-3"><span class="iq-lbl">Assigned to</span><div class="flex flex-wrap gap-1.5">${(t.assignees || []).map(a => { const s = (t.statusBy || {})[ek(a)] || 'New'; const lid = lidOfEmail(a); return `<span class="iq-chip !text-[10px] !py-1" style="background:${ST_COLOR[s]}14;color:${ST_COLOR[s]};border:1px solid ${ST_COLOR[s]}44"><span class="cursor-pointer hover:underline" onclick="window.iqOpen360('${js(lid)}','${js(a)}')">${esc((t.assigneeNames || {})[ek(a)] || nameOfEmail(a))}</span> · ${s}</span>`; }).join('')}
+                ${(creator || activeRole === 'ALL') && !isViewer() ? `<button class="iq-btn-soft !py-0.5" onclick="window.iqraAddPeople('${t.id}')">➕ Add people</button>` : ''}</div></div>
+            <div class="mt-4"><span class="iq-lbl">Conversation & history</span>${(t.thread || []).slice().sort((a, b) => a.at - b.at).map(m => `<div class="iq-msg" style="border-left-color:${m.status ? ST_COLOR[m.status] || '#93c5fd' : '#93c5fd'}"><div class="flex justify-between gap-2 text-[10px] font-bold text-gray-500"><span><b class="text-slate-800">${esc(m.byName || m.by)}</b>${m.status ? ` · <span style="color:${ST_COLOR[m.status] || '#334155'}">${esc(m.status)}</span>` : ''}</span><span>${fmtDT(m.at)}</span></div>${m.text ? `<div class="text-[11.5px] whitespace-pre-wrap mt-0.5">${esc(m.text)}</div>` : ''}${filesHtml(m.files)}</div>`).join('')}</div>
+            ${canAct && st !== 'Cancelled' ? `<div class="mt-3 border-t pt-3"><span class="iq-lbl">Reply / update</span>
+                <textarea id="iq-reply" rows="3" class="iq-in" placeholder="${assignee ? 'Write a reply, e.g. “Amended outline attached”…' : 'Comment, feedback or instructions…'}"></textarea>
+                <div class="mt-2">${pickerHtml('reply', 'Attach files (amended outline, documents…)')}</div>
+                <div class="flex flex-wrap gap-2 mt-2 items-center">
+                    ${assignee ? `<select id="iq-reply-status" class="iq-in !w-auto !py-1.5 !text-[11px]"><option value="">Keep my status (${esc(myStatus(t) || 'New')})</option><option>In progress</option><option>Submitted</option></select>` : ''}
+                    ${creator || activeRole === 'ALL' || mgr ? `<select id="iq-reply-verdict" class="iq-in !w-auto !py-1.5 !text-[11px]"><option value="">Comment only</option><option value="Completed">✔ Accept – mark completed</option><option value="Returned">↩ Return for revision</option></select>` : ''}
+                    <button class="iq-btn" onclick="window.iqraReply('${t.id}')">Send</button>
+                    ${creator || activeRole === 'ALL' ? `<button class="iq-btn-soft ml-auto" onclick="window.iqraCancelTask('${t.id}')">⛔ Cancel task</button>` : ''}
+                </div></div>` : ''}`;
+    };
+    window.iqraReply = async (id) => {
+        const t = TD.list[id]; if (!t) return;
+        const text = (document.getElementById('iq-reply').value || '').trim();
+        const st = (document.getElementById('iq-reply-status') || {}).value || '';
+        const verdict = (document.getElementById('iq-reply-verdict') || {}).value || '';
+        const files = PICK.reply || [];
+        if (!text && !st && !verdict && !files.length) return alert('Write a reply, attach a file or choose a status.');
+        try {
+            const up = await uploadAll(files, 'task:' + id);
+            const patch = {};
+            if (st && isAssignee(t)) patch[`statusBy.${ek(meEmail())}`] = st;
+            if (verdict) (t.assignees || []).forEach(a => { const cur = (t.statusBy || {})[ek(a)] || 'New'; if (verdict === 'Completed' || ['Submitted', 'In progress', 'Seen', 'New'].includes(cur)) patch[`statusBy.${ek(a)}`] = verdict; });
+            await updateTask(id, patch, { text, status: verdict || st || '', files: up });
+            PICK.reply = [];
+            log('TASK', 'Task Desk – reply', `${t.title}${verdict ? ' · ' + verdict : st ? ' · ' + st : ''}${up.length ? ' · ' + up.length + ' file(s)' : ''}`);
+            window.showToast('Sent ✔', 'success');
+        } catch (e) { alert('❌ Could not send.\n\n' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+    };
+    window.iqraCancelTask = (id) => {
+        const t = TD.list[id]; if (!t) return;
+        window.requireVerification(`Cancel task: ${t.title}`, async () => {
+            try { await updateTask(id, { cancelled: true }, { text: 'Task cancelled', status: 'Cancelled' }); } catch (e) { alert('❌ ' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+        });
+    };
+    window.iqraAddPeople = async (id) => {
+        const t = TD.list[id]; if (!t) return;
+        await loadPeople();
+        const e = prompt('Add people to this task – type e-mail addresses separated by commas:\n(e.g. ahmed.saleem@ium.edu.mv, kirk@ium.edu.mv)');
+        if (!e) return;
+        const add = e.split(/[,;\s]+/).map(x => x.trim().toLowerCase()).filter(x => x.includes('@') && !(t.assignees || []).includes(x));
+        if (!add.length) return;
+        const patch = { assignees: [...t.assignees, ...add], participants: [...new Set([...(t.participants || []), ...add])] };
+        add.forEach(a => { patch[`statusBy.${ek(a)}`] = 'New'; patch[`assigneeNames.${ek(a)}`] = nameOfEmail(a); });
+        try { await updateTask(id, patch, { text: 'Added: ' + add.map(nameOfEmail).join(', ') }); } catch (er) { alert('❌ ' + (er.code ? window.fbErrorHelp(er) : er.message)); }
+    };
+
+    // ------------------------------------------------------------------ composer
+    const CMP = { to: new Set(), fac: '', q: '' };
+    window.iqCloseCompose = () => { document.getElementById('iq-compose').style.display = 'none'; };
+    window.iqraCompose = async (pre = {}) => {
+        if (isViewer()) return window.showToast('View-only access – you cannot send tasks.', 'warning');
+        CMP.to = new Set((pre.to || []).map(x => String(x).toLowerCase())); CMP.fac = pre.facultyTo || meFac() || ''; CMP.q = ''; PICK.compose = [];
+        document.getElementById('iq-compose').style.display = 'flex';
+        const b = document.getElementById('iq-compose-body');
+        b.innerHTML = `<div class="grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+            <div><span class="iq-lbl">To (one or more people)</span>
+                <div id="iq-cmp-chosen" class="flex flex-wrap gap-1 mb-2 min-h-[26px]"></div>
+                <div class="flex gap-1 mb-1"><select id="iq-cmp-fac" class="iq-in !py-1.5 !text-[11px]" onchange="CMP_set('fac', this.value)"><option value="">All faculties / offices</option>${FACULTIES.map(f => `<option ${CMP.fac === f ? 'selected' : ''}>${f}</option>`).join('')}</select><input id="iq-cmp-q" class="iq-in !py-1.5 !text-[11px]" placeholder="🔍 name or e-mail" oninput="CMP_set('q', this.value)"></div>
+                <div id="iq-cmp-quick" class="flex flex-wrap gap-1 mb-1"></div>
+                <div id="iq-cmp-list" class="border rounded-lg bg-white overflow-y-auto" style="max-height:240px"></div>
+                <div class="flex gap-1 mt-1"><input id="iq-cmp-free" class="iq-in !py-1.5 !text-[11px]" placeholder="or type any e-mail and press Add"><button class="iq-btn-soft" onclick="CMP_free()">Add</button></div>
+            </div>
+            <div class="space-y-2">
+                <div class="grid grid-cols-2 gap-2"><label><span class="iq-lbl">Type</span><select id="iq-cmp-type" class="iq-in">${TASK_TYPES.map(s => `<option ${pre.type === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
+                <label><span class="iq-lbl">Priority</span><select id="iq-cmp-pri" class="iq-in"><option>Normal</option><option>High</option><option>Urgent</option></select></label></div>
+                <label class="block"><span class="iq-lbl">Title</span><input id="iq-cmp-title" class="iq-in" value="${esc(pre.title || '')}" placeholder="e.g. Please amend the course outline of SHA0926"></label>
+                <label class="block"><span class="iq-lbl">Details / instructions</span><textarea id="iq-cmp-details" rows="6" class="iq-in" placeholder="Write the full details: what to do, how, and what to send back…">${esc(pre.details || '')}</textarea></label>
+                <div class="grid grid-cols-2 gap-2"><label><span class="iq-lbl">Due date</span><input id="iq-cmp-due" type="date" class="iq-in" value="${esc(pre.due || '')}"></label><label><span class="iq-lbl">Module / course (optional)</span><input id="iq-cmp-mod" class="iq-in" value="${esc(pre.module || '')}"></label></div>
+                ${pickerHtml('compose', 'Attach files')}
+                <div class="flex justify-end gap-2 pt-2"><button class="iq-btn-soft" onclick="window.iqCloseCompose()">Cancel</button><button class="iq-btn" id="iq-cmp-send" onclick="window.iqraSend()">📨 Send</button></div>
+            </div></div>`;
+        renderCmp();
+        await loadPeople(); renderCmp();
+    };
+    window.CMP_set = (k, v) => { CMP[k] = v; renderCmp(); };
+    window.CMP_toggle = (e) => { CMP.to.has(e) ? CMP.to.delete(e) : CMP.to.add(e); renderCmp(); };
+    window.CMP_free = () => { const i = document.getElementById('iq-cmp-free'); i.value.split(/[,;\s]+/).map(x => x.trim().toLowerCase()).filter(x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x)).forEach(x => CMP.to.add(x)); i.value = ''; renderCmp(); };
+    window.CMP_group = (g) => {
+        const f = CMP.fac; const ppl = (PEOPLE || []);
+        const pick = g === 'admin' ? ppl.filter(p => p.faculty === f && p.role === 'SECRETARY') : g === 'lect' ? ppl.filter(p => p.faculty === f && p.lecturerId && !['DEAN', 'SECRETARY'].includes(p.role)) : g === 'lead' ? ppl.filter(p => p.faculty === f && ['DEAN', 'HOD'].includes(p.role)) : g === 'office' ? ppl.filter(p => p.role === f) : g === 'deans' ? ppl.filter(p => p.role === 'DEAN') : [];
+        if (!pick.length) return window.showToast('Nobody found for that group (check roles in Manage Users).', 'warning');
+        pick.forEach(p => CMP.to.add(p.email)); renderCmp();
+    };
+    const renderCmp = () => {
+        const ch = document.getElementById('iq-cmp-chosen'); if (!ch) return;
+        ch.innerHTML = [...CMP.to].map(e => `<span class="iq-chip !text-[10px] !py-1" style="background:#e0f2fe;color:#0d47a1">${esc(nameOfEmail(e))} <button onclick="CMP_toggle('${js(e)}')">✖</button></span>`).join('') || '<span class="text-[10px] text-gray-400 italic">Nobody chosen yet</span>';
+        const f = CMP.fac;
+        document.getElementById('iq-cmp-quick').innerHTML = (f ? [['admin', `🗂️ Admin staff of ${f}`], ['lead', `🏛️ Dean / HOD of ${f}`], ['lect', `👨‍🏫 All lecturers of ${f}`], ['office', `🏢 ${f} office`]] : []).concat(isOversight() ? [['deans', '🎓 All Deans']] : []).map(([k, l]) => `<button class="iq-btn-soft !py-0.5 !px-2 !text-[9.5px]" onclick="CMP_group('${k}')">${l}</button>`).join('');
+        const q = CMP.q.toLowerCase();
+        const list = (PEOPLE || []).filter(p => p.email !== meEmail() && (!f || p.faculty === f || OVERSIGHT.includes(p.role) || ['EXAM', 'ALL'].includes(p.role)) && (!q || (p.name + ' ' + p.email + ' ' + (ROLE_LABELS[p.role] || p.role)).toLowerCase().includes(q)))
+            .sort((a, b) => (ROLE_ORDER.indexOf(a.role) < 0 ? 99 : ROLE_ORDER.indexOf(a.role)) - (ROLE_ORDER.indexOf(b.role) < 0 ? 99 : ROLE_ORDER.indexOf(b.role)) || a.name.localeCompare(b.name)).slice(0, 300);
+        document.getElementById('iq-cmp-list').innerHTML = list.map(p => `<label class="flex items-center gap-2 px-2 py-1.5 border-b border-gray-100 hover:bg-sky-50 cursor-pointer text-[11px]"><input type="checkbox" ${CMP.to.has(p.email) ? 'checked' : ''} onchange="CMP_toggle('${js(p.email)}')"><span class="iq-av" style="width:24px;height:24px;font-size:9px">${initials(p.name)}</span><span class="min-w-0 flex-1"><b class="block truncate">${esc(p.name)}</b><span class="text-[9px] text-gray-500">${esc(ROLE_LABELS[p.role] || (FACULTIES.includes(p.role) ? 'Faculty office' : p.role) || '')} ${p.faculty ? '· ' + esc(p.faculty) : ''} · ${esc(p.email)}</span></span></label>`).join('') || '<p class="text-center text-gray-400 italic text-[11px] p-4">Nobody found.</p>';
+    };
+    window.iqraSend = async () => {
+        const to = [...CMP.to];
+        const title = document.getElementById('iq-cmp-title').value.trim();
+        if (!to.length) return alert('Choose at least one person.');
+        if (!title) return alert('Write a title.');
+        const btn = document.getElementById('iq-cmp-send'); btn.disabled = true;
+        try {
+            const files = await uploadAll(PICK.compose || [], 'task');
+            const id = await createTask({ to, title, details: document.getElementById('iq-cmp-details').value.trim(), type: document.getElementById('iq-cmp-type').value, priority: document.getElementById('iq-cmp-pri').value, due: document.getElementById('iq-cmp-due').value, module: document.getElementById('iq-cmp-mod').value.trim(), files });
+            PICK.compose = []; window.iqCloseCompose();
+            window.showToast(`📨 Sent to ${to.length} person(s)${files.length ? ' with ' + files.length + ' attachment(s)' : ''}`, 'success');
+            if (document.getElementById('iq-panel').dataset.view === 'desk') { TD.view = 'sent'; TD.open = id; renderDesk(); }
+        } catch (e) { alert('❌ Could not send.\n\n' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+        finally { btn.disabled = false; }
+    };
+
+    // =====================================================================================================
+    // ============================================ DAILY WORKS ============================================
+    // =====================================================================================================
+    window.iqOpenDaily = () => {
+        if (activeRole === 'STUDENT') return;
+        startDaily(); loadPeople();
+        openPanel('daily', '🗒️ Daily Works');
+        document.getElementById('iq-panel-actions').innerHTML = '';
+        if (!DW.from) { const d = new Date(); d.setDate(d.getDate() - 6); DW.from = ymdL(d); DW.to = ymdL(); }
+        renderDaily();
+    };
+    window.iqDailySet = (k, v) => { DW[k] = v; if (k === 'range') { const d = new Date(); DW.to = ymdL(); if (v === 'today') DW.from = ymdL(); else if (v === 'week') { d.setDate(d.getDate() - 6); DW.from = ymdL(d); } else if (v === 'month') { d.setDate(d.getDate() - 29); DW.from = ymdL(d); } else { DW.from = ''; DW.to = ''; } } renderDaily(); };
+    function renderDaily() {
+        const body = document.getElementById('iq-panel-body'); if (!body || document.getElementById('iq-panel').dataset.view !== 'daily') return;
+        const keepForm = document.getElementById('iq-dw-form');
+        const formVals = keepForm ? { date: document.getElementById('iq-dw-date').value, cat: document.getElementById('iq-dw-cat').value, title: document.getElementById('iq-dw-title').value, details: document.getElementById('iq-dw-details').value, hours: document.getElementById('iq-dw-hours').value, status: document.getElementById('iq-dw-status').value } : null;
+        const ed = DW.edit ? DW.list[DW.edit] : null;
+        const fv = formVals || (ed ? { date: ed.date, cat: ed.category, title: ed.title, details: ed.details, hours: ed.hours, status: ed.status } : { date: ymdL(), cat: DW_CATS[0], title: '', details: '', hours: '', status: 'Done' });
+        const q = DW.q.toLowerCase();
+        const all = Object.values(DW.list);
+        const list = all.filter(d => (!DW.from || d.date >= DW.from) && (!DW.to || d.date <= DW.to) && (!DW.fac || d.faculty === DW.fac) && (!DW.who || d.email === DW.who) && (!q || [d.title, d.details, d.name, d.category].join(' ').toLowerCase().includes(q)));
+        const people = [...new Map(all.map(d => [d.email, d.name || d.email])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
+        const hrs = list.reduce((a, d) => a + n1(d.hours), 0);
+        const today = all.filter(d => d.date === ymdL());
+        const form = isViewer() ? '' : `<div class="iq-card" id="iq-dw-form"><div class="iq-h">${ed ? '✏️ Edit entry' : '➕ Add today’s work'}</div>
+            <div class="grid grid-cols-2 gap-2"><label><span class="iq-lbl">Date</span><input id="iq-dw-date" type="date" max="${ymdL()}" class="iq-in" value="${esc(fv.date)}"></label><label><span class="iq-lbl">Category</span><select id="iq-dw-cat" class="iq-in">${DW_CATS.map(c => `<option ${fv.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select></label></div>
+            <label class="block mt-2"><span class="iq-lbl">What did you do?</span><input id="iq-dw-title" class="iq-in" value="${esc(fv.title)}" placeholder="e.g. Taught SHA0926 week 5 · Prepared exam paper · Faculty meeting"></label>
+            <label class="block mt-2"><span class="iq-lbl">Details (optional)</span><textarea id="iq-dw-details" rows="4" class="iq-in">${esc(fv.details)}</textarea></label>
+            <div class="grid grid-cols-2 gap-2 mt-2"><label><span class="iq-lbl">Hours</span><input id="iq-dw-hours" type="number" min="0" max="24" step="0.25" class="iq-in" value="${esc(fv.hours)}"></label><label><span class="iq-lbl">Status</span><select id="iq-dw-status" class="iq-in">${['Done', 'In progress', 'Planned'].map(s => `<option ${fv.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label></div>
+            <div class="mt-2">${pickerHtml('daily', 'Attach evidence (optional)')}</div>
+            ${ed && (ed.files || []).length ? `<div class="mt-1 text-[10px]">Already attached:${filesHtml(ed.files)}</div>` : ''}
+            <div class="flex gap-2 mt-3 justify-end">${ed ? '<button class="iq-btn-soft" onclick="window.iqDailyCancel()">Cancel edit</button>' : ''}<button class="iq-btn" onclick="window.iqDailySave()">💾 ${ed ? 'Update' : 'Save'}</button></div></div>`;
+        const seeOthers = isOversight() || !!facManaged();
+        body.innerHTML = `<div class="grid gap-3" style="grid-template-columns:${form ? 'minmax(300px,380px) 1fr' : '1fr'}">${form}<div>
+            <div class="flex flex-wrap gap-2 items-center mb-2">
+                ${[['today', 'Today'], ['week', 'Last 7 days'], ['month', 'Last 30 days'], ['all', 'All']].map(([k, l]) => `<button class="iq-btn-soft !py-1" onclick="window.iqDailySet('range','${k}')">${l}</button>`).join('')}
+                <input type="date" class="iq-in !w-auto !py-1 !text-[11px]" value="${esc(DW.from)}" onchange="window.iqDailySet('from', this.value)"><span class="text-[10px]">to</span><input type="date" class="iq-in !w-auto !py-1 !text-[11px]" value="${esc(DW.to)}" onchange="window.iqDailySet('to', this.value)">
+                ${seeOthers && isOversight() ? `<select class="iq-in !w-auto !py-1 !text-[11px]" onchange="window.iqDailySet('fac', this.value)"><option value="">All faculties</option>${FACULTIES.map(f => `<option ${DW.fac === f ? 'selected' : ''}>${f}</option>`).join('')}</select>` : ''}
+                ${seeOthers ? `<select class="iq-in !w-auto !py-1 !text-[11px]" onchange="window.iqDailySet('who', this.value)"><option value="">Everyone</option>${people.map(([e, n]) => `<option value="${esc(e)}" ${DW.who === e ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>` : ''}
+                <input class="iq-in !w-44 !py-1 !text-[11px]" placeholder="🔍 search" value="${esc(DW.q)}" onchange="window.iqDailySet('q', this.value)">
+            </div>
+            <div class="iq-kpis mb-3">${kpi('Entries', list.length, '#0d47a1')}${kpi('Hours', hrs, '#004d40')}${seeOthers ? kpi('People reporting', new Set(list.map(d => d.email)).size, '#4a148c', `${new Set(today.map(d => d.email)).size} today`) : kpi('Today', today.filter(d => d.email === meEmail()).length, '#4a148c', 'entries')}</div>
+            <div class="iq-card mb-3"><div class="iq-h">Hours by category</div><div style="height:180px"><canvas id="iq-dw-chart"></canvas></div></div>
+            ${dailyListHtml(list.sort((a, b) => String(b.date).localeCompare(String(a.date))), seeOthers)}</div></div>`;
+        pickerRefresh('daily');
+        const byCat = {}; list.forEach(d => byCat[d.category] = (byCat[d.category] || 0) + n1(d.hours));
+        setTimeout(() => chart('iq-dw-chart', { type: 'bar', data: { labels: Object.keys(byCat), datasets: [{ label: 'Hours', data: Object.values(byCat), backgroundColor: Object.keys(byCat).map((_, i) => FAC_COLORS[i % FAC_COLORS.length]), borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } }), 30);
+    }
+    window.iqDailySave = async () => {
+        const g = (id) => document.getElementById(id).value;
+        const title = g('iq-dw-title').trim(); const date = g('iq-dw-date');
+        if (!title) return alert('Write what you did.');
+        if (!date || date > ymdL()) return alert('Choose a date (today or earlier).');
+        try {
+            const files = await uploadAll(PICK.daily || [], 'daily');
+            const old = DW.edit ? DW.list[DW.edit] : null;
+            await saveDaily({ date, category: g('iq-dw-cat'), title, details: g('iq-dw-details').trim(), hours: n1(g('iq-dw-hours')) || '', status: g('iq-dw-status'), files: [...((old && old.files) || []), ...files] }, DW.edit || null);
+            PICK.daily = []; DW.edit = null;
+            const f = document.getElementById('iq-dw-form'); if (f) f.remove();
+            renderDaily(); window.showToast('Daily work saved ✔', 'success');
+        } catch (e) { alert('❌ Could not save.\n\n' + (e.code ? window.fbErrorHelp(e) : e.message)); }
+    };
+    window.iqDailyEdit = (id) => { DW.edit = id; const f = document.getElementById('iq-dw-form'); if (f) f.remove(); if (document.getElementById('iq-panel').dataset.view !== 'daily') window.iqOpenDaily(); else renderDaily(); };
+    window.iqDailyCancel = () => { DW.edit = null; const f = document.getElementById('iq-dw-form'); if (f) f.remove(); renderDaily(); };
+    window.iqDailyDel = (id) => {
+        const d = DW.list[id]; if (!d) return;
+        window.requireVerification(`Delete daily work: ${d.title}`, async () => {
+            try { await deleteDoc(doc(dbCloud, 'iqra_daily', id)); delete DW.list[id]; onDailyChange(); log('DATA', 'Daily work deleted', `${d.date} · ${d.title}`); }
+            catch (e) { alert('❌ ' + window.fbErrorHelp(e)); }
+        });
+    };
+
+    // =====================================================================================================
+    // ============================================ SIDEBAR ================================================
+    // =====================================================================================================
+    window.iqRenderSide = () => {
+        const body = document.getElementById('iq-side-body'); if (!body) return;
+        const q = (document.getElementById('iq-side-q')?.value || '').toLowerCase();
+        const hit = (s) => !q || String(s).toLowerCase().includes(q);
+        const item = (onclick, av, title, sub, right = '') => `<button class="iq-side-item" onclick="${onclick}">${av}<span class="min-w-0 flex-1"><b class="block truncate text-[11.5px]">${title}</b>${sub ? `<span class="text-[9px] text-gray-500 font-bold block truncate">${sub}</span>` : ''}</span>${right}</button>`;
+        let html = `<div class="iq-side-sec">⭐ My space</div>`;
+        if (currentLecturerId) html += item(`window.iqOpen360('${js(currentLecturerId)}')`, '<span class="iq-av">🧭</span>', 'My 360 card', 'My modules, workload & coordinator updates');
+        html += item(`window.iqOpenDesk()`, '<span class="iq-av">📨</span>', 'Task Desk', 'Tasks, requests & attachments', '<span class="iq-desk-badge"></span>');
+        html += item(`window.iqOpenDaily()`, '<span class="iq-av">🗒️</span>', 'Daily Works', 'Record & review daily work');
+        if (!isWorkspaceRole()) html += item(`window.switchTab('reports'); window.iqSide(false)`, '<span class="iq-av">📊</span>', 'Reports Center', 'Weekly & semester reports');
+        const facs = isOversight() || activeRole === 'EXAM' ? FACULTIES.filter(f => localDB.lecturers.some(l => lFac(l) === f) || (localDB.checklist || []).some(r => r.faculty === f) || localDB.modules.some(m => window.getFaculty(m) === f)) : (facManaged() ? [facManaged()] : []);
+        const fl = facs.filter(f => hit(f));
+        if (fl.length) {
+            html += `<div class="iq-side-sec">🏛️ Faculties</div>` + fl.map(f => { const rs = (localDB.checklist || []).filter(r => r.faculty === f); const avg = rs.length ? Math.round(rs.reduce((a, r) => a + window.rowPct(r), 0) / rs.length) : null; return item(`window.iqOpenFaculty360('${f}')`, `<span class="iq-av" style="background:#ccfbf1;color:#004d40">${f.slice(0, 3)}</span>`, 'Faculty of ' + f, `${localDB.lecturers.filter(l => lFac(l) === f).length} staff · ${localDB.modules.filter(m => window.getFaculty(m) === f).length} modules`, avg === null ? '' : `<b class="text-[11px]" style="color:${pctColor(avg)}">${avg}%</b>`); }).join('');
+        }
+        if (isOversight() || facManaged()) {
+            const f = facManaged();
+            const leaders = (PEOPLE || []).filter(p => (LEADER_ROLES.includes(p.role)) && (!f || p.faculty === f) && p.email !== meEmail() && hit(p.name + ' ' + p.email + ' ' + (ROLE_LABELS[p.role] || '')));
+            const order = ['DVC_ACAD', 'DVC_ADMIN', 'VC', 'REGISTRAR', 'DEAN', 'HOD', 'SECRETARY', 'EXAM', 'FINANCE'];
+            if (leaders.length) html += `<div class="iq-side-sec">🎖️ Leadership & admin staff</div>` + leaders.sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.name.localeCompare(b.name)).map(p => { const st = ROLE_STYLE[p.role] || ['#334155', '#f1f5f9', '👤']; return item(`window.iqOpen360('${js(p.lecturerId || '')}','${js(p.email)}')`, `<span class="iq-av" style="background:${st[1]};color:${st[0]}">${initials(p.name)}</span>`, esc(p.name), `${esc(ROLE_LABELS[p.role] || p.role)}${p.faculty ? ' · ' + esc(p.faculty) : ''}`); }).join('');
+            else if (!PEOPLE) html += `<p class="text-[10px] text-gray-400 italic">Loading leadership…</p>`;
+        }
+        let lects = [];
+        if (isOversight() || activeRole === 'EXAM') lects = localDB.lecturers;
+        else if (facManaged()) lects = localDB.lecturers.filter(l => lFac(l) === facManaged() || window.rowsForLecturer(window.lecIdOf(l), 'teach').some(r => r.faculty === facManaged()));
+        else if (currentLecturerId) { const team = new Set([...window.teamOf(currentLecturerId), ...window.rowsForLecturer(currentLecturerId, 'coord').map(r => r.lecturerId).filter(Boolean)]); lects = localDB.lecturers.filter(l => team.has(window.lecIdOf(l))); }
+        lects = lects.filter(l => hit(window.getLecturerName(l) + ' ' + lFac(l))).sort((a, b) => window.getLecturerName(a).localeCompare(window.getLecturerName(b)));
+        if (lects.length) {
+            const shown = lects.slice(0, q ? 200 : 120);
+            html += `<div class="iq-side-sec">👨‍🏫 ${currentLecturerId && !facManaged() && !isOversight() ? 'My coordination team' : 'Lecturers'} · ${lects.length}</div>` + shown.map(l => { const id = window.lecIdOf(l); const pr = window.progressFor(id); return item(`window.iqOpen360('${js(id)}')`, `<span class="iq-av">${initials(window.getLecturerName(l))}</span>`, esc(window.getLecturerName(l)), `${esc(lFac(l))} · ${window.isFullTime(l) ? 'FT' : 'PT'} · ${window.rowsForLecturer(id, 'teach').length} modules`, `<b class="text-[11px]" style="color:${pctColor(pr.pct)}">${pr.pct}%</b>`); }).join('') + (lects.length > shown.length ? `<p class="text-[9px] text-gray-400 text-center">Type a name to search all ${lects.length}.</p>` : '');
+        }
+        body.innerHTML = html;
+        refreshBadges();
+    };
+
+    // =====================================================================================================
+    // ================================ LECTURER DASHBOARD: ROYAL WORKLOAD CARD ============================
+    // =====================================================================================================
+    const renderLectRoyal = () => {
+        const dash = document.getElementById('lecturer-dashboard'); if (!dash) return;
+        let el = document.getElementById('iq-lect-panel');
+        if (!el) { el = document.createElement('div'); el.id = 'iq-lect-panel'; el.className = 'p-4'; const anchor = document.getElementById('lect-att-panel') || document.getElementById('lect-reminder-banner'); if (anchor) anchor.after(el); else dash.appendChild(el); }
+        if (!currentLecturerId) { el.innerHTML = ''; return; }
+        const W = workloadOf(currentLecturerId);
+        const mine = Object.values(TD.list).filter(t => isAssignee(t) && !['Completed', 'Cancelled'].includes(overallStatus(t)));
+        const issues = mine.filter(t => t.type === 'Issue to coordinator');
+        el.innerHTML = `<div class="iq-hero"><div class="iq-pattern"></div><div class="relative">
+            <div class="flex flex-wrap justify-between items-center gap-3">
+                <div><div class="text-[9px] font-black tracking-[4px] uppercase text-sky-200">${IQ.short} · Royal Workload Card</div><div style="font-family:Cinzel,serif;font-weight:900;font-size:20px">${esc(window.getLecturerName(W.l) || '')}</div><div class="text-[11px] text-sky-100 font-bold">Faculty of ${esc(W.home || '—')} · updates automatically as faculties assign modules</div></div>
+                <div class="flex gap-3"><div class="iq-ring" style="--p:${W.byCount ? 0 : (W.target ? Math.min(100, Math.round(W.wch / W.target * 100)) : 0)}"><b>${W.byCount ? W.rows.length : W.wch}</b><i>${W.byCount ? 'MODULES' : 'OF ' + W.target + ' WCH'}</i></div><div class="iq-ring" style="--p:${W.ownPct}"><b>${W.ownPct}%</b><i>OWN FACULTY</i></div><div class="iq-ring" style="--p:${W.otherPct}"><b>${W.otherPct}%</b><i>OTHER FAC.</i></div></div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-3">
+                <button class="iq-btn-soft" onclick="window.iqOpenDesk(null,'inbox')">📨 Task Desk <span class="iq-desk-badge"></span></button>
+                <button class="iq-btn-soft" onclick="window.iqOpenDaily()">🗒️ Daily Works</button>
+                <button class="iq-btn-soft" onclick="window.iqOpen360('${js(currentLecturerId)}')">🧭 My 360 card</button>
+                <button class="iq-btn-soft" onclick="window.iqOpen360('${js(currentLecturerId)}', '', 'coord')">🔎 Coordinator updates</button>
+                ${issues.length ? `<button class="iq-btn-soft" onclick="window.iqDeskSet('type','Issue to coordinator'); window.iqOpenDesk(null,'inbox')">🚩 ${issues.length} issue(s) raised to me</button>` : ''}
+            </div></div></div>
+            ${W.rows.length ? `<div class="iq-grid2 mt-3"><div class="iq-card"><div class="iq-h">${W.byCount ? 'My modules' : 'My modules – weekly contact hours'}</div><div style="height:220px"><canvas id="iq-l-mod"></canvas></div></div><div class="iq-card"><div class="iq-h">My workload by faculty (${W.unit})</div><div style="height:220px"><canvas id="iq-l-fac"></canvas></div></div></div>
+            <div class="iq-card mt-3 overflow-x-auto"><div class="iq-h">📚 Modules I teach (${W.rows.length})</div><table class="iq-tbl"><thead><tr><th>Module</th><th>Course / Batch</th><th>Faculty</th><th>WCH</th><th>Coordinator</th><th>Coordinator's checklist</th><th>Last update</th><th></th></tr></thead><tbody>${W.rows.map(r => { const ce = r.coordId && r.coordId !== currentLecturerId ? emailOfLid(r.coordId) : ''; return `<tr><td><b class="text-[#0d47a1]">${esc(r.code)}</b><div>${esc(r.name)}</div></td><td>${esc(r.course)}<div class="text-gray-500">${esc(r.batch)}</div></td><td><span class="iq-chip" style="background:${r.fac === W.home ? '#ccfbf1' : '#ede9fe'};color:${r.fac === W.home ? '#004d40' : '#4a148c'}">${esc(r.fac || '—')}</span></td><td class="font-black text-center">${r.wchN || '–'}</td><td>${esc(r.coord || '—')}</td><td style="min-width:110px">${r.pct === null ? '<span class="text-gray-400">not in checklist</span>' : `<b style="color:${pctColor(r.pct)}">${r.pct}%</b>${barHtml(r.pct)}`}</td><td class="text-gray-500">${r.r && r.r.updatedAt ? fmtDT(r.r.updatedAt) : '—'}</td><td class="whitespace-nowrap">${r.r ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="See what the coordinator ticked" onclick="window.iqOpen360('${js(currentLecturerId)}','','coord')">🔎</button>` : ''} ${ce ? `<button class="iq-btn-soft !py-0.5 !px-1.5" title="Flag an issue to the coordinator" onclick="window.iqraCompose({ to: ['${js(ce)}'], type: 'Issue to coordinator', module: '${js(r.code + ' ' + r.batch)}', title: 'Issue with ${js(r.code)} (${js(r.batch)}) checklist' })">🚩</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="text-center text-gray-400 italic p-4">No modules assigned to you yet – they will appear here as soon as a faculty assigns them.</p>'}`;
+        refreshBadges();
+        setTimeout(() => drawWorkloadCharts(W, 'iq-l-mod', 'iq-l-fac', null), 30);
+    };
+
+    // =====================================================================================================
+    // ============================ ROLE CHANGE ON USER CARDS (Super Admin only) ===========================
+    // =====================================================================================================
+    const ROLE_CHOICES = ['ALL', 'DVC_ACAD', 'DVC_ADMIN', 'VC', 'REGISTRAR', 'VIEWER', 'DEAN', 'HOD', 'SECRETARY', 'EXAM', 'FINANCE', 'COORDINATOR', 'LECTURER'];
+    const _ruc = window.renderUserCards;
+    window.renderUserCards = function () {
+        const res = _ruc.apply(this, arguments);
+        try {
+            if (activeRole !== 'ALL') return res;
+            document.querySelectorAll('#user-directory-list button[onclick^="window.toggleUserDisabled("]').forEach(btn => {
+                const m = btn.getAttribute('onclick').match(/toggleUserDisabled\('([^']+)'/); if (!m) return;
+                const email = m[1]; const u = (window._udCache || []).find(x => x.email === email); if (!u) return;
+                const card = btn.closest('.relative'); if (!card || card.querySelector('.iq-role-sel')) return;
+                const wrap = card.querySelector('.flex.flex-wrap.gap-1'); if (!wrap) return;
+                wrap.insertAdjacentHTML('beforeend', `<select class="iq-role-sel" title="Change role (Super Admin)" onchange="window.iqChangeRole('${js(email)}', this.value, this)"><option value="">⇄ Change role…</option>${ROLE_CHOICES.filter(r => r !== u.role).map(r => `<option value="${r}">${esc(ROLE_LABELS[r] || r)}</option>`).join('')}</select>`);
+            });
+        } catch (e) { console.error(e); }
+        return res;
+    };
+    window.iqChangeRole = (email, role, sel) => {
+        if (!role) return;
+        const u = (window._udCache || []).find(x => x.email === email) || {};
+        let faculty = u.faculty || '';
+        if (FACULTY_SCOPED.includes(role)) {
+            const f = prompt(`${ROLE_LABELS[role]} needs a faculty.\nType the faculty code (${FACULTIES.join(', ')}):`, faculty || '');
+            if (!f || !FACULTIES.includes(f.trim().toUpperCase())) { if (sel) sel.value = ''; return alert('A valid faculty code is required.'); }
+            faculty = f.trim().toUpperCase();
+        }
+        if (email === meEmail() && role !== 'ALL' && !confirm('⚠️ You are changing YOUR OWN role. You will lose Super Admin access after signing in again. Continue?')) { if (sel) sel.value = ''; return; }
+        if (!confirm(`Change role of ${u.name || email}\n\n${ROLE_LABELS[u.role] || u.role || '—'}  →  ${ROLE_LABELS[role] || role}${faculty && FACULTY_SCOPED.includes(role) ? ' (' + faculty + ')' : ''}\n\nThe new role applies the next time this person signs in.`)) { if (sel) sel.value = ''; return; }
+        window.requireVerification(`Change role: ${email} → ${ROLE_LABELS[role] || role}`, async () => {
+            try {
+                const payload = { role, email, updatedAt: nowIso(), updatedBy: meEmail(), previousRole: u.role || '' };
+                if (FACULTY_SCOPED.includes(role)) payload.faculty = faculty;
+                await setDoc(doc(dbCloud, 'registered_emails', email), payload, { merge: true });
+                if (u.uid) await setDoc(doc(dbCloud, 'user_roles', u.uid), { role, ...(payload.faculty ? { faculty } : {}) }, { merge: true }).catch(() => {});
+                const l = u.lecturerId ? window.getLecturerById(u.lecturerId) : null;
+                if (l && ['DEAN', 'HOD', 'SECRETARY', 'COORDINATOR'].includes(role)) { window.addPosition(l, role); window.saveLocal(true); }
+                log('USER', 'Role changed', `${email}: ${u.role || '—'} → ${role}${payload.faculty ? ' (' + faculty + ')' : ''}`);
+                window.showToast(`Role changed to ${ROLE_LABELS[role] || role} ✔`, 'success');
+                PEOPLE = null; window.renderUserDirectory();
+            } catch (e) { showFbError('Could not change the role', e); }
+        }, () => { if (sel) sel.value = ''; });
+    };
+    // new roles in the "create user" form
+    (() => { const s = document.getElementById('nu-role'); if (!s || s.querySelector('option[value="DVC_ACAD"]')) return; const vc = s.querySelector('option[value="VC"]'); const html = `<option value="DVC_ACAD">Deputy Vice Chancellor (Academic)</option><option value="DVC_ADMIN">Deputy Vice Chancellor (Administration)</option><option value="VIEWER">View-only (All features)</option>`; if (vc) vc.insertAdjacentHTML('afterend', html); else s.insertAdjacentHTML('beforeend', html); })();
+
+    // =====================================================================================================
+    // ============================================ HOOKS ==================================================
+    // =====================================================================================================
+    // read-only roles: never change master data
+    const _sl = window.saveLocal, _sts = window.saveToServer;
+    window.saveLocal = function (...a) { if (isReadOnly()) { if (!a[0]) window.showToast('View-only access – changes are not saved.', 'warning'); return; } return _sl.apply(this, a); };
+    window.saveToServer = async function (...a) { if (isReadOnly()) return; return _sts.apply(this, a); };
+
+    // tab-bar buttons for Task Desk / Daily Works / 360 column
+    (() => {
+        const bar = document.getElementById('main-tabs-container'); if (!bar || document.getElementById('tbtn-iqdesk')) return;
+        bar.insertAdjacentHTML('afterbegin', `<div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdesk" onclick="window.iqOpenDesk()">📨 Task Desk <span class="iq-desk-badge"></span></div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iqdaily" onclick="window.iqOpenDaily()">🗒️ Daily Works</div><div class="tab-btn text-[9px] md:text-[10px]" id="tbtn-iq360" onclick="window.iqSide(true)">🧭 ${IQ.short} 360</div>`);
+    })();
+    // faculty dashboard: "Faculty 360" button
+    (() => { const lab = document.getElementById('fd-fac-label'); if (lab && !document.getElementById('iq-fd-btn')) lab.closest('h2').insertAdjacentHTML('afterend', `<button id="iq-fd-btn" class="iq-btn mt-1" onclick="window.iqOpenFaculty360(facultyForDash_iq())">🏛️ Open Faculty 360 – everything of this faculty</button>`); })();
+    window.facultyForDash_iq = () => { try { return facultyForDash(); } catch (e) { return meFac(); } };
+    // faculty cards on the Analytics page → Faculty 360
+    const _rac = window.renderAnalyticsCards;
+    window.renderAnalyticsCards = function (...a) {
+        const res = _rac.apply(this, a);
+        try { document.querySelectorAll('#faculty-cards-container .royal-spin-card').forEach(c => { const f = (c.querySelector('h3') || {}).innerText; if (f && FACULTIES.includes(f.trim())) { c.setAttribute('onclick', `window.iqOpenFaculty360('${f.trim()}')`); c.title = 'Open Faculty 360'; } }); } catch (e) {}
+        return res;
+    };
+    // every lecturer name in the app → Staff 360 card
+    window.openRoyalProfileClassic = window.openPersonCard;
+    window.openPersonCard = (id) => window.iqOpen360(id);
+    // lecturer / coordinator dashboard
+    const _rlw2 = window.renderLecturerWorkspace;
+    window.renderLecturerWorkspace = function (...a) { const res = _rlw2.apply(this, a); try { if (isWorkspaceRole()) renderLectRoyal(); } catch (e) { console.error(e); } return res; };
+    // keep sidebar / open cards fresh when data changes
+    const _tar = window.triggerAllRenders;
+    window.triggerAllRenders = function (...a) {
+        const res = _tar.apply(this, a);
+        clearTimeout(window._iqTar); window._iqTar = setTimeout(() => { try { if (document.getElementById('iq-side').classList.contains('open')) window.iqRenderSide(); if (S360.open) render360(); } catch (e) {} }, 300);
+        return res;
+    };
+    // stop live listeners on logout
+    const _lo = window.handleLogout;
+    window.handleLogout = async function (...a) { stopLive(); return _lo.apply(this, a); };
+
+    const _aru2 = applyRoleUI;
+    applyRoleUI = function () {
+        const res = _aru2.apply(this, arguments);
+        try {
+            if (['DVC_ACAD', 'DVC_ADMIN', 'VIEWER'].includes(activeRole)) {
+                document.getElementById('main-dashboard-controls').style.display = 'block';
+                document.getElementById('header-stats').style.display = 'flex';
+                document.getElementById('admin-controls').style.display = 'none';
+                const up = document.getElementById('upload-card'); if (up) up.style.display = 'none';
+                const allowed = ['analytics', 'facdash', 'staff', 'matrix', 'coordinators', 'coordsetup', 'weekly', 'tasks', 'exam', 'events', 'lectdata', 'moddata', 'reports'];
+                document.querySelectorAll('.tab-btn').forEach(b => { b.style.display = allowed.includes(b.id.replace('tbtn-', '')) ? 'inline-block' : 'none'; });
+                const thA = document.getElementById('th-actions'); if (thA) thA.style.display = 'none';
+                window.switchTab('analytics');
+            }
+            const showMine = activeRole !== 'STUDENT' && !isWorkspaceRole();
+            ['tbtn-iqdesk', 'tbtn-iqdaily', 'tbtn-iq360'].forEach(id => { const b = document.getElementById(id); if (b) b.style.display = showMine ? 'inline-block' : 'none'; });
+            document.getElementById('iq-side-btn').style.display = activeRole === 'STUDENT' ? 'none' : 'block';
+            document.body.classList.toggle('iq-readonly', isReadOnly());
+            if (activeRole === 'STUDENT') document.body.classList.remove('iq-pinned');
+            else { let pin = ''; try { pin = localStorage.getItem('iq_pinned'); } catch (e) {} if (pin && window.innerWidth > 1100) { document.body.classList.add('iq-pinned'); window.iqSide(true); } }
+            startDesk(); startDaily();
+            if (isOversight() || facManaged()) loadPeople().then(() => { if (document.getElementById('iq-side').classList.contains('open')) window.iqRenderSide(); });
+        } catch (e) { console.error('[IQRA role UI]', e); }
+        return res;
+    };
+    window.__iqra = { TD, DW, S360, workloadOf, loadPeople, createTask, updateTask, saveDaily, uploadFile, fetchFileBlob, renderLectRoyal, canView };
+    }
+    // =================================== END OF ADD-ON 2 (IQRA) ===================================
+
